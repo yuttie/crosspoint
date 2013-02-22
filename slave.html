@@ -30,6 +30,10 @@
                 Slide 7
             </div>
         </div>
+        <div>
+            <textarea id="comment-entry" cols="40" rows="5" autofocus></textarea>
+            <div id="comments"></div>
+        </div>
         <script>
             $(function() {
                 function updateSlideClasses() {
@@ -73,6 +77,9 @@
                         else if (e.data === "next") {
                             goToNextSlide();
                         }
+                        else if (e.data.slice(0, 8) === "comment ") {
+                            $('<p>' + JSON.parse(e.data.slice(8)) + '</p>').prependTo('#comments');
+                        }
                         else if (e.data.slice(0, 5) === "line ") {
                             var ctx = $('div.slide.current > canvas.overlay')[0].getContext('2d');
                             ctx.strokeStyle = 'black';
@@ -102,6 +109,25 @@
                 });
 
                 updateSlideClasses();
+
+                $('#comment-entry').on('keypress', function(e) {
+                    if (!e.ctrlKey && e.which === 13) {
+                        var s = $(this).val();
+                        if (s.length > 0) {
+                            ws.send('comment ' + JSON.stringify(s));
+                            $(this).val('');
+                        }
+                        e.preventDefault();
+                    }
+                    else if (e.which === 10 || (e.ctrlKey && e.which === 13)) {
+                        var s = $(this).val();
+                        var start = this.selectionStart;
+                        var end = this.selectionEnd;
+                        $(this).val(s.slice(0, start) + "\n" + s.slice(end));
+                        this.selectionStart = start + 1;
+                        this.selectionEnd = start + 1;
+                    }
+                });
             });
         </script>
     </body>
