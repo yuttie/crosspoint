@@ -45,6 +45,10 @@
                 startWebSocket();
 
                 $('div.slide').append('<canvas class="overlay"></canvas>');
+                $.each($('div.slide > canvas.overlay'), function(i, canvas) {
+                    canvas.width = $(canvas).parent().width();
+                    canvas.height = $(canvas).parent().height();
+                });
 
                 function updateSlideClasses() {
                     $('div.slide.current').prevAll('div.slide').removeClass('prev left');
