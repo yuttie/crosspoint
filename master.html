@@ -48,6 +48,30 @@
                 $.each($('div.slide > canvas.overlay'), function(i, canvas) {
                     canvas.width = $(canvas).parent().width();
                     canvas.height = $(canvas).parent().height();
+
+                    var last_pos = null;
+                    $(canvas).on('mousedown', function(e) {
+                        last_pos = { 'x': e.offsetX, 'y': e.offsetY };
+                    });
+                    $(canvas).on('mousemove', function(e) {
+                        if (last_pos) {
+                            var ctx = canvas.getContext('2d');
+                            ctx.strokeStyle = 'black';
+                            ctx.lineWidth = 4;
+                            ctx.lineCap = 'round';
+                            ctx.lineJoin = 'round';
+
+                            var pos = { 'x': e.offsetX, 'y': e.offsetY };
+                            ctx.moveTo(last_pos.x, last_pos.y);
+                            ctx.lineTo(pos.x, pos.y);
+                            ctx.stroke();
+                            ws.send('line ' + JSON.stringify({ 'from': last_pos, 'to': pos }));
+                            last_pos = pos;
+                        }
+                    });
+                    $(canvas).on('mouseup', function(e) {
+                        last_pos = null;
+                    });
                 });
 
                 function updateSlideClasses() {

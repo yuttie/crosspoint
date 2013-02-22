@@ -45,6 +45,21 @@
                         else if (e.data === "next") {
                             $('#go-next').click();
                         }
+                        else if (e.data.slice(0, 5) === "line ") {
+                            var ctx = $('div.slide.current > canvas.overlay')[0].getContext('2d');
+                            ctx.strokeStyle = 'black';
+                            ctx.lineWidth = 4;
+                            ctx.lineCap = 'round';
+                            ctx.lineJoin = 'round';
+
+                            var line = JSON.parse(e.data.slice(5));
+                            var last_pos = line.from;
+                            var pos = line.to;
+                            ctx.moveTo(last_pos.x, last_pos.y);
+                            ctx.lineTo(pos.x, pos.y);
+                            ctx.stroke();
+                            last_pos = pos;
+                        }
                     };
                     ws.onclose = function() {
                         setTimeout(function() { startWebSocket(); }, 0);
