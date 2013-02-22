@@ -13,7 +13,7 @@ EventMachine::WebSocket.start(host: "0.0.0.0", port: 8888) do |ws|
   thread = nil
   ws.onmessage {|msg|
     ts.each {|t| t[:queue].push(msg) }
-    p ts
+    p msg
   }
   ws.onopen {
     thread = Thread.new {
