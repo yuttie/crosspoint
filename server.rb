@@ -18,7 +18,7 @@ EventMachine::WebSocket.start(host: "0.0.0.0", port: 8888) do |ws|
   ws.onopen {
     thread = Thread.new {
       this = Thread.current
-      this[:queue] ||= Queue.new
+      this[:queue] = Queue.new
       while true
         msg = this[:queue].pop
         if (msg == "end")
