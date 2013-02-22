@@ -48,7 +48,7 @@
 
                 var ws = null;
                 function startWebSocket() {
-                    ws = new WebSocket("ws://133.5.24.189:8888/");
+                    ws = new WebSocket("ws://" + window.location.hostname + ":8888/");
                     ws.onmessage = function(e) {
                         if (e.data === "prev") {
                             goToPrevSlide();
