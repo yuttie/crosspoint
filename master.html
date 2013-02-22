@@ -69,6 +69,29 @@
                 var ws = null;
                 function startWebSocket() {
                     ws = new WebSocket("ws://133.5.24.189:8888/");
+                    ws.onmessage = function(e) {
+                        if (e.data === "prev") {
+                            goToPrevSlide();
+                        }
+                        else if (e.data === "next") {
+                            goToNextSlide();
+                        }
+                        else if (e.data.slice(0, 5) === "line ") {
+                            var ctx = $('div.slide.current > canvas.overlay')[0].getContext('2d');
+                            ctx.strokeStyle = 'black';
+                            ctx.lineWidth = 4;
+                            ctx.lineCap = 'round';
+                            ctx.lineJoin = 'round';
+
+                            var line = JSON.parse(e.data.slice(5));
+                            var last_pos = line.from;
+                            var pos = line.to;
+                            ctx.moveTo(last_pos.x, last_pos.y);
+                            ctx.lineTo(pos.x, pos.y);
+                            ctx.stroke();
+                            last_pos = pos;
+                        }
+                    };
                     ws.onclose = function() {
                         setTimeout(function() { startWebSocket(); }, 0);
                     };
@@ -95,18 +118,9 @@
                     });
                     $(canvas).on('mousemove touchmove', function(e) {
                         if (last_pos) {
-                            var ctx = canvas.getContext('2d');
-                            ctx.strokeStyle = 'black';
-                            ctx.lineWidth = 4;
-                            ctx.lineCap = 'round';
-                            ctx.lineJoin = 'round';
-
                             var pos = e.type === 'mousemove' ? { 'x': e.offsetX, 'y': e.offsetY }
                                     : e.type === 'touchmove' ? getTouchPosition(e.originalEvent.touches[0])
                                     : alert('Impossible event type "' + e.type + '"');
-                            ctx.moveTo(last_pos.x, last_pos.y);
-                            ctx.lineTo(pos.x, pos.y);
-                            ctx.stroke();
                             ws.send('line ' + JSON.stringify({ 'from': last_pos, 'to': pos }));
                             last_pos = pos;
                         }
@@ -120,11 +134,9 @@
                 updateSlideClasses();
                 $('#go-prev').on('click', function() {
                     ws.send('prev');
-                    goToPrevSlide();
                 });
                 $('#go-next').on('click', function() {
                     ws.send('next');
-                    goToNextSlide();
                 });
             });
         </script>
