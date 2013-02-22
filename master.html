@@ -49,11 +49,20 @@
                     canvas.width = $(canvas).parent().width();
                     canvas.height = $(canvas).parent().height();
 
+                    function getTouchPosition(t) {
+                        return {
+                            'x': t.pageX - $(canvas).offset().left,
+                            'y': t.pageY - $(canvas).offset().top
+                        };
+                    }
+
                     var last_pos = null;
-                    $(canvas).on('mousedown', function(e) {
-                        last_pos = { 'x': e.offsetX, 'y': e.offsetY };
+                    $(canvas).on('mousedown touchstart', function(e) {
+                        last_pos = e.type === 'mousedown'  ? { 'x': e.offsetX, 'y': e.offsetY }
+                                 : e.type === 'touchstart' ? getTouchPosition(e.originalEvent.touches[0])
+                                 : alert('Impossible event type "' + e.type + '"');
                     });
-                    $(canvas).on('mousemove', function(e) {
+                    $(canvas).on('mousemove touchmove', function(e) {
                         if (last_pos) {
                             var ctx = canvas.getContext('2d');
                             ctx.strokeStyle = 'black';
@@ -61,15 +70,18 @@
                             ctx.lineCap = 'round';
                             ctx.lineJoin = 'round';
 
-                            var pos = { 'x': e.offsetX, 'y': e.offsetY };
+                            var pos = e.type === 'mousemove' ? { 'x': e.offsetX, 'y': e.offsetY }
+                                    : e.type === 'touchmove' ? getTouchPosition(e.originalEvent.touches[0])
+                                    : alert('Impossible event type "' + e.type + '"');
                             ctx.moveTo(last_pos.x, last_pos.y);
                             ctx.lineTo(pos.x, pos.y);
                             ctx.stroke();
                             ws.send('line ' + JSON.stringify({ 'from': last_pos, 'to': pos }));
                             last_pos = pos;
                         }
+                        e.preventDefault();
                     });
-                    $(canvas).on('mouseup', function(e) {
+                    $(canvas).on('mouseup touchend', function(e) {
                         last_pos = null;
                     });
                 });
