@@ -34,15 +34,46 @@
         <button id="go-next">Next</button>
         <script>
             $(function() {
+                function updateSlideClasses() {
+                    $('div.slide.current').prevAll('div.slide').removeClass('prev left');
+                    $('div.slide.current').nextAll('div.slide').removeClass('next right');
+
+                    $('div.slide.current').prevAll('div.slide').addClass('left');
+                    $('div.slide.current').nextAll('div.slide').addClass('right');
+
+                    $('div.slide.current').prev('div.slide').addClass('prev');
+                    $('div.slide.current').next('div.slide').addClass('next');
+                }
+
+                function goToPrevSlide() {
+                    if ($('div.slide.current').prev('div.slide').length > 0) {
+                        $('div.slide.current').removeClass('current');
+                        $('div.slide.prev').addClass('current');
+                        $('div.slide.prev').removeClass('prev left');
+
+                        updateSlideClasses();
+                    }
+                }
+
+                function goToNextSlide() {
+                    if ($('div.slide.current').next('div.slide').length > 0) {
+                        $('div.slide.current').removeClass('current');
+                        $('div.slide.next').addClass('current');
+                        $('div.slide.next').removeClass('next right');
+
+                        updateSlideClasses();
+                    }
+                }
+
                 var ws = null;
                 function startWebSocket() {
                     ws = new WebSocket("ws://133.5.24.189:8888/");
                     ws.onmessage = function(e) {
                         if (e.data === "prev") {
-                            $('#go-prev').click();
+                            goToPrevSlide();
                         }
                         else if (e.data === "next") {
-                            $('#go-next').click();
+                            goToNextSlide();
                         }
                         else if (e.data.slice(0, 5) === "line ") {
                             var ctx = $('div.slide.current > canvas.overlay')[0].getContext('2d');
@@ -72,35 +103,12 @@
                     canvas.height = $(canvas).parent().height();
                 });
 
-                function updateSlideClasses() {
-                    $('div.slide.current').prevAll('div.slide').removeClass('prev left');
-                    $('div.slide.current').nextAll('div.slide').removeClass('next right');
-
-                    $('div.slide.current').prevAll('div.slide').addClass('left');
-                    $('div.slide.current').nextAll('div.slide').addClass('right');
-
-                    $('div.slide.current').prev('div.slide').addClass('prev');
-                    $('div.slide.current').next('div.slide').addClass('next');
-                }
-
                 updateSlideClasses();
-                $('#go-prev').on('click', function(e) {
-                    if ($('div.slide.current').prev('div.slide').length > 0) {
-                        $('div.slide.current').removeClass('current');
-                        $('div.slide.prev').addClass('current');
-                        $('div.slide.prev').removeClass('prev left');
-
-                        updateSlideClasses();
-                    }
+                $('#go-prev').on('click', function() {
+                    goToPrevSlide();
                 });
-                $('#go-next').on('click', function(e) {
-                    if ($('div.slide.current').next('div.slide').length > 0) {
-                        $('div.slide.current').removeClass('current');
-                        $('div.slide.next').addClass('current');
-                        $('div.slide.next').removeClass('next right');
-
-                        updateSlideClasses();
-                    }
+                $('#go-next').on('click', function() {
+                    goToNextSlide();
                 });
             });
         </script>
