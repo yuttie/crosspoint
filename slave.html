@@ -30,8 +30,6 @@
                 Slide 7
             </div>
         </div>
-        <button id="go-prev">Prev</button>
-        <button id="go-next">Next</button>
         <script>
             $(function() {
                 function updateSlideClasses() {
@@ -104,12 +102,6 @@
                 });
 
                 updateSlideClasses();
-                $('#go-prev').on('click', function() {
-                    goToPrevSlide();
-                });
-                $('#go-next').on('click', function() {
-                    goToNextSlide();
-                });
             });
         </script>
     </body>
