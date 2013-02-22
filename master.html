@@ -8,27 +8,6 @@
     </head>
     <body>
         <div id="view">
-            <div class="slide current" style="background-color: red;">
-                Slide 1
-            </div>
-            <div class="slide" style="background-color: orange;">
-                Slide 2
-            </div>
-            <div class="slide" style="background-color: yellow;">
-                Slide 3
-            </div>
-            <div class="slide" style="background-color: green;">
-                Slide 4
-            </div>
-            <div class="slide" style="background-color: skyblue;">
-                Slide 5
-            </div>
-            <div class="slide" style="background-color: blue;">
-                Slide 6
-            </div>
-            <div class="slide" style="background-color: purple;">
-                Slide 7
-            </div>
         </div>
         <button id="go-prev">Prev</button>
         <button id="go-next">Next</button>
@@ -104,40 +83,46 @@
                 }
                 startWebSocket();
 
-                $('div.slide').append('<canvas class="overlay"></canvas>');
-                $.each($('div.slide > canvas.overlay'), function(i, canvas) {
-                    canvas.width = $(canvas).parent().width();
-                    canvas.height = $(canvas).parent().height();
+                $.get('slide.html', function(data) {
+                    $('#view').html(data);
 
-                    function getTouchPosition(t) {
-                        return {
-                            'x': t.pageX - $(canvas).offset().left,
-                            'y': t.pageY - $(canvas).offset().top
-                        };
-                    }
+                    $('div.slide').first().addClass('current');
+                    $('div.slide').append('<canvas class="overlay"></canvas>');
+                    $.each($('div.slide > canvas.overlay'), function(i, canvas) {
+                        canvas.width = $(canvas).parent().width();
+                        canvas.height = $(canvas).parent().height();
 
-                    var last_pos = null;
-                    $(canvas).on('mousedown touchstart', function(e) {
-                        last_pos = e.type === 'mousedown'  ? { 'x': e.offsetX, 'y': e.offsetY }
-                                 : e.type === 'touchstart' ? getTouchPosition(e.originalEvent.touches[0])
-                                 : alert('Impossible event type "' + e.type + '"');
-                    });
-                    $(canvas).on('mousemove touchmove', function(e) {
-                        if (last_pos) {
-                            var pos = e.type === 'mousemove' ? { 'x': e.offsetX, 'y': e.offsetY }
-                                    : e.type === 'touchmove' ? getTouchPosition(e.originalEvent.touches[0])
-                                    : alert('Impossible event type "' + e.type + '"');
-                            ws.send('line ' + JSON.stringify({ 'from': last_pos, 'to': pos }));
-                            last_pos = pos;
+                        function getTouchPosition(t) {
+                            return {
+                                'x': t.pageX - $(canvas).offset().left,
+                                'y': t.pageY - $(canvas).offset().top
+                            };
                         }
-                        e.preventDefault();
+
+                        var last_pos = null;
+                        $(canvas).on('mousedown touchstart', function(e) {
+                            last_pos = e.type === 'mousedown'  ? { 'x': e.offsetX, 'y': e.offsetY }
+                                     : e.type === 'touchstart' ? getTouchPosition(e.originalEvent.touches[0])
+                                     : alert('Impossible event type "' + e.type + '"');
+                        });
+                        $(canvas).on('mousemove touchmove', function(e) {
+                            if (last_pos) {
+                                var pos = e.type === 'mousemove' ? { 'x': e.offsetX, 'y': e.offsetY }
+                                        : e.type === 'touchmove' ? getTouchPosition(e.originalEvent.touches[0])
+                                        : alert('Impossible event type "' + e.type + '"');
+                                ws.send('line ' + JSON.stringify({ 'from': last_pos, 'to': pos }));
+                                last_pos = pos;
+                            }
+                            e.preventDefault();
+                        });
+                        $(canvas).on('mouseup touchend', function(e) {
+                            last_pos = null;
+                        });
                     });
-                    $(canvas).on('mouseup touchend', function(e) {
-                        last_pos = null;
-                    });
+
+                    updateSlideClasses();
                 });
 
-                updateSlideClasses();
                 $('#go-prev').on('click', function() {
                     ws.send('prev');
                 });
