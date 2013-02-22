@@ -44,6 +44,8 @@
                 }
                 startWebSocket();
 
+                $('div.slide').append('<canvas class="overlay"></canvas>');
+
                 function updateSlideClasses() {
                     $('div.slide.current').prevAll('div.slide').removeClass('prev left');
                     $('div.slide.current').nextAll('div.slide').removeClass('next right');
