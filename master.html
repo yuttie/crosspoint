@@ -18,31 +18,31 @@
         <script>
             $(function() {
                 function updateSlideClasses() {
-                    $('div.slide.current').prevAll('div.slide').removeClass('prev left');
-                    $('div.slide.current').nextAll('div.slide').removeClass('next right');
+                    $('.slide.current').prevAll('.slide').removeClass('prev left');
+                    $('.slide.current').nextAll('.slide').removeClass('next right');
 
-                    $('div.slide.current').prevAll('div.slide').addClass('left');
-                    $('div.slide.current').nextAll('div.slide').addClass('right');
+                    $('.slide.current').prevAll('.slide').addClass('left');
+                    $('.slide.current').nextAll('.slide').addClass('right');
 
-                    $('div.slide.current').prev('div.slide').addClass('prev');
-                    $('div.slide.current').next('div.slide').addClass('next');
+                    $('.slide.current').prev('.slide').addClass('prev');
+                    $('.slide.current').next('.slide').addClass('next');
                 }
 
                 function goToPrevSlide() {
-                    if ($('div.slide.current').prev('div.slide').length > 0) {
-                        $('div.slide.current').removeClass('current');
-                        $('div.slide.prev').addClass('current');
-                        $('div.slide.prev').removeClass('prev left');
+                    if ($('.slide.current').prev('.slide').length > 0) {
+                        $('.slide.current').removeClass('current');
+                        $('.slide.prev').addClass('current');
+                        $('.slide.prev').removeClass('prev left');
 
                         updateSlideClasses();
                     }
                 }
 
                 function goToNextSlide() {
-                    if ($('div.slide.current').next('div.slide').length > 0) {
-                        $('div.slide.current').removeClass('current');
-                        $('div.slide.next').addClass('current');
-                        $('div.slide.next').removeClass('next right');
+                    if ($('.slide.current').next('.slide').length > 0) {
+                        $('.slide.current').removeClass('current');
+                        $('.slide.next').addClass('current');
+                        $('.slide.next').removeClass('next right');
 
                         updateSlideClasses();
                     }
@@ -63,7 +63,7 @@
                             $('<p>' + msg.body + '</p>').prependTo('#comments');
                         }
                         else if (msg.type === "line") {
-                            var ctx = $('div.slide.current > canvas.overlay')[0].getContext('2d');
+                            var ctx = $('.slide.current > canvas.overlay')[0].getContext('2d');
                             ctx.strokeStyle = 'black';
                             ctx.lineWidth = 4;
                             ctx.lineCap = 'round';
@@ -86,9 +86,9 @@
                 $.get('slide.html', function(data) {
                     $('#view').html(data);
 
-                    $('div.slide').first().addClass('current');
-                    $('div.slide').append('<canvas class="overlay"></canvas>');
-                    $.each($('div.slide > canvas.overlay'), function(i, canvas) {
+                    $('.slide').first().addClass('current');
+                    $('.slide').append('<canvas class="overlay"></canvas>');
+                    $.each($('.slide > canvas.overlay'), function(i, canvas) {
                         canvas.width = $(canvas).parent().width();
                         canvas.height = $(canvas).parent().height();
 
