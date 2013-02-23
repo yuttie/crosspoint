@@ -52,25 +52,25 @@
                 function startWebSocket() {
                     ws = new WebSocket("ws://" + window.location.hostname + ":8888/");
                     ws.onmessage = function(e) {
-                        if (e.data === "prev") {
+                        var msg = JSON.parse(e.data);
+                        if (msg.type === "prev") {
                             goToPrevSlide();
                         }
-                        else if (e.data === "next") {
+                        else if (msg.type === "next") {
                             goToNextSlide();
                         }
-                        else if (e.data.slice(0, 8) === "comment ") {
-                            $('<p>' + JSON.parse(e.data.slice(8)) + '</p>').prependTo('#comments');
+                        else if (msg.type === "comment") {
+                            $('<p>' + msg.body + '</p>').prependTo('#comments');
                         }
-                        else if (e.data.slice(0, 5) === "line ") {
+                        else if (msg.type === "line") {
                             var ctx = $('div.slide.current > canvas.overlay')[0].getContext('2d');
                             ctx.strokeStyle = 'black';
                             ctx.lineWidth = 4;
                             ctx.lineCap = 'round';
                             ctx.lineJoin = 'round';
 
-                            var line = JSON.parse(e.data.slice(5));
-                            var last_pos = line.from;
-                            var pos = line.to;
+                            var last_pos = msg.from;
+                            var pos = msg.to;
                             ctx.moveTo(last_pos.x, last_pos.y);
                             ctx.lineTo(pos.x, pos.y);
                             ctx.stroke();
@@ -110,7 +110,8 @@
                                 var pos = e.type === 'mousemove' ? { 'x': e.offsetX, 'y': e.offsetY }
                                         : e.type === 'touchmove' ? getTouchPosition(e.originalEvent.touches[0])
                                         : alert('Impossible event type "' + e.type + '"');
-                                ws.send('line ' + JSON.stringify({ 'from': last_pos, 'to': pos }));
+                                var msg = { 'type': 'line', 'from': last_pos, 'to': pos };
+                                ws.send(JSON.stringify(msg));
                                 last_pos = pos;
                             }
                             e.preventDefault();
@@ -124,17 +125,20 @@
                 });
 
                 $('#go-prev').on('click', function() {
-                    ws.send('prev');
+                    var msg = { 'type': 'prev' };
+                    ws.send(JSON.stringify(msg));
                 });
                 $('#go-next').on('click', function() {
-                    ws.send('next');
+                    var msg = { 'type': 'next' };
+                    ws.send(JSON.stringify(msg));
                 });
 
                 $('#comment-entry').on('keypress', function(e) {
                     if (!e.ctrlKey && e.which === 13) {
                         var s = $(this).val();
                         if (s.length > 0) {
-                            ws.send('comment ' + JSON.stringify(s));
+                            var msg = { 'type': 'comment', 'body': s };
+                            ws.send(JSON.stringify(msg));
                             $(this).val('');
                         }
                         e.preventDefault();
