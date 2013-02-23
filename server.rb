@@ -8,23 +8,27 @@ end
 require 'em-websocket'
 
 EventMachine.run {
-  @channel = EventMachine::Channel.new
+  @channels = {}
 
   EventMachine::WebSocket.start(host: "0.0.0.0", port: 8888) do |ws|
     ws.onopen {|handshake|
-      sid = @channel.subscribe {|msg|
+      ch_id = handshake.path
+      @channels[ch_id] ||= EventMachine::Channel.new
+      ch = @channels[ch_id]
+
+      sid = ch.subscribe {|msg|
         ws.send(msg)
       }
-      $stderr.puts("#{sid} connected to '#{handshake.path}'.")
+      $stderr.puts("#{sid} connected to #{ch_id}.")
 
       ws.onmessage {|msg|
-        @channel.push(msg)
-        $stderr.puts("#{sid} pushed a message '#{msg}'.")
+        ch.push(msg)
+        $stderr.puts("#{sid}@#{ch_id} pushed a message '#{msg}'.")
       }
 
       ws.onclose {
-        @channel.unsubscribe(sid)
-        $stderr.puts("#{sid} disconnected.")
+        ch.unsubscribe(sid)
+        $stderr.puts("#{sid} disconnected from #{ch_id}.")
       }
     }
   end
