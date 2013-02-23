@@ -16,10 +16,12 @@ EventMachine.run {
         ws.send(msg)
       }
       $stderr.puts("#{sid} connected to '#{handshake.path}'.")
+
       ws.onmessage {|msg|
         @channel.push(msg)
         $stderr.puts("#{sid} pushed a message '#{msg}'.")
       }
+
       ws.onclose {
         @channel.unsubscribe(sid)
         $stderr.puts("#{sid} disconnected.")
