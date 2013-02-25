@@ -10,7 +10,7 @@ require 'em-websocket'
 EventMachine.run {
   @channels = {}
 
-  EventMachine::WebSocket.start(host: "0.0.0.0", port: 8888) do |ws|
+  EventMachine::WebSocket.start(host: ARGV[1] || "0.0.0.0", port: (ARGV[0] || 8888).to_i) do |ws|
     ws.onopen {|handshake|
       ch_id = handshake.path
       @channels[ch_id] ||= EventMachine::Channel.new
