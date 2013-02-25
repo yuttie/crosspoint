@@ -5,15 +5,15 @@ html, body {
 }
 #view {
     position: relative;
-    width: 320px;
-    height: 240px;
+    width: 800px;
+    height: 600px;
     margin-left: auto;
     margin-right: auto;
 }
 .slide {
     position: absolute;
-    width: 320px;
-    height: 240px;
+    width: 800px;
+    height: 600px;
     /* transitions */
     -webkit-transition-property:         -webkit-transform;
     -moz-transition-property:            -moz-transform;
