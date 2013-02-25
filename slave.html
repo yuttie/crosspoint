@@ -48,7 +48,7 @@
 
                 var ws = null;
                 function startWebSocket() {
-                    ws = new WebSocket("ws://" + window.location.hostname + ":8888/");
+                    ws = new WebSocket("ws://" + window.location.hostname + ":9090/");
                     ws.onmessage = function(e) {
                         var msg = JSON.parse(e.data);
                         if (msg.type === "prev") {
