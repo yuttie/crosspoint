@@ -3,6 +3,7 @@
     <head>
         <meta charset="UTF-8">
         <script src="jquery-1.9.0.js"></script>
+        <script src="http://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
         <link rel="stylesheet" href="common.css" type="text/css" media="all">
         <title></title>
     </head>
@@ -58,7 +59,9 @@
                             goToNextSlide();
                         }
                         else if (msg.type === "comment") {
-                            $('<p>' + msg.body + '</p>').prependTo('#comments');
+                            var p = $('<p>' + msg.body + '</p>');
+                            MathJax.Hub.Queue(["Typeset", MathJax.Hub, p[0]]);
+                            p.prependTo('#comments');
                         }
                         else if (msg.type === "draw") {
                             var ctx = $('.slide.current > canvas.overlay')[0].getContext('2d');
