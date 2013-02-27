@@ -59,7 +59,7 @@
                             goToNextSlide();
                         }
                         else if (msg.type === "comment") {
-                            var p = $('<p>' + msg.body + '</p>');
+                            var p = $('<p tabindex="-1">' + msg.body + '</p>');
                             MathJax.Hub.Queue(["Typeset", MathJax.Hub, p[0]]);
                             p.prependTo('#comments');
                         }
