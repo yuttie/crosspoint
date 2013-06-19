@@ -73,7 +73,25 @@
 
                 var ip = getId("./php/getId.php");
                 var gname = getUserID(ip.ip_addr);
-                document.getElementById("group_name").innerHTML = "<h3>グループ No." + gname + " の投稿</h3>"
+                document.getElementById("group_name").innerHTML = "<h3>グループ No." + gname + " の投稿</h3>";
+
+                 function makeText(msg){
+                    var content = msg.body.replace(/\#GROUP-ONLY/ig,"");
+                    var post_text = '<p tabindex="-1">\
+                            <div class="header">\
+                                <span class="number">' + msg.post_num + '</span>\
+                                <span class="time">' + msg.time + '</span>\
+                                <span class="host">\
+                                    <span class="host-name">' + msg.post_user + '</span>\
+                                    &nbsp;\
+                                    <span class="ip-addr">(' + msg.ip_addr + ')</span>\
+                                </span>\
+                            </div>\
+                        <div class="content"><pre>' + content + '</pre></div>\
+                    </p>';
+
+                    return post_text;
+                }
 
                 var ws = null;
                 function startWebSocket() {
@@ -87,9 +105,22 @@
                             goToNextSlide();
                         }
                         else if (msg.type === "comment") {
-                            var p = $('<p tabindex="-1">' + msg.body + '</p>');
-                            MathJax.Hub.Queue(["Typeset", MathJax.Hub, p[0]]);
-                            p.prependTo('#comments');
+                         // 自分のipアドレスからグループidを取得する
+                            var my_gid = getUserID(ip.ip_addr);
+                            post = makeText(msg);
+
+                            if(msg.body.match(/\#GROUP-ONLY/i) === null){
+                                var p = $(post);
+                                MathJax.Hub.Queue(["Typeset", MathJax.Hub, p[0]]);
+                                p.prependTo('#comments');
+                            }else{
+                                if(parseInt(my_gid) === msg.gid){
+                                //if(parseInt(disp_gid) === msg.gid){
+                                    var p = $(post);
+                                    MathJax.Hub.Queue(["Typeset", MathJax.Hub, p[0]]);
+                                    p.prependTo('#group_comments');
+                                }
+                            }
                         }
                         else if (msg.type === "draw") {
                             var ctx = $('.slide.current > canvas.overlay')[0].getContext('2d');
