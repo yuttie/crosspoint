@@ -47,6 +47,18 @@
                     }
                 }
 
+                // ipアドレスの取得 (php使用)
+                function getId(fp){
+                    var request = new XMLHttpRequest();
+                    request.open("GET", fp, false);
+                    request.send(null);
+                    //var ip = eval("(" + request.responseText + ")")
+                    //console.log(ip.ip_addr);
+                    if(request.responseText != false){
+                        return eval("(" + request.responseText + ")");
+                    }
+                }
+
                 var ws = null;
                 function startWebSocket() {
                     ws = new WebSocket("ws://" + window.location.hostname + ":9090/");
@@ -102,7 +114,8 @@
                     if (!e.ctrlKey && e.which === 13) {
                         var s = $(this).val();
                         if (s.length > 0) {
-                            var msg = { 'type': 'comment', 'body': s };
+                            var text = s + "#GROUP-ONLY";
+                            var msg = { 'type': 'comment', 'body': text , 'ip':ip.ip_addr};
                             ws.send(JSON.stringify(msg));
                             $(this).val('');
                         }
