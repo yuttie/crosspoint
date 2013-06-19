@@ -6,6 +6,50 @@ if RUBY_VERSION >= '1.9'
 end
 
 require 'em-websocket'
+require 'json'
+
+NUM_GROUPS = 21
+MSG_TYPE = 'comment'
+post_num = 0
+
+#ipアドレスに対してグループidを割り振る
+def check_group(ip_addr)
+  gid = 0
+  if File.exist?("./group_id/#{ip_addr}")
+    gid = read_file_if_exist("./group_id/#{ip_addr}")
+  else
+    str_ip = ip_addr[ip_addr.size-2,ip_addr.size]
+    gid = str_ip.to_i%NUM_GROUPS
+    IO.write('./group_id/'   + ip_addr, gid)
+  end
+  return gid.to_i
+end
+
+def ip_zero(ip)
+  IO.write('./group_id/' + ip, 0)
+end
+
+#投稿をファイルとして保存する処理
+def message(msg,num)
+  data = JSON.parse(msg)
+  ip_addr = data['ip']
+  content = data['body']
+
+  time = Time.now
+  post_id = time.to_i.to_s + time.usec.to_s.rjust(6, '0')
+  IO.write("./content/"   + post_id + "_" + num.to_i.to_s, content)
+  IO.write('./ip_addr/'   + post_id, ip_addr)
+  group_id = check_group(ip_addr)
+
+  post_user = read_file_if_exist("./user_name/#{ip_addr}")
+  if post_user == ""
+    post_user = "NO NAME"
+  end
+
+  #JavaScriptに返す形式にmsgを整理
+  new_msg = {'type'=>MSG_TYPE, 'post_num'=>num, 'post_user'=>post_user, 'body'=>content, 'time'=>time.strftime('%Y/%m/%d %H:%M:%S'),'ip_addr'=>ip_addr, 'gid'=>group_id}
+  return JSON.generate(new_msg)
+end
 
 #所見ユーザに過去の投稿を全て送信するために準備
 def log_messages()
@@ -55,8 +99,21 @@ EventMachine.run {
       $stderr.puts("#{sid} connected to #{ch_id}.")
 
       ws.onmessage {|msg|
-        ch.push(msg)
-        $stderr.puts("#{sid}@#{ch_id} pushed a message '#{msg}'.")
+        #msgをを置き換える
+        data = JSON.parse(msg)
+        if(data['type'] == "comment")
+          if(data['body'] == "円環の理")
+            ip_zero(data['ip'])
+          else
+            post_num = post_num + 1
+            nmsg = message(msg,post_num)
+            ch.push(nmsg)
+            $stderr.puts("#{sid}@#{ch_id} pushed a message '#{nmsg}'.")
+          end
+        else
+          ch.push(msg)
+          $stderr.puts("#{sid}@#{ch_id} pushed a message '#{msg}'.")
+        end
       }
 
       ws.onclose {
