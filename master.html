@@ -49,6 +49,19 @@
                     }
                 }
 
+                 // ipアドレスの取得 (php使用)
+                function getId(fp){
+                    var request = new XMLHttpRequest();
+                    request.open("GET", fp, false);
+                    request.send(null);
+                    //var ip = eval("(" + request.responseText + ")")
+                    //console.log(ip.ip_addr);
+                    if(request.responseText != false){
+                        return eval("(" + request.responseText + ")");
+                    }
+                }
+                var ip = getId("./php/getId.php");
+
                 var ws = null;
                 function startWebSocket() {
                     ws = new WebSocket("ws://" + window.location.hostname + ":9090/");
