@@ -77,7 +77,7 @@
                     document.getElementById("user_id").innerHTML = "ようこそ" + user_data.name + "さん<br>あなたの学生番号は " + user_data.id + " です";
                 }
             }
-            
+
             $(function() {
                 function updateSlideClasses() {
                     $('.slide.current').prevAll('.slide').removeClass('prev left');
@@ -167,6 +167,7 @@
                         else if (msg.type === "next") {
                             goToNextSlide();
                         }
+                        // 投稿の表示処理
                         else if (msg.type === "comment") {
                          // 自分のipアドレスからグループidを取得する
                             var my_gid = getUserID(ip.ip_addr);
@@ -221,6 +222,26 @@
                 });
 
                 $('#comment-entry').on('keypress', function(e) {
+                    if (!e.ctrlKey && e.which === 13) {
+                        var s = $(this).val();
+                        if (s.length > 0) {
+                            var msg = { 'type': 'comment', 'body': s , 'ip':ip.ip_addr};
+                            ws.send(JSON.stringify(msg));
+                            $(this).val('');
+                        }
+                        e.preventDefault();
+                    }
+                    else if (e.which === 10 || (e.ctrlKey && e.which === 13)) {
+                        var s = $(this).val();
+                        var start = this.selectionStart;
+                        var end = this.selectionEnd;
+                        $(this).val(s.slice(0, start) + "\n" + s.slice(end));
+                        this.selectionStart = start + 1;
+                        this.selectionEnd = start + 1;
+                    }
+                });
+
+                 $('#group-comment-entry').on('keypress', function(e) {
                     if (!e.ctrlKey && e.which === 13) {
                         var s = $(this).val();
                         if (s.length > 0) {
