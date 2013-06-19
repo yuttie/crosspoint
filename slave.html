@@ -7,13 +7,52 @@
         <link rel="stylesheet" href="common.css" type="text/css" media="all">
         <title></title>
     </head>
-    <body>
-        <div id="view">
+    <body onload="regist()">
+        <div id="user_id" style="text-align:center">未登録</div>
+        <div style="float:left;margin-right:20px;">
+            <h4>グループ用の投稿欄</h4>
+            <textarea id="group-comment-entry" cols="40" rows="5" autofocus></textarea>
         </div>
-        <div>
+        <div style="float:left">
+            <h4>全体用の投稿欄</h4>
             <textarea id="comment-entry" cols="40" rows="5" autofocus></textarea>
-            <div id="comments"></div>
         </div>
+
+        <!--名前と学生番号の入力欄-->
+        <div style="font-weight:bold;color: black;float: right;">
+            <form name="regi_name">
+                <font size="3px">ニックネーム</font><input type="text" name="user_name">
+                <div class="form-toolbar">
+                    <font size="4px">学生番号</font><input type="text" name="student_id">
+                </div>
+                <div class="form-toolbar">
+                    <input type="button" value="登録" onclick="regist()">
+                </div>
+            </form>
+        </div>
+        <div style="clear:both"></div>
+
+        <div id="column-container">
+            <div class="column">
+                <div class="view_title">
+                    <div id="group_name">
+                        <h3>グループ内投稿</h3>
+                    </div>
+                </div>
+                <div class="view">
+                    <div id="group_comments"></div>
+                </div>
+            </div>
+            <div class="column">
+                <div class="view_title">
+                    <h3>全体投稿</h3>
+                </div>
+                <div class="view">
+                    <div id="comments"></div>
+                </div>
+            </div>
+        </div>
+
         <script>
             $(function() {
                 function updateSlideClasses() {
