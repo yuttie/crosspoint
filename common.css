@@ -3,6 +3,22 @@ html, body {
     height: 100%;
     overflow: hidden;
 }
+#comment_view {
+  position: absolute;
+  top: 20px;
+  right: 20px;
+  width: 22%;
+  height: 100%;
+
+  margin-left: 20px;
+  border: 1px solid black;
+  overflow: scroll;
+}
+#comment {
+  width: 100%;
+  height: 50%;
+  padding: 5px;
+}
 #view {
     position: relative;
     width: 800px;
