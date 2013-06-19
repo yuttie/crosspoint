@@ -59,7 +59,8 @@ end
 def message(msg,num)
   data = JSON.parse(msg)
   ip_addr = data['ip']
-  content = data['body']
+  content = show_spaces(escape(data['body']))
+  #content = data['body']
 
   time = Time.now
   post_id = time.to_i.to_s + time.usec.to_s.rjust(6, '0')
