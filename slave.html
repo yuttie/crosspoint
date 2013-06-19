@@ -59,6 +59,18 @@
                     }
                 }
 
+                 // ユーザのグループid取得 (php使用)
+                function getUserID(ip_addr){
+                    var req = new XMLHttpRequest();
+                    req.open("GET", "./php/getUserID.php?uid=../group_id/" + ip_addr, false);
+                    req.send(null);
+                    
+                    if(req.responseText != false){
+                        return eval(req.responseText);
+                    }
+                    
+                }
+
                 var ws = null;
                 function startWebSocket() {
                     ws = new WebSocket("ws://" + window.location.hostname + ":9090/");
