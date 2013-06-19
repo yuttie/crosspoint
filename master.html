@@ -74,6 +74,23 @@
                     
                 }
 
+                 function makeText(msg){
+                    var post_text = '<div tabindex="-1" class="post">\
+                            <div class="header">\
+                                <span class="number">' + msg.post_num + '</span>\
+                                <span class="time">' + msg.time + '</span>\
+                                <span class="host">\
+                                    <span class="host-name">' + msg.post_user + '</span>\
+                                    &nbsp;\
+                                    <span class="ip-addr">(' + msg.ip_addr + ')</span>\
+                                </span>\
+                            </div>\
+                        <div class="content"><pre>' + msg.body + '</pre></div>\
+                    </div>';
+
+                    return post_text;
+                }
+
                 var ws = null;
                 function startWebSocket() {
                     ws = new WebSocket("ws://" + window.location.hostname + ":9090/");
@@ -86,9 +103,12 @@
                             goToNextSlide();
                         }
                         else if (msg.type === "comment") {
-                            var p = $('<p tabindex="-1">' + msg.body + '</p>');
-                            MathJax.Hub.Queue(["Typeset", MathJax.Hub, p[0]]);
-                            p.prependTo('#comments');
+                            if(msg.body.match(/\#GROUP-ONLY/i) === null){
+                                post = makeText(msg);
+                                var p = $(post);
+                                MathJax.Hub.Queue(["Typeset", MathJax.Hub, p[0]]);
+                                p.prependTo('#comments');
+                            }
                         }
                         else if (msg.type === "draw") {
                             var ctx = $('.slide.current > canvas.overlay')[0].getContext('2d');
