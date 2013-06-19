@@ -71,6 +71,10 @@
                     
                 }
 
+                var ip = getId("./php/getId.php");
+                var gname = getUserID(ip.ip_addr);
+                document.getElementById("group_name").innerHTML = "<h3>グループ No." + gname + " の投稿</h3>"
+
                 var ws = null;
                 function startWebSocket() {
                     ws = new WebSocket("ws://" + window.location.hostname + ":9090/");
