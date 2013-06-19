@@ -3,6 +3,9 @@ html, body {
     height: 100%;
     overflow: hidden;
 }
+pre {
+  font-family: sans-serif;
+}
 #comment_view {
   position: absolute;
   top: 20px;
