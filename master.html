@@ -5,17 +5,29 @@
         <script src="jquery-1.9.0.js"></script>
         <script src="http://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
         <link rel="stylesheet" href="common.css" type="text/css" media="all">
+        <style>
+        .post {
+            font-size: 80%;
+        }
+        </style>
         <title></title>
     </head>
     <body>
-        <div id="view">
+       <div id="view">
         </div>
-        <button id="go-prev">Prev</button>
-        <button id="go-next">Next</button>
-        <div>
-            <textarea id="comment-entry" cols="40" rows="5" autofocus></textarea>
+        <div id="comment_view">
             <div id="comments"></div>
         </div>
+
+        <div id="input">
+            <button id="go-prev">Prev</button>
+            <button id="go-next">Next</button>
+
+            <div>
+                <textarea id="comment-entry" cols="40" rows="5" autofocus></textarea>
+            </div>
+        </div>
+
         <script>
             $(function() {
                 function updateSlideClasses() {
