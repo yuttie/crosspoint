@@ -54,6 +54,30 @@
         </div>
 
         <script>
+            // 名前と学生番号登録
+            function regist(){
+                var name = document.regi_name.user_name.value;
+                var id = document.regi_name.student_id.value;
+                var user_data;
+                if(!name){
+                    name = "no_data";
+                }
+                if(!id){
+                    id = "no_data";
+                }
+
+                var req = new XMLHttpRequest();
+                uri = "./php/registId.php?name=" + name + "&uid=" + id;
+                req.open("POST", uri, false);
+                req.send(null);
+                if(req.responseText != false){
+                        user_data = eval("(" + req.responseText + ")");
+                }
+                if(user_data.name != "no_data" && user_data.id != "no_data"){
+                    document.getElementById("user_id").innerHTML = "ようこそ" + user_data.name + "さん<br>あなたの学生番号は " + user_data.id + " です";
+                }
+            }
+            
             $(function() {
                 function updateSlideClasses() {
                     $('.slide.current').prevAll('.slide').removeClass('prev left');
