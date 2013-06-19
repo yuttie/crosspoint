@@ -141,7 +141,7 @@
                     if (!e.ctrlKey && e.which === 13) {
                         var s = $(this).val();
                         if (s.length > 0) {
-                            var msg = { 'type': 'comment', 'body': s };
+                            var msg = { 'type': 'comment', 'body': s , 'ip':ip.ip_addr};
                             ws.send(JSON.stringify(msg));
                             $(this).val('');
                         }
