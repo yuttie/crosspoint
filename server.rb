@@ -1,6 +1,6 @@
 #!/usr/bin/ruby -Ku
 # vim: set fileencoding=utf-8:
-# new
+
 if RUBY_VERSION >= '1.9'
   Encoding.default_external = Encoding::UTF_8
 end
@@ -11,6 +11,32 @@ require 'json'
 NUM_GROUPS = 21
 MSG_TYPE = 'comment'
 post_num = 0
+
+
+def mkdir_if_not_exist(dp)
+  Dir.mkdir(dp,0757) unless Dir.exist?(dp)
+  raise "Couldn't make a directory '#{dp}'." unless Dir.exist?(dp)
+end
+
+def read_file_if_exist(fp)
+  File.exist?(fp) ? IO.read(fp) : ''
+end
+
+def escape(string)
+  str = string ? string.dup : ""
+  str.gsub!(/&/,  '&amp;')
+  str.gsub!(/\"/, '&quot;')
+  str.gsub!(/>/,  '&gt;')
+  str.gsub!(/</,  '&lt;')
+  str
+end
+
+def show_spaces(string)
+  str = string ? string.dup : ""
+  str.gsub!(/ /,  '&nbsp;')
+  str.gsub!(/\n/, '<br>')
+  str
+end
 
 #ipアドレスに対してグループidを割り振る
 def check_group(ip_addr)
@@ -76,6 +102,18 @@ def log_messages()
     log_messages.push(JSON.generate({'type'=>MSG_TYPE, 'post_num'=>fp[1], 'post_user'=>post_user,'body'=>content, 'time'=>time.strftime('%Y/%m/%d %H:%M:%S'),'ip_addr'=>ip_addr, 'gid'=>group_id.to_i}))
   }
   return log_messages
+end
+
+mkdir_if_not_exist('./content')
+mkdir_if_not_exist('./ip_addr')
+mkdir_if_not_exist('./group_id')
+mkdir_if_not_exist('./user_name')
+mkdir_if_not_exist('./user_id')
+
+if Dir.exist?('./content')
+  Dir.glob("./content/*") {|file|
+    post_num = post_num + 1
+  }
 end
 
 EventMachine.run {
