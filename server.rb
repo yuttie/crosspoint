@@ -38,6 +38,13 @@ def show_spaces(string)
   str
 end
 
+def get_number()
+  time = Time.now
+  serial_id = time.to_i.to_s + time.usec.to_s.rjust(6, '0')
+  ### ここにグループIDを割り振り，group_idに保存する処理を入れる ###
+  return serial_id
+end
+
 #ipアドレスに対してグループidを割り振る
 def check_group(ip_addr)
   gid = 0
@@ -138,7 +145,8 @@ EventMachine.run {
       $stderr.puts("#{sid} connected to #{ch_id}.")
 
       #cookieに登録するシリアルナンバーを送る
-      cookie = JSON.generate({'type'=>'cookie', 'serial_num'=>sid})
+      unique_id = get_number();
+      cookie = JSON.generate({'type'=>'cookie', 'serial_num'=>unique_id})
       ws.send(cookie)
 
       ws.onmessage {|msg|
