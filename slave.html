@@ -156,6 +156,38 @@
                     return post_text;
                 }
 
+                // クライアントにCookieを保存する
+                function setCookie(num){
+                    var s = "";
+                    s = "cookie_name=" + num + ";";
+                    // s += "cookie_name" + "=" + encodeURIComponent("student_serial_number");
+                    // s += "; number=" + num + ";";
+                    
+                    // s += "; path="+ path;
+                    // if(expiredays){
+                    //     s += "; expires=" +exdate+"; ";
+                    // }else{
+                    //     s += "; ";
+                    // }
+                    document.cookie = s;
+                    console.log(s);
+                }
+                // 該当するCookieを読み込む
+                function getCookie(){
+                    var result = new Array();
+                    if(document.cookie.length > 0){
+                        var all_cookie = document.cookie;
+                        if(all_cookie != ''){
+                            cookies = all_cookie.split(';');
+                            for(var i = 0; i < cookies.length; i++){
+                                var cookie = cookies[i].split("=");
+                                result[cookie[0]] = decodeURIComponent(cookie[1]);
+                            }
+                        }
+                        console.log(result['cookie_name']);
+                    }
+                }
+
                 var ws = null;
                 function startWebSocket() {
                     ws = new WebSocket("ws://" + window.location.hostname + ":9090/");
@@ -200,6 +232,10 @@
                                 ctx.lineTo(pos.x, pos.y);
                                 ctx.stroke();
                             }
+                        }else if (msg.type === "cookie") {
+                            // クッキーを保存する
+                            setCookie(msg.serial_num);
+                            getCookie();
                         }
                     };
                     ws.onclose = function() {
