@@ -163,12 +163,6 @@
                     // s += "cookie_name" + "=" + encodeURIComponent("student_serial_number");
                     // s += "; number=" + num + ";";
                     
-                    // s += "; path="+ path;
-                    // if(expiredays){
-                    //     s += "; expires=" +exdate+"; ";
-                    // }else{
-                    //     s += "; ";
-                    // }
                     document.cookie = s;
                     console.log(s);
                 }
@@ -211,7 +205,6 @@
                                 p.prependTo('#comments');
                             }else{
                                 if(parseInt(my_gid) === msg.gid){
-                                //if(parseInt(disp_gid) === msg.gid){
                                     var p = $(post);
                                     MathJax.Hub.Queue(["Typeset", MathJax.Hub, p[0]]);
                                     p.prependTo('#group_comments');
