@@ -137,6 +137,10 @@ EventMachine.run {
       }
       $stderr.puts("#{sid} connected to #{ch_id}.")
 
+      #cookieに登録するシリアルナンバーを送る
+      cookie = JSON.generate({'type'=>'cookie', 'serial_num'=>sid})
+      ws.send(cookie)
+
       ws.onmessage {|msg|
         #msgをを置き換える
         data = JSON.parse(msg)
