@@ -186,7 +186,6 @@
                 function startWebSocket() {
                     ws = new WebSocket("ws://" + window.location.hostname + ":9090/");
                     ws.onopen = function(){
-                        console.log("Success open");
                         var unique_id = getCookie();
                         var msg = "";
                         console.log(typeof(getCookie()));
@@ -225,12 +224,7 @@
                                 }
                             }
                         }else if (msg.type === "cookie") {
-                            console.log("Success setCookie");
-                            // クッキーを保存する
-                            // console.log(getCookie());
-                            // if(typeof(getCookie()) == "undefined"){
-                                setCookie(msg.serial_num);
-                            // }
+                            setCookie(msg.serial_num);
                         }
                         else if (msg.type === "draw") {
                             var ctx = $('.slide.current > canvas.overlay')[0].getContext('2d');
