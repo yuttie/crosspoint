@@ -7,11 +7,39 @@ end
 
 require 'em-websocket'
 require 'json'
+require 'fileutils'
 
 NUM_GROUPS = 21
 MSG_TYPE = 'comment'
 post_num = 0
 
+def get_group_id()
+  group_num_list = [3,6,9]
+
+  # これまでのファイル数でグループを割り振る
+  dir_path = "./group_id"
+  file_num = file_count = File.exist?(dir_path) ? `ls #{dir_path}|wc -l`.to_i : 0
+
+  # これまでのグループ数
+  group_unit = 0
+  group_num_list.each { |e| group_unit += e }
+  group_num = ((file_num.to_f/group_unit.to_f).truncate * group_num_list.size)
+
+  # modでグループを割り振る
+  mod = (file_num % group_unit) + 1
+  mod_group = 0
+  max = 0
+  group_num_list.each_with_index do |num,i|
+    max += num
+    if mod <= max
+      mod_group = i + 1
+      break
+    end
+  end
+
+  group_id = group_num + mod_group
+  return group_id
+end
 
 def mkdir_if_not_exist(dp)
   Dir.mkdir(dp,0757) unless Dir.exist?(dp)
@@ -42,7 +70,8 @@ def get_number()
   time = Time.now
   serial_id = time.to_i.to_s + time.usec.to_s.rjust(6, '0')
   ### ここにグループIDを割り振り，group_idに保存する処理を入れる ###
-  IO.write('./group_id/' + serial_id, 1)
+  group_id = get_group_id()
+  IO.write('./group_id/' + serial_id, group_id)
   return serial_id
 end
 
@@ -68,24 +97,24 @@ end
 #投稿をファイルとして保存する処理
 def message(msg,num)
   data = JSON.parse(msg)
-  ip_addr = data['ip']
+  unique_id = data['id']
   content = show_spaces(escape(data['body']))
   #content = data['body']
 
   time = Time.now
   post_id = time.to_i.to_s + time.usec.to_s.rjust(6, '0')
   IO.write("./content/"   + post_id + "_" + num.to_i.to_s, content)
-  IO.write('./ip_addr/'   + post_id, ip_addr)
+  IO.write('./ip_addr/'   + post_id, unique_id)
   # group_id = check_group(ip_addr)
-  group_id = read_file_if_exist("./group_id/#{post_id}")
+  group_id = read_file_if_exist("./group_id/#{unique_id}")
 
-  post_user = read_file_if_exist("./user_name/#{ip_addr}")
+  post_user = read_file_if_exist("./user_name/#{unique_id}")
   if post_user == ""
     post_user = "NO NAME"
   end
 
   #JavaScriptに返す形式にmsgを整理
-  new_msg = {'type'=>MSG_TYPE, 'post_num'=>num, 'post_user'=>post_user, 'body'=>content, 'time'=>time.strftime('%Y/%m/%d %H:%M:%S'),'ip_addr'=>ip_addr, 'gid'=>group_id}
+  new_msg = {'type'=>MSG_TYPE, 'post_num'=>num, 'post_user'=>post_user, 'body'=>content, 'time'=>time.strftime('%Y/%m/%d %H:%M:%S'),'ip_addr'=>unique_id, 'gid'=>group_id}
   return JSON.generate(new_msg)
 end
 
@@ -100,18 +129,16 @@ def log_messages()
     post_id = File.basename(fp[0])
     time = Time.at(post_id[0...-6].to_i, post_id[-6..-1].to_i)
 
-    ip_addr = read_file_if_exist("./ip_addr/#{post_id}")
+    unique_id = read_file_if_exist("./ip_addr/#{post_id}")
     content = show_spaces(escape(IO.read("./content/#{post_id}" + "_" + fp[1])))
-    # if ip_addr.empty? || ip_addr == ""
-    #   next
-    # end
-    group_id = read_file_if_exist("./group_id/#{post_id}")
-    post_user = read_file_if_exist("./user_name/#{ip_addr}")
+
+    group_id = read_file_if_exist("./group_id/#{unique_id}")
+    post_user = read_file_if_exist("./user_name/#{unique_id}")
     if post_user == ""
       post_user = "NO NAME"
     end
 
-    log_messages.push(JSON.generate({'type'=>MSG_TYPE, 'post_num'=>fp[1], 'post_user'=>post_user,'body'=>content, 'time'=>time.strftime('%Y/%m/%d %H:%M:%S'),'ip_addr'=>ip_addr, 'gid'=>group_id.to_i}))
+    log_messages.push(JSON.generate({'type'=>MSG_TYPE, 'post_num'=>fp[1], 'post_user'=>post_user,'body'=>content, 'time'=>time.strftime('%Y/%m/%d %H:%M:%S'),'ip_addr'=>unique_id, 'gid'=>group_id.to_i}))
   }
   return log_messages
 end
