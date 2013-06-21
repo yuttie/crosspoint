@@ -42,10 +42,12 @@ def get_number()
   time = Time.now
   serial_id = time.to_i.to_s + time.usec.to_s.rjust(6, '0')
   ### ここにグループIDを割り振り，group_idに保存する処理を入れる ###
+  IO.write('./group_id/' + serial_id, 1)
   return serial_id
 end
 
 #ipアドレスに対してグループidを割り振る
+=begin
 def check_group(ip_addr)
   gid = 0
   if File.exist?("./group_id/#{ip_addr}")
@@ -57,6 +59,7 @@ def check_group(ip_addr)
   end
   return gid.to_i
 end
+=end
 
 def ip_zero(ip)
   IO.write('./group_id/' + ip, 0)
@@ -73,7 +76,8 @@ def message(msg,num)
   post_id = time.to_i.to_s + time.usec.to_s.rjust(6, '0')
   IO.write("./content/"   + post_id + "_" + num.to_i.to_s, content)
   IO.write('./ip_addr/'   + post_id, ip_addr)
-  group_id = check_group(ip_addr)
+  # group_id = check_group(ip_addr)
+  group_id = read_file_if_exist("./group_id/#{post_id}")
 
   post_user = read_file_if_exist("./user_name/#{ip_addr}")
   if post_user == ""
@@ -98,10 +102,10 @@ def log_messages()
 
     ip_addr = read_file_if_exist("./ip_addr/#{post_id}")
     content = show_spaces(escape(IO.read("./content/#{post_id}" + "_" + fp[1])))
-    if ip_addr.empty? || ip_addr == ""
-      next
-    end
-    group_id = read_file_if_exist("./group_id/#{ip_addr}")
+    # if ip_addr.empty? || ip_addr == ""
+    #   next
+    # end
+    group_id = read_file_if_exist("./group_id/#{post_id}")
     post_user = read_file_if_exist("./user_name/#{ip_addr}")
     if post_user == ""
       post_user = "NO NAME"
@@ -144,15 +148,18 @@ EventMachine.run {
       }
       $stderr.puts("#{sid} connected to #{ch_id}.")
 
-      #cookieに登録するシリアルナンバーを送る
-      unique_id = get_number();
-      cookie = JSON.generate({'type'=>'cookie', 'serial_num'=>unique_id})
-      ws.send(cookie)
-
+      
       ws.onmessage {|msg|
-        #msgをを置き換える
         data = JSON.parse(msg)
-        if(data['type'] == "comment")
+
+        if data['type'] == "cookie"
+          #cookieに登録するシリアルナンバーを送る
+          if data['unique_id'] == "NoData"
+            unique_id = get_number()
+            cookie = JSON.generate({'type'=>'cookie', 'serial_num'=>unique_id})
+            ws.send(cookie)
+          end
+        elsif(data['type'] == "comment")
           if(data['body'] == "円環の理")
             ip_zero(data['ip'])
           else
