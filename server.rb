@@ -7,11 +7,39 @@ end
 
 require 'em-websocket'
 require 'json'
+require 'fileutils'
 
 NUM_GROUPS = 21
 MSG_TYPE = 'comment'
 post_num = 0
 
+def get_group_id()
+  group_num_list = [3,6,9]
+
+  # これまでのファイル数でグループを割り振る
+  dir_path = "./group_id"
+  file_num = file_count = File.exist?(dir_path) ? `ls #{dir_path}|wc -l`.to_i : 0
+
+  # これまでのグループ数
+  group_unit = 0
+  group_num_list.each { |e| group_unit += e }
+  group_num = ((file_num.to_f/group_unit.to_f).truncate * group_num_list.size)
+
+  # modでグループを割り振る
+  mod = (file_num % group_unit) + 1
+  mod_group = 0
+  max = 0
+  group_num_list.each_with_index do |num,i|
+    max += num
+    if mod <= max
+      mod_group = i + 1
+      break
+    end
+  end
+
+  group_id = group_num + mod_group
+  return group_id
+end
 
 def mkdir_if_not_exist(dp)
   Dir.mkdir(dp,0757) unless Dir.exist?(dp)
@@ -42,7 +70,8 @@ def get_number()
   time = Time.now
   serial_id = time.to_i.to_s + time.usec.to_s.rjust(6, '0')
   ### ここにグループIDを割り振り，group_idに保存する処理を入れる ###
-  IO.write('./group_id/' + serial_id, 1)
+  group_id = get_group_id()
+  IO.write('./group_id/' + serial_id, group_id)
   return serial_id
 end
 
