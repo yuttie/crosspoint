@@ -110,7 +110,8 @@
                     }
                 }
 
-                // ipアドレスの取得 (php使用)
+                // ipアドレスの取得． (php使用)
+                /*
                 function getId(fp){
                     var request = new XMLHttpRequest();
                     request.open("GET", fp, false);
@@ -121,11 +122,12 @@
                         return eval("(" + request.responseText + ")");
                     }
                 }
+                */
 
                  // ユーザのグループid取得 (php使用)
-                function getUserID(ip_addr){
+                function getUserID(unique_id){
                     var req = new XMLHttpRequest();
-                    req.open("GET", "./php/getUserID.php?uid=../group_id/" + ip_addr, false);
+                    req.open("GET", "./php/getUserID.php?uid=../group_id/" + unique_id, false);
                     req.send(null);
                     
                     if(req.responseText != false){
@@ -134,11 +136,9 @@
                     
                 }
 
-                var ip = getId("./php/getId.php");
-                var gname = getUserID(ip.ip_addr);
-                document.getElementById("group_name").innerHTML = "<h3>グループ No." + gname + " の投稿</h3>";
-
-                 function makeText(msg){
+                // var ip = getId("./php/getId.php");
+                
+                function makeText(msg){
                     var content = msg.body.replace(/\#GROUP-ONLY/ig,"");
                     var post_text = '<p tabindex="-1">\
                             <div class="header">\
@@ -160,6 +160,9 @@
                 function setCookie(num){
                     var s = "";
                     s = 'cookie_name={"serial_number":"' + num + '"};';
+                    var expire = new Date();
+                    expire.setTime( expire.getTime() + 1000 * 3600 * 24 );
+                    s = s + 'expires=' + expire.toUTCString() + ';';
                     // s += "cookie_name" + "=" + encodeURIComponent("student_serial_number");
                     // s += "; number=" + num + ";";
                     
@@ -192,6 +195,8 @@
 
                         if(typeof(unique_id) !== "undefined"){
                             msg = {'type': 'cookie', 'unique_id': unique_id};
+                            var gname = getUserID(unique_id);
+                            document.getElementById("group_name").innerHTML = "<h3>グループ No." + gname + " の投稿</h3>";
                         }else{
                             msg = {'type': 'cookie', 'unique_id': "NoData"};
                         }
@@ -208,8 +213,7 @@
                         }
                         // 投稿の表示処理
                         else if (msg.type === "comment") {
-                         // 自分のipアドレスからグループidを取得する
-                            var my_gid = getUserID(ip.ip_addr);
+                            var my_gid = getUserID(getCookie());
                             post = makeText(msg);
 
                             if(msg.body.match(/\#GROUP-ONLY/i) === null){
@@ -225,6 +229,9 @@
                             }
                         }else if (msg.type === "cookie") {
                             setCookie(msg.serial_num);
+                            var gname = getUserID(msg.serial_num);
+                            document.getElementById("group_name").innerHTML = "<h3>グループ No." + gname + " の投稿</h3>";
+
                         }
                         else if (msg.type === "draw") {
                             var ctx = $('.slide.current > canvas.overlay')[0].getContext('2d');
@@ -265,7 +272,8 @@
                     if (!e.ctrlKey && e.which === 13) {
                         var s = $(this).val();
                         if (s.length > 0) {
-                            var msg = { 'type': 'comment', 'body': s , 'ip':ip.ip_addr};
+                            var id = getCookie();
+                            var msg = { 'type': 'comment', 'body': s , 'id':id};
                             ws.send(JSON.stringify(msg));
                             $(this).val('');
                         }
