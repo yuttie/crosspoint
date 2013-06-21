@@ -45,7 +45,17 @@
                     <div id="group_comments"></div>
                 </div>
             </div>
-            <div class="column">
+
+            <div class="column-mini">
+                <div class="view_title">
+                    <h3>TA連絡板</h3>
+                </div>
+                <div class="view">
+                    <div id="ta_comments"></div>
+                </div>
+            </div>
+
+            <div class="column-half">
                 <div class="view_title">
                     <h3>全体投稿</h3>
                 </div>
@@ -180,7 +190,7 @@
                                 MathJax.Hub.Queue(["Typeset", MathJax.Hub, p[0]]);
                                 p.prependTo('#comments');
                             }else{
-                                if(parseInt(my_gid) === msg.gid){
+                                if(parseInt(my_gid) === parseInt(msg.gid)){
                                     var p = $(post);
                                     MathJax.Hub.Queue(["Typeset", MathJax.Hub, p[0]]);
                                     p.prependTo('#group_comments');
