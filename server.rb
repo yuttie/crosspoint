@@ -68,24 +68,24 @@ end
 #投稿をファイルとして保存する処理
 def message(msg,num)
   data = JSON.parse(msg)
-  ip_addr = data['ip']
+  unique_id = data['id']
   content = show_spaces(escape(data['body']))
   #content = data['body']
 
   time = Time.now
   post_id = time.to_i.to_s + time.usec.to_s.rjust(6, '0')
   IO.write("./content/"   + post_id + "_" + num.to_i.to_s, content)
-  IO.write('./ip_addr/'   + post_id, ip_addr)
+  IO.write('./ip_addr/'   + post_id, unique_id)
   # group_id = check_group(ip_addr)
-  group_id = read_file_if_exist("./group_id/#{post_id}")
+  group_id = read_file_if_exist("./group_id/#{unique_id}")
 
-  post_user = read_file_if_exist("./user_name/#{ip_addr}")
+  post_user = read_file_if_exist("./user_name/#{unique_id}")
   if post_user == ""
     post_user = "NO NAME"
   end
 
   #JavaScriptに返す形式にmsgを整理
-  new_msg = {'type'=>MSG_TYPE, 'post_num'=>num, 'post_user'=>post_user, 'body'=>content, 'time'=>time.strftime('%Y/%m/%d %H:%M:%S'),'ip_addr'=>ip_addr, 'gid'=>group_id}
+  new_msg = {'type'=>MSG_TYPE, 'post_num'=>num, 'post_user'=>post_user, 'body'=>content, 'time'=>time.strftime('%Y/%m/%d %H:%M:%S'),'ip_addr'=>unique_id, 'gid'=>group_id}
   return JSON.generate(new_msg)
 end
 
@@ -100,18 +100,16 @@ def log_messages()
     post_id = File.basename(fp[0])
     time = Time.at(post_id[0...-6].to_i, post_id[-6..-1].to_i)
 
-    ip_addr = read_file_if_exist("./ip_addr/#{post_id}")
+    unique_id = read_file_if_exist("./ip_addr/#{post_id}")
     content = show_spaces(escape(IO.read("./content/#{post_id}" + "_" + fp[1])))
-    # if ip_addr.empty? || ip_addr == ""
-    #   next
-    # end
-    group_id = read_file_if_exist("./group_id/#{post_id}")
-    post_user = read_file_if_exist("./user_name/#{ip_addr}")
+
+    group_id = read_file_if_exist("./group_id/#{unique_id}")
+    post_user = read_file_if_exist("./user_name/#{unique_id}")
     if post_user == ""
       post_user = "NO NAME"
     end
 
-    log_messages.push(JSON.generate({'type'=>MSG_TYPE, 'post_num'=>fp[1], 'post_user'=>post_user,'body'=>content, 'time'=>time.strftime('%Y/%m/%d %H:%M:%S'),'ip_addr'=>ip_addr, 'gid'=>group_id.to_i}))
+    log_messages.push(JSON.generate({'type'=>MSG_TYPE, 'post_num'=>fp[1], 'post_user'=>post_user,'body'=>content, 'time'=>time.strftime('%Y/%m/%d %H:%M:%S'),'ip_addr'=>unique_id, 'gid'=>group_id.to_i}))
   }
   return log_messages
 end
