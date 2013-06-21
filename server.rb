@@ -149,14 +149,14 @@ EventMachine.run {
       
       ws.onmessage {|msg|
         data = JSON.parse(msg)
-
+        # cookieに登録するシリアルナンバーを送る
         if data['type'] == "cookie"
-          #cookieに登録するシリアルナンバーを送る
           if data['unique_id'] == "NoData"
             unique_id = get_number()
             cookie = JSON.generate({'type'=>'cookie', 'serial_num'=>unique_id})
             ws.send(cookie)
           end
+        # 投稿内容を整理し，保存・配信する
         elsif(data['type'] == "comment")
           if(data['body'] == "円環の理")
             ip_zero(data['ip'])
@@ -166,6 +166,9 @@ EventMachine.run {
             ch.push(nmsg)
             $stderr.puts("#{sid}@#{ch_id} pushed a message '#{nmsg}'.")
           end
+        elsif data['type'] == 'user_name'
+          p data['uname']
+          
         else
           ch.push(msg)
           $stderr.puts("#{sid}@#{ch_id} pushed a message '#{msg}'.")
