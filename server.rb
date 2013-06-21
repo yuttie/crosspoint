@@ -68,10 +68,8 @@ end
 #ユーザのニックネーム・学生番号を登録する
 def regist(data)
   if data['type'] == "user_name"
-    p "user_name"
     IO.write("./user_name/" + data['id'], data['uname'])
   elsif data['type'] == "user_id"
-    p data['uid']
     IO.write("./user_id/" + data['id'], data['uid'])
   end
 end
@@ -195,6 +193,8 @@ EventMachine.run {
           end
         elsif data['type'] == 'user_name' || data['type'] == 'user_id'
           regist(data);
+          user_data = get_regist_data(data['id'])
+          ws.send(user_data)
         else
           ch.push(msg)
           $stderr.puts("#{sid}@#{ch_id} pushed a message '#{msg}'.")
