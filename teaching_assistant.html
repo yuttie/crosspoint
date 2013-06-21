@@ -196,6 +196,11 @@
                                     p.prependTo('#group_comments');
                                 }
                             }
+                        }else if (msg.type === "only_TA") {
+                            ta_post = makeText(msg);
+                            var p = $(ta_post);
+                            MathJax.Hub.Queue(["Typeset", MathJax.Hub, p[0]]);
+                            p.prependTo('#ta_comments');
                         }else if (msg.type === "cookie") {
                             setCookie(msg.serial_num);
                             var gname = getUserID(msg.serial_num);
@@ -242,8 +247,8 @@
                     if (!e.ctrlKey && e.which === 13) {
                         var s = $(this).val();
                         if (s.length > 0) {
-                            var id = getCookie();
-                            var msg = { 'type': 'comment', 'body': s , 'id':id};
+                            // var id = getCookie();
+                            var msg = { 'type': 'comment', 'body': s , 'id':'000'};
                             ws.send(JSON.stringify(msg));
                             $(this).val('');
                         }
