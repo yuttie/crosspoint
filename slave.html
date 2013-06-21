@@ -159,7 +159,7 @@
                 // クライアントにCookieを保存する
                 function setCookie(num){
                     var s = "";
-                    s = "cookie_name={serial_number:" + num + "};";
+                    s = 'cookie_name={"serial_number":"' + num + '"};';
                     // s += "cookie_name" + "=" + encodeURIComponent("student_serial_number");
                     // s += "; number=" + num + ";";
                     
@@ -177,14 +177,28 @@
                                 result[cookie[0]] = decodeURIComponent(cookie[1]);
                             }
                         }
-                        console.log(result['cookie_name']);
-                        return document.cookie.length;
+                        var json = JSON.parse(result['cookie_name']);
+                        return json.serial_number;
                     }
                 }
 
                 var ws = null;
                 function startWebSocket() {
                     ws = new WebSocket("ws://" + window.location.hostname + ":9090/");
+                    ws.onopen = function(){
+                        console.log("Success open");
+                        var unique_id = getCookie();
+                        var msg = "";
+                        console.log(typeof(getCookie()));
+
+                        if(typeof(unique_id) !== "undefined"){
+                            msg = {'type': 'cookie', 'unique_id': unique_id};
+                        }else{
+                            msg = {'type': 'cookie', 'unique_id': "NoData"};
+                        }
+
+                        ws.send(JSON.stringify(msg));
+                    };
                     ws.onmessage = function(e) {
                         var msg = JSON.parse(e.data);
                         if (msg.type === "prev") {
@@ -210,6 +224,13 @@
                                     p.prependTo('#group_comments');
                                 }
                             }
+                        }else if (msg.type === "cookie") {
+                            console.log("Success setCookie");
+                            // クッキーを保存する
+                            // console.log(getCookie());
+                            // if(typeof(getCookie()) == "undefined"){
+                                setCookie(msg.serial_num);
+                            // }
                         }
                         else if (msg.type === "draw") {
                             var ctx = $('.slide.current > canvas.overlay')[0].getContext('2d');
@@ -224,13 +245,6 @@
                                 ctx.moveTo(last_pos.x, last_pos.y);
                                 ctx.lineTo(pos.x, pos.y);
                                 ctx.stroke();
-                            }
-                        }else if (msg.type === "cookie") {
-                            // クッキーを保存する
-                            //var flag_cookie = getCookie();
-                            // console.log(typeof(getCookie()));
-                            if(typeof(getCookie()) == "undefined"){
-                                setCookie(msg.serial_num);
                             }
                         }
                     };
