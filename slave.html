@@ -196,6 +196,11 @@
                                     p.prependTo('#group_comments');
                                 }
                             }
+                        }else if (msg.type === "only_TA") {
+                            ta_post = makeText(msg);
+                            var p = $(ta_post);
+                            MathJax.Hub.Queue(["Typeset", MathJax.Hub, p[0]]);
+                            p.prependTo('#ta_comments');
                         }else if (msg.type === "cookie") {
                             setCookie(msg.serial_num);
                             var gname = getUserID(msg.serial_num);
