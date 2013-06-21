@@ -1,10 +1,11 @@
 <?php
-$GROUP_NUM = 3;
+// $GROUP_NUM = 3;
 
 // IPアドレスを取得して変数にセットする
 $ipAddress = $_SERVER["REMOTE_ADDR"];
 $fp = "../group_id/" . $ipAddress;
 
+/*
 // IPアドレスを保存
 if(!file_exists($fp)){
 	$ip = substr(str_replace(".", "", $ipAddress), -2);
@@ -14,6 +15,7 @@ if(!file_exists($fp)){
 	fclose($handle);
 	//file_put_contents($fp, $gid | LOCK_EX);
  }
+*/
 
 // master.htmlにIPアドレスを返す
 $test = array(
