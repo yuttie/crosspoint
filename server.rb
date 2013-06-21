@@ -13,6 +13,32 @@ NUM_GROUPS = 21
 MSG_TYPE = 'comment'
 post_num = 0
 
+def mkdir_if_not_exist(dp)
+  Dir.mkdir(dp,0757) unless Dir.exist?(dp)
+  raise "Couldn't make a directory '#{dp}'." unless Dir.exist?(dp)
+end
+
+def read_file_if_exist(fp)
+  File.exist?(fp) ? IO.read(fp) : ''
+end
+
+def escape(string)
+  str = string ? string.dup : ""
+  str.gsub!(/&/,  '&amp;')
+  str.gsub!(/\"/, '&quot;')
+  str.gsub!(/>/,  '&gt;')
+  str.gsub!(/</,  '&lt;')
+  str
+end
+
+def show_spaces(string)
+  str = string ? string.dup : ""
+  str.gsub!(/ /,  '&nbsp;')
+  str.gsub!(/\n/, '<br>')
+  str
+end
+
+# グループの振り分け
 def get_group_id()
   group_num_list = [3,6,9]
 
@@ -41,31 +67,6 @@ def get_group_id()
   return group_id
 end
 
-def mkdir_if_not_exist(dp)
-  Dir.mkdir(dp,0757) unless Dir.exist?(dp)
-  raise "Couldn't make a directory '#{dp}'." unless Dir.exist?(dp)
-end
-
-def read_file_if_exist(fp)
-  File.exist?(fp) ? IO.read(fp) : ''
-end
-
-def escape(string)
-  str = string ? string.dup : ""
-  str.gsub!(/&/,  '&amp;')
-  str.gsub!(/\"/, '&quot;')
-  str.gsub!(/>/,  '&gt;')
-  str.gsub!(/</,  '&lt;')
-  str
-end
-
-def show_spaces(string)
-  str = string ? string.dup : ""
-  str.gsub!(/ /,  '&nbsp;')
-  str.gsub!(/\n/, '<br>')
-  str
-end
-
 def get_number()
   time = Time.now
   serial_id = time.to_i.to_s + time.usec.to_s.rjust(6, '0')
@@ -74,21 +75,6 @@ def get_number()
   IO.write('./group_id/' + serial_id, group_id)
   return serial_id
 end
-
-#ipアドレスに対してグループidを割り振る
-=begin
-def check_group(ip_addr)
-  gid = 0
-  if File.exist?("./group_id/#{ip_addr}")
-    gid = read_file_if_exist("./group_id/#{ip_addr}")
-  else
-    str_ip = ip_addr[ip_addr.size-2,ip_addr.size]
-    gid = str_ip.to_i%NUM_GROUPS
-    IO.write('./group_id/'   + ip_addr, gid)
-  end
-  return gid.to_i
-end
-=end
 
 def ip_zero(ip)
   IO.write('./group_id/' + ip, 0)
@@ -127,7 +113,6 @@ def message(msg,num)
   post_id = time.to_i.to_s + time.usec.to_s.rjust(6, '0')
   IO.write("./content/"   + post_id + "_" + num.to_i.to_s, content)
   IO.write('./ip_addr/'   + post_id, unique_id)
-  # group_id = check_group(ip_addr)
   group_id = read_file_if_exist("./group_id/#{unique_id}")
 
   post_user = read_file_if_exist("./user_name/#{unique_id}")
