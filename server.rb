@@ -76,6 +76,19 @@ def regist(data)
   end
 end
 
+def get_regist_data(id)
+  uname = read_file_if_exist("./user_name/" + id)
+  uid = read_file_if_exist("./user_id/" + id)
+  if uname == ""
+    uname = "NoName"
+  end
+  if uid == ""
+    uid = "Unkown"
+  end
+
+  return JSON.generate({'type'=>'user_data', 'user_name'=>uname, 'user_id'=>uid})
+end
+
 #投稿をファイルとして保存する処理
 def message(msg,num)
   data = JSON.parse(msg)
@@ -166,6 +179,9 @@ EventMachine.run {
             unique_id = get_number()
             cookie = JSON.generate({'type'=>'cookie', 'serial_num'=>unique_id})
             ws.send(cookie)
+          else
+            user_data = get_regist_data(data['unique_id'])
+            ws.send(user_data)
           end
         # 投稿内容を整理し，保存・配信する
         elsif(data['type'] == "comment")
