@@ -56,32 +56,6 @@
         </div>
 
         <script>
-            // 名前と学生番号登録
-            /*
-            function regist(){
-                var name = document.regi_name.user_name.value;
-                var id = document.regi_name.student_id.value;
-                var user_data;
-                if(!name){
-                    name = "no_data";
-                }
-                if(!id){
-                    id = "no_data";
-                }
-
-                var req = new XMLHttpRequest();
-                uri = "./php/registId.php?name=" + name + "&uid=" + id;
-                req.open("POST", uri, false);
-                req.send(null);
-                if(req.responseText != false){
-                        user_data = eval("(" + req.responseText + ")");
-                }
-                if(user_data.name != "no_data" && user_data.id != "no_data"){
-                    document.getElementById("user_id").innerHTML = "ようこそ" + user_data.name + "さん<br>あなたの学生番号は " + user_data.id + " です";
-                }
-            }
-            */
-
             $(function() {
                 function updateSlideClasses() {
                     $('.slide.current').prevAll('.slide').removeClass('prev left');
@@ -114,20 +88,6 @@
                     }
                 }
 
-                // ipアドレスの取得． (php使用)
-                /*
-                function getId(fp){
-                    var request = new XMLHttpRequest();
-                    request.open("GET", fp, false);
-                    request.send(null);
-                    //var ip = eval("(" + request.responseText + ")")
-                    //console.log(ip.ip_addr);
-                    if(request.responseText != false){
-                        return eval("(" + request.responseText + ")");
-                    }
-                }
-                */
-
                  // ユーザのグループid取得 (php使用)
                 function getUserID(unique_id){
                     var req = new XMLHttpRequest();
@@ -140,8 +100,6 @@
                     
                 }
 
-                // var ip = getId("./php/getId.php");
-                
                 function makeText(msg){
                     var content = msg.body.replace(/\#GROUP-ONLY/ig,"");
                     var post_text = '<p tabindex="-1">\
@@ -167,9 +125,6 @@
                     var expire = new Date();
                     expire.setTime( expire.getTime() + 1000 * 3600 * 24 );
                     s = s + 'expires=' + expire.toUTCString() + ';';
-                    // s += "cookie_name" + "=" + encodeURIComponent("student_serial_number");
-                    // s += "; number=" + num + ";";
-                    
                     document.cookie = s;
                 }
                 // 該当するCookieを読み込む
@@ -322,7 +277,6 @@
                             var id = getCookie();
                             var msg = { 'type': 'user_name', 'uname': s , 'id':id};
                             ws.send(JSON.stringify(msg));
-                            // $(this).val('');
                         }
                         e.preventDefault();
                     }
@@ -334,7 +288,6 @@
                             var id = getCookie();
                             var msg = { 'type': 'user_id', 'uid': s , 'id':id};
                             ws.send(JSON.stringify(msg));
-                            // $(this).val('');
                         }
                         e.preventDefault();
                     }
