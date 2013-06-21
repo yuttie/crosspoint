@@ -76,8 +76,45 @@ def get_number()
   return serial_id
 end
 
-def ip_zero(ip)
-  IO.write('./group_id/' + ip, 0)
+def get_number()
+  time = Time.now
+  serial_id = time.to_i.to_s + time.usec.to_s.rjust(6, '0')
+  ### ここにグループIDを割り振り，group_idに保存する処理を入れる ###
+  group_id = get_group_id()
+  IO.write('./group_id/' + serial_id, group_id)
+  return serial_id
+end
+
+def process_ta()
+  time = Time.now
+  serial_id = time.to_i.to_s + time.usec.to_s.rjust(6, '0')
+  ### ここにグループIDを割り振り，group_idに保存する処理を入れる ###
+  IO.write('./group_id/' + serial_id, "0")
+  return serial_id
+end
+
+#TA投稿用
+def ip_zero(msg)
+  data = JSON.parse(msg)
+  unique_id = data['id']
+  #あえてエスケープをかけない. HTMLタグを使用可に.  
+  content = show_spaces(data['body'])
+  #content = data['body']
+
+  time = Time.now
+  post_id = time.to_i.to_s + time.usec.to_s.rjust(6, '0')
+  IO.write("./content/"   + post_id + "_TA", content)
+  IO.write('./ip_addr/'   + post_id, unique_id)
+  group_id = read_file_if_exist("./group_id/#{unique_id}")
+
+  post_user = read_file_if_exist("./user_name/#{unique_id}")
+  if post_user == ""
+    post_user = "NO NAME"
+  end
+
+  #JavaScriptに返す形式にmsgを整理
+  new_msg = {'type'=>'only_TA', 'post_num'=>'TA', 'post_user'=>post_user, 'body'=>content, 'time'=>time.strftime('%Y/%m/%d %H:%M:%S'),'ip_addr'=>unique_id, 'gid'=>group_id}
+  return JSON.generate(new_msg)
 end
 
 #ユーザのニックネーム・学生番号を登録する
@@ -145,7 +182,14 @@ def log_messages()
       post_user = "NO NAME"
     end
 
-    log_messages.push(JSON.generate({'type'=>MSG_TYPE, 'post_num'=>fp[1], 'post_user'=>post_user,'body'=>content, 'time'=>time.strftime('%Y/%m/%d %H:%M:%S'),'ip_addr'=>unique_id, 'gid'=>group_id.to_i}))
+    type = ""
+    if fp[1] == "TA"
+      type = "only_TA"
+    else
+      type = MSG_TYPE
+    end
+
+    log_messages.push(JSON.generate({'type'=>type, 'post_num'=>fp[1], 'post_user'=>post_user,'body'=>content, 'time'=>time.strftime('%Y/%m/%d %H:%M:%S'),'ip_addr'=>unique_id, 'gid'=>group_id.to_i}))
   }
   return log_messages
 end
@@ -187,7 +231,11 @@ EventMachine.run {
         data = JSON.parse(msg)
         # cookieに登録するシリアルナンバーを送る
         if data['type'] == "cookie"
-          if data['unique_id'] == "NoData"
+          if data['unique_id'] == "TA"
+            ta_id = process_ta()
+            ta_cookie = JSON.generate({'type'=>'cookie', 'serial_num'=>ta_id})
+            ws.send(ta_cookie)
+          elsif data['unique_id'] == "NoData"
             unique_id = get_number()
             cookie = JSON.generate({'type'=>'cookie', 'serial_num'=>unique_id})
             ws.send(cookie)
@@ -197,8 +245,10 @@ EventMachine.run {
           end
         # 投稿内容を整理し，保存・配信する
         elsif(data['type'] == "comment")
-          if(data['body'] == "円環の理")
-            ip_zero(data['ip'])
+          if(data['id'] == "000")
+            zmsg = ip_zero(msg)
+            ch.push(zmsg)
+            $stderr.puts("#{sid}@#{ch_id} pushed a message '#{zmsg}'.")
           else
             post_num = post_num + 1
             nmsg = message(msg,post_num)
