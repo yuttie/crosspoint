@@ -7,7 +7,7 @@
         <link rel="stylesheet" href="common.css" type="text/css" media="all">
         <title></title>
     </head>
-    <body onload="regist()">
+    <body>
         <div id="user_id" style="text-align:center">未登録</div>
         <div style="float:left;margin-right:20px;">
             <h4>グループ用の投稿欄</h4>
@@ -20,15 +20,15 @@
 
         <!--名前と学生番号の入力欄-->
         <div style="font-weight:bold;color: black;float: right;">
-            <form name="regi_name">
-                <font size="3px">ニックネーム</font><input type="text" name="user_name">
-                <div class="form-toolbar">
-                    <font size="4px">学生番号</font><input type="text" name="student_id">
-                </div>
-                <div class="form-toolbar">
-                    <input type="button" value="登録" onclick="regist()">
-                </div>
-            </form>
+            <font size="3px">ニックネーム</font><input type="text" name="user_name" id="name-entry">
+            <div class="form-toolbar">
+                <font size="4px">学生番号</font><input type="text" name="student_id" id="id-entry">
+            </div>
+            <!--
+            <div class="form-toolbar">
+                <input type="button" value="登録">
+            </div>
+            -->
         </div>
         <div style="clear:both"></div>
 
@@ -55,6 +55,7 @@
 
         <script>
             // 名前と学生番号登録
+            /*
             function regist(){
                 var name = document.regi_name.user_name.value;
                 var id = document.regi_name.student_id.value;
@@ -77,6 +78,7 @@
                     document.getElementById("user_id").innerHTML = "ようこそ" + user_data.name + "さん<br>あなたの学生番号は " + user_data.id + " です";
                 }
             }
+            */
 
             $(function() {
                 function updateSlideClasses() {
@@ -191,7 +193,7 @@
                     ws.onopen = function(){
                         var unique_id = getCookie();
                         var msg = "";
-                        console.log(typeof(getCookie()));
+                        // console.log(typeof(getCookie()));
 
                         if(typeof(unique_id) !== "undefined"){
                             msg = {'type': 'cookie', 'unique_id': unique_id};
@@ -293,8 +295,9 @@
                     if (!e.ctrlKey && e.which === 13) {
                         var s = $(this).val();
                         if (s.length > 0) {
+                            var id = getCookie();
                             var text = s + "#GROUP-ONLY";
-                            var msg = { 'type': 'comment', 'body': text , 'ip':ip.ip_addr};
+                            var msg = { 'type': 'comment', 'body': text , 'id':id};
                             ws.send(JSON.stringify(msg));
                             $(this).val('');
                         }
@@ -307,6 +310,30 @@
                         $(this).val(s.slice(0, start) + "\n" + s.slice(end));
                         this.selectionStart = start + 1;
                         this.selectionEnd = start + 1;
+                    }
+                });
+                 $('#name-entry').on('keypress', function(e) {
+                    if (e.which === 13) {
+                        var s = $(this).val();
+                        if (s.length > 0) {
+                            var id = getCookie();
+                            var msg = { 'type': 'user_name', 'uname': s , 'id':id};
+                            ws.send(JSON.stringify(msg));
+                            // $(this).val('');
+                        }
+                        e.preventDefault();
+                    }
+                });
+                 $('#id-entry').on('keypress', function(e) {
+                    if (e.which === 13) {
+                        var s = $(this).val();
+                        if (s.length > 0) {
+                            var id = getCookie();
+                            var msg = { 'type': 'user_id', 'uid': s , 'id':id};
+                            ws.send(JSON.stringify(msg));
+                            // $(this).val('');
+                        }
+                        e.preventDefault();
                     }
                 });
             });
