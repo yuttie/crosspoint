@@ -125,8 +125,31 @@ pre {
   text-align: center;
 }
 .column {
+  position: absolute;
   height: 100%;
   width: 49%;
+  top: 0;
+  left: 0;
+  display: inline-block;
+  vertical-align: top;
+  text-align: left;
+}
+.column-half {
+  position: absolute;
+  height: 55%;
+  width: 49%;
+  right: 0;
+  bottom: 0;
+  display: inline-block;
+  vertical-align: top;
+  text-align: left;
+}
+.column-mini {
+  position: absolute;
+  height: 35%;
+  width: 49%;
+  top: 0;
+  right: 0;
   display: inline-block;
   vertical-align: top;
   text-align: left;

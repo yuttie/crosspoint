@@ -10,11 +10,11 @@
     <body>
         <div id="user_id" style="text-align:center"></div>
         <div style="float:left;margin-right:20px;">
-            <h4>グループ用の投稿欄</h4>
+            <h4>TA内の投稿欄</h4>
             <textarea id="group-comment-entry" cols="40" rows="5" autofocus></textarea>
         </div>
         <div style="float:left">
-            <h4>全体用の投稿欄</h4>
+            <h4>TA連絡用の投稿欄</h4>
             <textarea id="comment-entry" cols="40" rows="5" autofocus></textarea>
         </div>
 
@@ -167,7 +167,7 @@
                             var gname = getUserID(unique_id);
                             document.getElementById("group_name").innerHTML = "<h3>グループ No." + gname + " の投稿</h3>";
                         }else{
-                            msg = {'type': 'cookie', 'unique_id': "NoData"};
+                            msg = {'type': 'cookie', 'unique_id': "TA"};
                         }
 
                         ws.send(JSON.stringify(msg));
@@ -247,8 +247,8 @@
                     if (!e.ctrlKey && e.which === 13) {
                         var s = $(this).val();
                         if (s.length > 0) {
-                            var id = getCookie();
-                            var msg = { 'type': 'comment', 'body': s , 'id':id};
+                            // var id = getCookie();
+                            var msg = { 'type': 'comment', 'body': s , 'id':'000'};
                             ws.send(JSON.stringify(msg));
                             $(this).val('');
                         }
