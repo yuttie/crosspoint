@@ -33,7 +33,6 @@ end
 
 def show_spaces(string)
   str = string ? string.dup : ""
-  str.gsub!(/ /,  '&nbsp;')
   str.gsub!(/\n/, '<br>')
   str
 end
