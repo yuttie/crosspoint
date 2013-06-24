@@ -251,8 +251,8 @@ EventMachine.run {
           end
         # 投稿内容を整理し，保存・配信する
         when 'comment'
-          comment = j
-          if comment['id'] == "000"
+          post = j
+          if post['id'] == "000"
             zmsg = ip_zero(msg)
             ch.push(zmsg)
             $stderr.puts("#{sid}@#{ch_id} pushed a message '#{zmsg}'.")
