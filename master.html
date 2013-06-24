@@ -86,21 +86,19 @@
                     
                 }
 
-                 function makeText(msg){
-                    var post_text = '<div tabindex="-1" class="post">\
-                            <div class="header">\
-                                <span class="number">' + msg.post_num + '</span>\
-                                <span class="time">' + msg.time + '</span>\
+                function post_to_html(post){
+                    var body = post.body.replace(/\#GROUP-ONLY/ig, "");
+                    return '<div>\
+                              <div class="header">\
+                                <span class="number">' + post.post_num + '</span>\
+                                <span class="time">' + post.time + '</span>\
                                 <span class="host">\
-                                    <span class="host-name">' + msg.post_user + '</span>\
-                                    &nbsp;\
-                                    <span class="ip-addr">(' + msg.ip_addr + ')</span>\
+                                  <span class="host-name">' + post.post_user + '</span>\
+                                  &nbsp;\
+                                  <span class="ip-addr">(' + post.ip_addr + ')</span>\
                                 </span>\
-                            </div>\
-                        <div class="content"><pre>' + msg.body + '</pre></div>\
-                    </div>';
-
-                    return post_text;
+                              <div class="content">' + body + '</div>\
+                            </div>';
                 }
 
                 var ws = null;
@@ -116,7 +114,7 @@
                         }
                         else if (msg.type === "comment") {
                             if(msg.body.match(/\#GROUP-ONLY/i) === null){
-                                post = makeText(msg);
+                                post = post_to_html(msg);
                                 var p = $(post);
                                 MathJax.Hub.Queue(["Typeset", MathJax.Hub, p[0]]);
                                 p.prependTo('#comments');
