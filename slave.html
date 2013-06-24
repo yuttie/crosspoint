@@ -103,11 +103,11 @@
                     var req = new XMLHttpRequest();
                     req.open("GET", "./php/getUserID.php?uid=../group_id/" + unique_id, false);
                     req.send(null);
-                    
+
                     if(req.responseText != false){
                         return eval(req.responseText);
                     }
-                    
+
                 }
 
                 function makeText(msg){

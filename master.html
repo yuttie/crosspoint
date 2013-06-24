@@ -79,11 +79,11 @@
                     var req = new XMLHttpRequest();
                     req.open("GET", "./php/getUserID.php?uid=../group_id/" + ip_addr, false);
                     req.send(null);
-                    
+
                     if(req.responseText != false){
                         return eval(req.responseText);
                     }
-                    
+
                 }
 
                  function makeText(msg){

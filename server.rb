@@ -226,7 +226,7 @@ EventMachine.run {
       }
       $stderr.puts("#{sid} connected to #{ch_id}.")
 
-      
+
       ws.onmessage {|msg|
         data = JSON.parse(msg)
         # cookieに登録するシリアルナンバーを送る
