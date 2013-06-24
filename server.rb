@@ -108,9 +108,6 @@ def ip_zero(msg)
   group_id = read_file_if_exist("./group_id/#{unique_id}")
 
   post_user = read_file_if_exist("./user_name/#{unique_id}")
-  if post_user == ""
-    post_user = "NO NAME"
-  end
 
   #JavaScriptに返す形式にmsgを整理
   new_msg = {'type'=>'only_TA', 'post_num'=>'TA', 'post_user'=>post_user, 'body'=>content, 'time'=>time.strftime('%Y/%m/%d %H:%M:%S'),'ip_addr'=>unique_id, 'gid'=>group_id}
@@ -153,9 +150,6 @@ def message(msg,num)
   group_id = read_file_if_exist("./group_id/#{unique_id}")
 
   post_user = read_file_if_exist("./user_name/#{unique_id}")
-  if post_user == ""
-    post_user = "NO NAME"
-  end
 
   #JavaScriptに返す形式にmsgを整理
   new_msg = {'type'=>MSG_TYPE, 'post_num'=>num, 'post_user'=>post_user, 'body'=>content, 'time'=>time.strftime('%Y/%m/%d %H:%M:%S'),'ip_addr'=>unique_id, 'gid'=>group_id}
@@ -178,9 +172,6 @@ def log_messages()
 
     group_id = read_file_if_exist("./group_id/#{unique_id}")
     post_user = read_file_if_exist("./user_name/#{unique_id}")
-    if post_user == ""
-      post_user = "NO NAME"
-    end
 
     type = ""
     if fp[1] == "TA"

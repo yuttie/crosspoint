@@ -86,18 +86,20 @@
 
                 }
 
-                 function makeText(msg){
+                 function makeText(post){
                     var post_text = '<div tabindex="-1" class="post">\
                             <div class="header">\
-                                <span class="number">' + msg.post_num + '</span>\
-                                <span class="time">' + msg.time + '</span>\
+                                <span class="number">' + post.post_num + '</span>\
+                                <span class="time">' + post.time + '</span>\
                                 <span class="host">\
-                                    <span class="host-name">' + msg.post_user + '</span>\
-                                    &nbsp;\
-                                    <span class="ip-addr">(' + msg.ip_addr + ')</span>\
+                                  <span class="host-name">' +
+                                    (post.post_user !== '' ? post.post_user : 'NO NAME') + '
+                                  </span>\
+                                  &nbsp;\
+                                  <span class="ip-addr">(' + post.ip_addr + ')</span>\
                                 </span>\
                             </div>\
-                        <div class="content"><pre>' + msg.body + '</pre></div>\
+                        <div class="content"><pre>' + post.body + '</pre></div>\
                     </div>';
 
                     return post_text;
