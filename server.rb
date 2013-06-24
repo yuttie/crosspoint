@@ -137,23 +137,35 @@ def get_regist_data(id)
 end
 
 #投稿をファイルとして保存する処理
-def message(msg,num)
-  data = JSON.parse(msg)
-  unique_id = data['id']
-  content = show_spaces(escape(data['body']))
-  #content = data['body']
+def store_post(post, num)
+  user_id = post['id']
+  content = post['body']
 
   time = Time.now
   post_id = time.to_i.to_s + time.usec.to_s.rjust(6, '0')
-  IO.write("./content/"   + post_id + "_" + num.to_i.to_s, content)
-  IO.write('./ip_addr/'   + post_id, unique_id)
-  group_id = read_file_if_exist("./group_id/#{unique_id}")
+  IO.write('./content/' + post_id + '_' + num.to_i.to_s, content)
+  IO.write('./post_num/' + post_id, num)
+  IO.write('./ip_addr/' + post_id, user_id)
+  post_id
+end
 
-  post_user = read_file_if_exist("./user_name/#{unique_id}")
+def load_post(post_id)
+  time = Time.at(post_id[0...-6].to_i, post_id[-6..-1].to_i)
+  post_num = read_file_if_exist("./post_num/#{post_id}")
+  content  = read_file_if_exist("./content/#{post_id}_#{post_num}")
+  user_id  = read_file_if_exist("./ip_addr/#{post_id}")
+  user_name = read_file_if_exist("./user_name/#{user_id}")
+  group_id  = read_file_if_exist("./group_id/#{user_id}")
 
-  #JavaScriptに返す形式にmsgを整理
-  new_msg = {'type'=>MSG_TYPE, 'post_num'=>num, 'post_user'=>post_user, 'body'=>content, 'time'=>time.strftime('%Y/%m/%d %H:%M:%S'),'ip_addr'=>unique_id, 'gid'=>group_id}
-  return JSON.generate(new_msg)
+  return {
+    'type'      => MSG_TYPE,
+    'post_num'  => post_num,
+    'post_user' => user_name,
+    'body'      => content,
+    'time'      => time.strftime('%Y/%m/%d %H:%M:%S'),
+    'ip_addr'   => user_id,
+    'gid'       => group_id
+  }
 end
 
 #所見ユーザに過去の投稿を全て送信するために準備
@@ -190,6 +202,7 @@ mkdir_if_not_exist('./ip_addr')
 mkdir_if_not_exist('./group_id')
 mkdir_if_not_exist('./user_name')
 mkdir_if_not_exist('./user_id')
+mkdir_if_not_exist('./post_num')
 
 if Dir.exist?('./content')
   Dir.glob("./content/*") {|file|
@@ -245,9 +258,10 @@ EventMachine.run {
             $stderr.puts("#{sid}@#{ch_id} pushed a message '#{zmsg}'.")
           else
             post_num = post_num + 1
-            nmsg = message(msg, post_num)
-            ch.push(nmsg)
-            $stderr.puts("#{sid}@#{ch_id} pushed a message '#{nmsg}'.")
+            post_id = store_post(post, post_num)
+            loaded_post = JSON.generate(load_post(post_id))
+            ch.push(loaded_post)
+            $stderr.puts("#{sid}@#{ch_id} pushed a message '#{loaded_post}'.")
           end
         when 'user_name', 'user_id'
           user = j
