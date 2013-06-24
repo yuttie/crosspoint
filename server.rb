@@ -228,36 +228,40 @@ EventMachine.run {
 
 
       ws.onmessage {|msg|
-        data = JSON.parse(msg)
+        j = JSON.parse(msg)
+        case j['type']
         # cookieに登録するシリアルナンバーを送る
-        if data['type'] == "cookie"
-          if data['unique_id'] == "TA"
+        when 'cookie'
+          req = j
+          if req['unique_id'] == "TA"
             ta_id = process_ta()
             ta_cookie = JSON.generate({'type'=>'cookie', 'serial_num'=>ta_id})
             ws.send(ta_cookie)
-          elsif data['unique_id'] == "NoData"
+          elsif req['unique_id'] == "NoData"
             unique_id = get_number()
             cookie = JSON.generate({'type'=>'cookie', 'serial_num'=>unique_id})
             ws.send(cookie)
           else
-            user_data = get_regist_data(data['unique_id'])
+            user_data = get_regist_data(req['unique_id'])
             ws.send(user_data)
           end
         # 投稿内容を整理し，保存・配信する
-        elsif(data['type'] == "comment")
-          if(data['id'] == "000")
+        when 'comment'
+          comment = j
+          if comment['id'] == "000"
             zmsg = ip_zero(msg)
             ch.push(zmsg)
             $stderr.puts("#{sid}@#{ch_id} pushed a message '#{zmsg}'.")
           else
             post_num = post_num + 1
-            nmsg = message(msg,post_num)
+            nmsg = message(msg, post_num)
             ch.push(nmsg)
             $stderr.puts("#{sid}@#{ch_id} pushed a message '#{nmsg}'.")
           end
-        elsif data['type'] == 'user_name' || data['type'] == 'user_id'
-          regist(data);
-          user_data = get_regist_data(data['id'])
+        when 'user_name', 'user_id'
+          user = j
+          regist(user);
+          user_data = get_regist_data(user['id'])
           ws.send(user_data)
         else
           ch.push(msg)
