@@ -188,7 +188,7 @@ def log_messages()
       type = MSG_TYPE
     end
 
-    log_messages.push(JSON.generate({'type'=>type, 'post_num'=>fp[1], 'post_user'=>post_user,'body'=>content, 'time'=>time.strftime('%Y/%m/%d %H:%M:%S'),'ip_addr'=>unique_id, 'gid'=>group_id.to_i}))
+    log_messages.push({'type'=>type, 'post_num'=>fp[1], 'post_user'=>post_user,'body'=>content, 'time'=>time.strftime('%Y/%m/%d %H:%M:%S'),'ip_addr'=>unique_id, 'gid'=>group_id.to_i})
   }
   return log_messages
 end
@@ -254,23 +254,20 @@ end
 
 EventMachine.run {
   @channels = {}
+  analyzer = Analyzer.new
+  msg_queue = EM::Queue.new
+  result_queue = EM::Queue.new
+  decorator = Decorator.new
 
   EventMachine::WebSocket.start(host: ARGV[1] || "0.0.0.0", port: (ARGV[0] || 9090).to_i) do |ws|
-    analyzer = Analyzer.new
-    msg_queue = EM::Queue.new
-    result_queue = EM::Queue.new
-    decorator = Decorator.new
-
     ws.onopen {|handshake|
       ch_id = handshake.path
       @channels[ch_id] ||= EventMachine::Channel.new
       ch = @channels[ch_id]
 
       #接続が区立されたユーザ１人に対して既存メッセージを送信する
-      log_msg = log_messages()
-      log_msg.each {|msg|
-        ws.send(msg)
-      }
+      msgs = log_messages()
+      ws.send(JSON.generate({"type" => "multiple-comments", "comments" => msgs}))
 
       sid = ch.subscribe {|msg|
         ws.send(msg)
