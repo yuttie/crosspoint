@@ -87,7 +87,6 @@ end
 def process_ta()
   time = Time.now
   serial_id = time.to_i.to_s + time.usec.to_s.rjust(6, '0')
-  ### ここにグループIDを割り振り，group_idに保存する処理を入れる ###
   IO.write('./group_id/' + serial_id, "0")
   return serial_id
 end
@@ -163,9 +162,7 @@ end
 
 #所見ユーザに過去の投稿を全て送信するために準備
 def log_messages(n)
-  log_messages = Array.new
-  #保存されたメッセージの取得
-  Dir.glob('./content/*').sort[-n..-1].each_with_index {|prefp, i|
+  def get_message(log_messages,prefp)
     fp = prefp.split("_")
 
     time = Time.now
@@ -189,7 +186,19 @@ def log_messages(n)
     end
 
     log_messages.push({'type'=>type, 'post_num'=>fp[1], 'post_user'=>post_user,'body'=>content, 'time'=>time.strftime('%Y/%m/%d %H:%M:%S'),'ip_addr'=>unique_id, 'gid'=>group_id.to_i})
-  }
+  end
+
+  log_messages = Array.new
+  #保存されたメッセージの取得
+  if Dir.glob('./content/*').size > 100
+    Dir.glob('./content/*').sort[-n..-1].each_with_index {|prefp, i|
+      get_message(log_messages,prefp)
+    }
+  else
+    Dir.glob('./content/*').sort.each_with_index {|prefp, i|
+      get_message(log_messages,prefp)
+    }
+  end
   return log_messages
 end
 
