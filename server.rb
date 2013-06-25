@@ -254,13 +254,12 @@ end
 
 EventMachine.run {
   @channels = {}
+  analyzer = Analyzer.new
+  msg_queue = EM::Queue.new
+  result_queue = EM::Queue.new
+  decorator = Decorator.new
 
   EventMachine::WebSocket.start(host: ARGV[1] || "0.0.0.0", port: (ARGV[0] || 9090).to_i) do |ws|
-    analyzer = Analyzer.new
-    msg_queue = EM::Queue.new
-    result_queue = EM::Queue.new
-    decorator = Decorator.new
-
     ws.onopen {|handshake|
       ch_id = handshake.path
       @channels[ch_id] ||= EventMachine::Channel.new
