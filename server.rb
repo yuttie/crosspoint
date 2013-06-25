@@ -98,7 +98,7 @@ def ip_zero(msg)
   data = JSON.parse(msg)
   unique_id = data['id']
   #あえてエスケープをかけない. HTMLタグを使用可に.  
-  content = show_spaces(data['body'])
+  content = show_spaces(escape(data['body']))
   #content = data['body']
 
   time = Time.now
