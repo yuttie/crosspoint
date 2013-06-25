@@ -136,7 +136,7 @@
                                   &nbsp;\
                                   <span class="ip-addr">(' + post.ip_addr + ')</span>\
                                 </span>\
-                              </div>
+                              </div>\
                               <div class="content">' + body + '</div>\
                             </div>';
                 }
@@ -153,7 +153,7 @@
                             goToNextSlide();
                         }
                         else if (msg.type === "comment") {
-                            post = makeText(msg);
+                            post = post_to_html(msg);
                             if(msg.body.match(/\#GROUP-ONLY/i) === null){
                                 post = post_to_html(msg);
                                 var p = $(post);
