@@ -288,7 +288,7 @@ EventMachine.run {
           result_queue << result if result
         }
         result_queue.pop {|result|
-          msg = {
+          m = {
             'type'      => 'only_TA',
             'post_num'  => 'TA',
             'post_user' => '解析ぼっと',
@@ -297,7 +297,7 @@ EventMachine.run {
             'ip_addr'   => 0,
             'gid'       => 0
           }
-          ws.send(JSON.generate(msg))
+          ws.send(JSON.generate(m))
         }
 
         # cookieに登録するシリアルナンバーを送る
