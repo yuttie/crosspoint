@@ -255,6 +255,10 @@ EventMachine.run {
             ch.push(nmsg)
             $stderr.puts("#{sid}@#{ch_id} pushed a message '#{nmsg}'.")
           end
+        elsif data['type'] == 'question'
+          zmsg = ip_zero(msg)
+          ch.push(zmsg)
+          $stderr.puts("#{sid}@#{ch_id} pushed a message '#{zmsg}'.")
         elsif data['type'] == 'user_name' || data['type'] == 'user_id'
           regist(data);
           user_data = get_regist_data(data['id'])
