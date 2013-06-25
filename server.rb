@@ -1,10 +1,10 @@
 #!/usr/bin/ruby -Ku
 # vim: set fileencoding=utf-8:
-
 if RUBY_VERSION >= '1.9'
   Encoding.default_external = Encoding::UTF_8
 end
 
+require './eval/eval_res.rb'
 require 'em-websocket'
 require 'json'
 require 'fileutils'
@@ -96,7 +96,7 @@ end
 def ip_zero(msg)
   data = JSON.parse(msg)
   unique_id = data['id']
-  #あえてエスケープをかけない. HTMLタグを使用可に.  
+  #あえてエスケープをかけない. HTMLタグを使用可に.
   content = show_spaces(escape(data['body']))
   #content = data['body']
 
@@ -277,7 +277,7 @@ EventMachine.run {
       }
       $stderr.puts("#{sid} connected to #{ch_id}.")
 
-      
+
       ws.onmessage {|msg|
         data = JSON.parse(msg)
 
