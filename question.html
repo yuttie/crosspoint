@@ -26,16 +26,16 @@
                 <input type="radio" name="choices" value="#qMP3_0">持っている
                 <input type="radio" name="choices" value="#qMP3_1">持っていない
                 <br>
-                <input type="button" id="question-send" name="send" value="送信">
+                <input type="button" class="question-send" name="send" value="送信">
             </form>
 
              <form id="question-form">
                 IPアドレスを知っているか
                 <br>
-                <input type="radio" name="choices" value="#qMP3_0">持っている
-                <input type="radio" name="choices" value="#qMP3_1">持っていない
+                <input type="radio" name="choices" value="#qIP_0">持っている
+                <input type="radio" name="choices" value="#qIP_1">持っていない
                 <br>
-                <input type="button" id="question-send" name="send" value="送信">
+                <input type="button" class="question-send" name="send" value="送信">
             </form>
         <!-- </div> -->
 
@@ -263,7 +263,7 @@
                 */
 
                 // アンケートの受信
-                $('#question-send').click(function(e){
+                $('.question-send').click(function(e){
                     var val = $('#question-form [name=choices]:checked').val();
                     var id = getCookie();
                     var msg = { 'type': 'question', 'body': val , 'id':id};
