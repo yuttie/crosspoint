@@ -162,10 +162,10 @@ def message(msg,num)
 end
 
 #所見ユーザに過去の投稿を全て送信するために準備
-def log_messages()
+def log_messages(n)
   log_messages = Array.new
   #保存されたメッセージの取得
-  Dir.glob('./content/*').sort.each_with_index {|prefp, i|
+  Dir.glob('./content/*').sort[-n..-1].each_with_index {|prefp, i|
     fp = prefp.split("_")
 
     time = Time.now
@@ -266,7 +266,7 @@ EventMachine.run {
       ch = @channels[ch_id]
 
       #接続が区立されたユーザ１人に対して既存メッセージを送信する
-      msgs = log_messages()
+      msgs = log_messages(100)
       ws.send(JSON.generate({"type" => "multiple-comments", "comments" => msgs}))
 
       sid = ch.subscribe {|msg|
