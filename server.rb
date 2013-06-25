@@ -224,13 +224,14 @@ class Analyzer
     when 'comment'
       comment = msg
       @user_num_posts[comment['id']] += 1
+      res_eval = eval_res_value(comment['body'])
 
       result = ""
       if comment['body'] =~ /#GROUP-ONLY/i
         result << "グループ書き込み<span style=\"color: red\">\"#{escape(comment['body'])}\"</span>を観測しました。"
       else
         result << "書き込み<span style=\"color: red\">\"#{escape(comment['body'])}\"</span>を観測しました。"
-      end
+      end1
       result << "<br>"
       result << "<div style=\"margin: 1em 0; padding: 0.5em; border: 1px solid gray; border-radius: 4px;\">"
       result << "<div style=\"font: bold 1.2em serif\">統計:</div>"
