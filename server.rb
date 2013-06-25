@@ -232,6 +232,7 @@ class Analyzer
     else
       nil
     end
+  end
 end
 
 class Decorator
