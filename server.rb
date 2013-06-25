@@ -180,6 +180,7 @@ def log_messages(n)
 
     type = ""
     if fp[1] == "TA"
+      p fp[1]
       type = "only_TA"
     else
       type = MSG_TYPE
