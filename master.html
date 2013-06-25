@@ -177,6 +177,25 @@
                                 }
                             }
                         }
+                        else if (msg.type === "multiple-comments") {
+                            var my_gid = getUserID(getCookie());
+
+                            for (var i = 0; i < msg.comments.length; ++i) {
+                                var m = msg.comments[i];
+                                post = post_to_html(m);
+                                if(m.body.match(/\#GROUP-ONLY/i) === null){
+                                    var p = $(post);
+                                    MathJax.Hub.Queue(["Typeset", MathJax.Hub, p[0]]);
+                                    p.prependTo('#comments');
+                                }else{
+                                    if(parseInt(my_gid) === parseInt(m.gid)){
+                                        var p = $(post);
+                                        MathJax.Hub.Queue(["Typeset", MathJax.Hub, p[0]]);
+                                        p.prependTo('#group_comments');
+                                    }
+                                }
+                            }
+                        }
                         else if (msg.type === "draw") {
                             var ctx = $('.slide.current > canvas.overlay')[0].getContext('2d');
                             if (msg.shape === "line") {
