@@ -3,147 +3,46 @@
         <meta charset="UTF-8">
         <script src="jquery-1.9.0.js"></script>
         <script src="http://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
-        <link rel="stylesheet" href="common.css" type="text/css" media="all">
         <title></title>
     </head>
     <body>
         <div id="user_id" style="text-align:center"></div>
-        <!-- <div style="float:left;margin-right:20px;">
-            <h4>TA内の投稿欄</h4>
-            <textarea id="group-comment-entry" cols="40" rows="5" autofocus></textarea>
-        </div>
-        <div style="float:left; margin-right:20px;">
-            <h4>TA連絡用の投稿欄</h4>
-            <textarea id="comment-entry" cols="40" rows="5" autofocus></textarea>
-        </div> -->
 
         <!-- 質問事項 -->
-        <!-- <div style="flat:left; margin-left:50px;"> -->
-            <form id="question-form">
-                <!-- <div id="view-question"></div> -->
-                MP3をもっているか
-                <br>
-                <input type="radio" name="choices" value="#qMP3_0">持っている
-                <input type="radio" name="choices" value="#qMP3_1">持っていない
-                <br>
-                <input type="button" id="question-send" name="send" value="送信">
-            </form>
+        <div id="QUESTION-FORM" style="height:80%; width:80%;">
+            <div style="height:100%; width:100%">
+                <form id="question1" style="border-style:double;">
+                    Q1.MP3をもっているか
+                    <p>
+                    <input type="radio" name="choices" value="#qMP3_0">持っている
+                    <input type="radio" name="choices" value="#qMP3_1">持っていない
+                    </p>
+                    <input type="button" class="question-send" id="question1" value="送信">
+                </form>
 
-             <form id="question-form">
-                IPアドレスを知っているか
-                <br>
-                <input type="radio" name="choices" value="#qMP3_0">持っている
-                <input type="radio" name="choices" value="#qMP3_1">持っていない
-                <br>
-                <input type="button" id="question-send" name="send" value="送信">
-            </form>
-        <!-- </div> -->
+                 <form id="question2" style="border-style:double;">
+                    Q2.IPアドレスを知っているか
+                    <p>
+                    <input type="radio" name="choices" value="#qIP_0">知っている
+                    <input type="radio" name="choices" value="#qIP_1">知らない
+                    </p>
+                    <input type="button" class="question-send" id="question2" value="送信">
+                </form>
 
-        <!--名前と学生番号の入力欄-->
-<!--         <div style="font-weight:bold;color: black;float: right;">
-            <div>
-                <font size="3px">ニックネーム</font><input type="text" name="user_name" id="name-entry">
-            </div>
-            <div class="form-toolbar">
-                <font size="4px">学生番号</font><input type="text" name="student_id" id="id-entry">
-            </div>
+                <form id="question3" style="border-style:double;">
+                    Q3.TCP/IPを知っているか
+                    <p>
+                    <input type="radio" name="choices" value="#qTCP/IP_0">知っている
+                    <input type="radio" name="choices" value="#qTCP/IP_1">知らない
+                    </p>
+                    <input type="button" class="question-send" id="question3" value="送信">
+                </form>
 
-        </div>
-        <div style="clear:both"></div>
-
-        <div id="column-container">
-            <div class="column">
-                <div class="view_title">
-                    <div id="group_name">
-                        <h3>グループ内投稿</h3>
-                    </div>
-                </div>
-                <div class="view">
-                    <div id="group_comments"></div>
-                </div>
-            </div>
-
-            <div class="column-mini">
-                <div class="view_title">
-                    <h3>TA連絡板</h3>
-                </div>
-                <div class="view">
-                    <div id="ta_comments"></div>
-                </div>
-            </div>
-
-            <div class="column-half">
-                <div class="view_title">
-                    <h3>全体投稿</h3>
-                </div>
-                <div class="view">
-                    <div id="comments"></div>
-                </div>
             </div>
         </div>
- -->
+ 
         <script>
             $(function() {
-                function updateSlideClasses() {
-                    $('.slide.current').prevAll('.slide').removeClass('prev left');
-                    $('.slide.current').nextAll('.slide').removeClass('next right');
-
-                    $('.slide.current').prevAll('.slide').addClass('left');
-                    $('.slide.current').nextAll('.slide').addClass('right');
-
-                    $('.slide.current').prev('.slide').addClass('prev');
-                    $('.slide.current').next('.slide').addClass('next');
-                }
-
-                function goToPrevSlide() {
-                    if ($('.slide.current').prev('.slide').length > 0) {
-                        $('.slide.current').removeClass('current');
-                        $('.slide.prev').addClass('current');
-                        $('.slide.prev').removeClass('prev left');
-
-                        updateSlideClasses();
-                    }
-                }
-
-                function goToNextSlide() {
-                    if ($('.slide.current').next('.slide').length > 0) {
-                        $('.slide.current').removeClass('current');
-                        $('.slide.next').addClass('current');
-                        $('.slide.next').removeClass('next right');
-
-                        updateSlideClasses();
-                    }
-                }
-
-                 // ユーザのグループid取得 (php使用)
-                function getUserID(unique_id){
-                    var req = new XMLHttpRequest();
-                    req.open("GET", "./php/getUserID.php?uid=../group_id/" + unique_id, false);
-                    req.send(null);
-                    
-                    if(req.responseText != false){
-                        return eval(req.responseText);
-                    }
-                    
-                }
-
-                function makeText(msg){
-                    var content = msg.body.replace(/\#GROUP-ONLY/ig,"");
-                    var post_text = '<p tabindex="-1">\
-                            <div class="header">\
-                                <span class="number">' + msg.post_num + '</span>\
-                                <span class="time">' + msg.time + '</span>\
-                                <span class="host">\
-                                    <span class="host-name">' + msg.post_user + '</span>\
-                                    &nbsp;\
-                                    <span class="ip-addr">(' + msg.ip_addr + ')</span>\
-                                </span>\
-                            </div>\
-                        <div class="content"><pre>' + content + '</pre></div>\
-                    </p>';
-
-                    return post_text;
-                }
 
                 // クライアントにCookieを保存する
                 function setCookie(num){
@@ -174,6 +73,7 @@
                 var ws = null;
                 function startWebSocket() {
                     ws = new WebSocket("ws://" + window.location.hostname + ":9090/");
+                    /*
                     ws.onopen = function(){
                         var unique_id = getCookie();
                         var msg = "";
@@ -189,36 +89,10 @@
 
                         ws.send(JSON.stringify(msg));
                     };
+                    */
                     ws.onmessage = function(e) {
                         var msg = JSON.parse(e.data);
-                        if (msg.type === "prev") {
-                            goToPrevSlide();
-                        }
-                        else if (msg.type === "next") {
-                            goToNextSlide();
-                        }
-                        // 投稿の表示処理
-                        else if (msg.type === "comment") {
-                            var my_gid = getUserID(getCookie());
-                            post = makeText(msg);
-
-                            if(msg.body.match(/\#GROUP-ONLY/i) === null){
-                                var p = $(post);
-                                MathJax.Hub.Queue(["Typeset", MathJax.Hub, p[0]]);
-                                p.prependTo('#comments');
-                            }else{
-                                if(parseInt(my_gid) === parseInt(msg.gid)){
-                                    var p = $(post);
-                                    MathJax.Hub.Queue(["Typeset", MathJax.Hub, p[0]]);
-                                    p.prependTo('#group_comments');
-                                }
-                            }
-                        }else if (msg.type === "only_TA") {
-                            ta_post = makeText(msg);
-                            var p = $(ta_post);
-                            MathJax.Hub.Queue(["Typeset", MathJax.Hub, p[0]]);
-                            p.prependTo('#ta_comments');
-                        }else if (msg.type === "cookie") {
+                        if (msg.type === "cookie") {
                             setCookie(msg.serial_num);
                             var gname = getUserID(msg.serial_num);
                             document.getElementById("group_name").innerHTML = "<h3>グループ No." + gname + " の投稿</h3>";
@@ -247,108 +121,16 @@
                 }
                 startWebSocket();
 
-                /*
-                $.get('test_question.html', function(data) {
-                    $('#view-question').html(data);
-
-                    $('#question').first().addClass('current');
-                    // $('.question').append('<canvas class="overlay"></canvas>');
-                    // $.each($('.slide > canvas.overlay'), function(i, canvas) {
-                    //     canvas.width = $(canvas).parent().width();
-                    //     canvas.height = $(canvas).parent().height();
-                    // });
-
-                    updateSlideClasses();
-                });
-                */
-
                 // アンケートの受信
-                $('#question-send').click(function(e){
-                    var val = $('#question-form [name=choices]:checked').val();
-                    var id = getCookie();
-                    var msg = { 'type': 'question', 'body': val , 'id':id};
-                    ws.send(JSON.stringify(msg));
-                });
-
-                /*
-                $.get('slide.html', function(data) {
-                    $('#view').html(data);
-
-                    $('.slide').first().addClass('current');
-                    $('.slide').append('<canvas class="overlay"></canvas>');
-                    $.each($('.slide > canvas.overlay'), function(i, canvas) {
-                        canvas.width = $(canvas).parent().width();
-                        canvas.height = $(canvas).parent().height();
-                    });
-
-                    updateSlideClasses();
-                });
-
-                $('#comment-entry').on('keypress', function(e) {
-                    if (!e.ctrlKey && e.which === 13) {
-                        var s = $(this).val();
-                        if (s.length > 0) {
-                            // var id = getCookie();
-                            var msg = { 'type': 'comment', 'body': s , 'id':'000'};
-                            ws.send(JSON.stringify(msg));
-                            $(this).val('');
-                        }
-                        e.preventDefault();
-                    }
-                    else if (e.which === 10 || (e.ctrlKey && e.which === 13)) {
-                        var s = $(this).val();
-                        var start = this.selectionStart;
-                        var end = this.selectionEnd;
-                        $(this).val(s.slice(0, start) + "\n" + s.slice(end));
-                        this.selectionStart = start + 1;
-                        this.selectionEnd = start + 1;
+                $('.question-send').click(function(e){
+                    var btnid  = $(this).attr("id");
+                    var val = $('#'+btnid+' [name=choices]:checked').val();
+                    if(typeof(val) !== 'undefined'){
+                        var id = getCookie();
+                        var msg = { 'type': 'question', 'body': val , 'id':id};
+                        ws.send(JSON.stringify(msg));
                     }
                 });
-
-                 $('#group-comment-entry').on('keypress', function(e) {
-                    if (!e.ctrlKey && e.which === 13) {
-                        var s = $(this).val();
-                        if (s.length > 0) {
-                            var id = getCookie();
-                            var text = s + "#GROUP-ONLY";
-                            var msg = { 'type': 'comment', 'body': text , 'id':id};
-                            ws.send(JSON.stringify(msg));
-                            $(this).val('');
-                        }
-                        e.preventDefault();
-                    }
-                    else if (e.which === 10 || (e.ctrlKey && e.which === 13)) {
-                        var s = $(this).val();
-                        var start = this.selectionStart;
-                        var end = this.selectionEnd;
-                        $(this).val(s.slice(0, start) + "\n" + s.slice(end));
-                        this.selectionStart = start + 1;
-                        this.selectionEnd = start + 1;
-                    }
-                });
-                 $('#name-entry').on('keypress', function(e) {
-                    if (e.which === 13) {
-                        var s = $(this).val();
-                        if (s.length > 0) {
-                            var id = getCookie();
-                            var msg = { 'type': 'user_name', 'uname': s , 'id':id};
-                            ws.send(JSON.stringify(msg));
-                        }
-                        e.preventDefault();
-                    }
-                });
-                 $('#id-entry').on('keypress', function(e) {
-                    if (e.which === 13) {
-                        var s = $(this).val();
-                        if (s.length > 0) {
-                            var id = getCookie();
-                            var msg = { 'type': 'user_id', 'uid': s , 'id':id};
-                            ws.send(JSON.stringify(msg));
-                        }
-                        e.preventDefault();
-                    }
-                });
-                */
             });
         </script>
     </body>

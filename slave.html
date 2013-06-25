@@ -21,10 +21,10 @@
         <!--名前と学生番号の入力欄-->
         <div style="font-weight:bold;color: black;float: right;">
             <div>
-                <font size="3px">ニックネーム</font><input type="text" name="user_name" id="name-entry">
+                <font size="3px">ニックネーム</font><input type="text" maxlength="20" name="user_name" id="name-entry">
             </div>
             <div class="form-toolbar">
-                <font size="4px">学生番号</font><input type="text" name="student_id" id="id-entry">
+                <font size="4px">学生番号</font><input type="text" maxlength="10" name="student_id" id="id-entry">
             </div>
             <!--
             <div class="form-toolbar">
@@ -191,6 +191,25 @@
                                     var p = $(post);
                                     MathJax.Hub.Queue(["Typeset", MathJax.Hub, p[0]]);
                                     p.prependTo('#group_comments');
+                                }
+                            }
+                        }
+                        else if (msg.type === "multiple-comments") {
+                            var my_gid = getUserID(getCookie());
+
+                            for (var i = 0; i < msg.comments.length; ++i) {
+                                var m = msg.comments[i];
+                                post = post_to_html(m);
+                                if(m.body.match(/\#GROUP-ONLY/i) === null){
+                                    var p = $(post);
+                                    MathJax.Hub.Queue(["Typeset", MathJax.Hub, p[0]]);
+                                    p.prependTo('#comments');
+                                }else{
+                                    if(parseInt(my_gid) === parseInt(m.gid)){
+                                        var p = $(post);
+                                        MathJax.Hub.Queue(["Typeset", MathJax.Hub, p[0]]);
+                                        p.prependTo('#group_comments');
+                                    }
                                 }
                             }
                         }else if (msg.type === "only_TA") {

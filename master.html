@@ -48,6 +48,16 @@
                 <input type="checkbox" name="group" value="18">18
                 <input type="checkbox" name="group" value="19">19
                 <input type="checkbox" name="group" value="20">20
+                <input type="checkbox" name="group" value="21">21
+                <input type="checkbox" name="group" value="22">22
+                <input type="checkbox" name="group" value="23">23
+                <input type="checkbox" name="group" value="24">24
+                <input type="checkbox" name="group" value="25">25
+                <input type="checkbox" name="group" value="26">26
+                <input type="checkbox" name="group" value="27">27
+                <input type="checkbox" name="group" value="28">28
+                <input type="checkbox" name="group" value="29">29
+                <input type="checkbox" name="group" value="30">30
             </p>
         </div>
 
@@ -164,6 +174,25 @@
                                     var p = $(post);
                                     MathJax.Hub.Queue(["Typeset", MathJax.Hub, p[0]]);
                                     p.prependTo('#comments');
+                                }
+                            }
+                        }
+                        else if (msg.type === "multiple-comments") {
+                            var my_gid = getUserID(getCookie());
+
+                            for (var i = 0; i < msg.comments.length; ++i) {
+                                var m = msg.comments[i];
+                                post = post_to_html(m);
+                                if(m.body.match(/\#GROUP-ONLY/i) === null){
+                                    var p = $(post);
+                                    MathJax.Hub.Queue(["Typeset", MathJax.Hub, p[0]]);
+                                    p.prependTo('#comments');
+                                }else{
+                                    if(parseInt(my_gid) === parseInt(m.gid)){
+                                        var p = $(post);
+                                        MathJax.Hub.Queue(["Typeset", MathJax.Hub, p[0]]);
+                                        p.prependTo('#group_comments');
+                                    }
                                 }
                             }
                         }
