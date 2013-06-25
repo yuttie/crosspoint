@@ -206,10 +206,44 @@ if Dir.exist?('./content')
   }
 end
 
+class Analyzer
+  def initialize
+    @user_num_posts = Hash.new(0)
+  end
+  def analyze(msg)
+    case msg['type']
+    when 'comment'
+      comment = msg
+      @user_num_posts[comment['id']] += 1
+
+      result = ""
+      if comment['body'] =~ /#GROUP-ONLY/i
+        result << "グループ書き込み<span style=\"color: red\">\"#{escape(comment['body'])}\"</span>を観測しました。"
+      else
+        result << "書き込み<span style=\"color: red\">\"#{escape(comment['body'])}\"</span>を観測しました。"
+      end
+      result << "<br>"
+      result << "<div style=\"margin: 1em 0; padding: 0.5em; border: 1px solid gray; border-radius: 4px;\">"
+      result << "<div style=\"font: bold 1.2em serif\">統計:</div>"
+      @user_num_posts.each {|uid, count|
+        result << "<div class=\"stat\">ユーザID: #{uid}, 書き込み数: #{count}</div>"
+      }
+      result << "</div>"
+      result
+    else
+      nil
+    end
+  end
+end
+
 EventMachine.run {
   @channels = {}
 
   EventMachine::WebSocket.start(host: ARGV[1] || "0.0.0.0", port: (ARGV[0] || 9090).to_i) do |ws|
+    analyzer = Analyzer.new
+    msg_queue = EM::Queue.new
+    result_queue = EM::Queue.new
+
     ws.onopen {|handshake|
       ch_id = handshake.path
       @channels[ch_id] ||= EventMachine::Channel.new
@@ -229,6 +263,26 @@ EventMachine.run {
       
       ws.onmessage {|msg|
         data = JSON.parse(msg)
+
+        # ask our bot to analyze the message
+        msg_queue.push(data)
+        msg_queue.pop {|msg|
+          result = analyzer.analyze(msg)
+          result_queue << result if result
+        }
+        result_queue.pop {|result|
+          msg = {
+            'type'      => 'only_TA',
+            'post_num'  => 'TA',
+            'post_user' => '解析ぼっと',
+            'body'      => result,  # W/o escaping.
+            'time'      => Time.now.strftime('%Y/%m/%d %H:%M:%S'),
+            'ip_addr'   => 0,
+            'gid'       => 0
+          }
+          ws.send(JSON.generate(msg))
+        }
+
         # cookieに登録するシリアルナンバーを送る
         if data['type'] == "cookie"
           if data['unique_id'] == "TA"
