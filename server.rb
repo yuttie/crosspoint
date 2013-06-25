@@ -38,48 +38,49 @@ def show_spaces(string)
 end
 
 # グループの振り分け
-def get_group_id()
-  group_num_list = [3,6,9]
+GROUP_NUM_LIST = [3,6,9]
+TH = 3
 
-  # これまでのファイル数でグループを割り振る
-  dir_path = "./group_id"
-  file_num = file_count = File.exist?(dir_path) ? `ls #{dir_path}|wc -l`.to_i : 0
+def get_group_array(num)
+  a = []
+  i = 0
+  while num >= GROUP_NUM_LIST[i % GROUP_NUM_LIST.length] + TH
+  a += ([i + 1] * GROUP_NUM_LIST[i % GROUP_NUM_LIST.length])
+  num = num - GROUP_NUM_LIST[i % GROUP_NUM_LIST.length]
+  i = (i + 1)
+  end
+  a += ([i + 1] * num)
+  a
+end
 
-  # これまでのグループ数
-  group_unit = 0
-  group_num_list.each { |e| group_unit += e }
-  group_num = ((file_num.to_f/group_unit.to_f).truncate * group_num_list.size)
 
-  # modでグループを割り振る
-  mod = (file_num % group_unit) + 1
-  mod_group = 0
-  max = 0
-  group_num_list.each_with_index do |num,i|
-    max += num
-    if mod <= max
-      mod_group = i + 1
-      break
+def get_group_id(file_num)
+  file_num += 1
+  p group_array = get_group_array(file_num)
+  p group_id = group_array[group_array.size - 1]
+  rewrite_flag = false
+  rewrite_flag = !(group_array[-TH-1] == group_array[-TH]) if !(group_array[-TH-1].nil?)
+  p rewrite_flag
+  puts ""
+  if rewrite_flag
+    id_list = []
+    Dir.glob("./group_id/*") { |file| id_list.push(file)}
+    id_list.sort[-2..-1].each do |file_path|
+      outfile = open("#{file_path}","w")
+      outfile.print group_id
+      outfile.close
     end
   end
-
-  group_id = group_num + mod_group
   return group_id
 end
 
 def get_number()
   time = Time.now
   serial_id = time.to_i.to_s + time.usec.to_s.rjust(6, '0')
-  ### ここにグループIDを割り振り，group_idに保存する処理を入れる ###
-  group_id = get_group_id()
-  IO.write('./group_id/' + serial_id, group_id)
-  return serial_id
-end
-
-def get_number()
-  time = Time.now
-  serial_id = time.to_i.to_s + time.usec.to_s.rjust(6, '0')
-  ### ここにグループIDを割り振り，group_idに保存する処理を入れる ###
-  group_id = get_group_id()
+  # これまでのファイル数でグループを割り振る
+  dir_path = "./group_id"
+  file_num = File.exist?(dir_path) ? `ls #{dir_path}|wc -l`.to_i : 0
+  group_id = get_group_id(file_num)
   IO.write('./group_id/' + serial_id, group_id)
   return serial_id
 end
@@ -87,7 +88,6 @@ end
 def process_ta()
   time = Time.now
   serial_id = time.to_i.to_s + time.usec.to_s.rjust(6, '0')
-  ### ここにグループIDを割り振り，group_idに保存する処理を入れる ###
   IO.write('./group_id/' + serial_id, "0")
   return serial_id
 end
