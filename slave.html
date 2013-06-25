@@ -200,7 +200,11 @@
                             for (var i = 0; i < msg.comments.length; ++i) {
                                 var m = msg.comments[i];
                                 post = post_to_html(m);
-                                if(m.body.match(/\#GROUP-ONLY/i) === null){
+                                if(m.type === "only_TA"){
+                                    var p = $(post);
+                                    MathJax.Hub.Queue(["Typeset", MathJax.Hub, p[0]]);
+                                    p.prependTo('#ta_comments');
+                                }else if(m.body.match(/\#GROUP-ONLY/i) === null){
                                     var p = $(post);
                                     MathJax.Hub.Queue(["Typeset", MathJax.Hub, p[0]]);
                                     p.prependTo('#comments');
