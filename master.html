@@ -161,7 +161,6 @@
                                 MathJax.Hub.Queue(["Typeset", MathJax.Hub, p[0]]);
                                 p.prependTo('#comments');
                             }else{
-                                console.log(selectGroup(msg.gid));
                                 if(selectGroup(msg.gid)){
                                     var p = $(post);
                                     MathJax.Hub.Queue(["Typeset", MathJax.Hub, p[0]]);
