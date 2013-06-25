@@ -7,48 +7,40 @@
         <title></title>
     </head>
     <body>
-        <!-- <div id="user_id" style="text-align:center"></div> -->
-        <div style="float:left;margin-right:20px;">
+        <div id="user_id" style="text-align:center"></div>
+        <!-- <div style="float:left;margin-right:20px;">
             <h4>TA内の投稿欄</h4>
             <textarea id="group-comment-entry" cols="40" rows="5" autofocus></textarea>
         </div>
         <div style="float:left; margin-right:20px;">
             <h4>TA連絡用の投稿欄</h4>
             <textarea id="comment-entry" cols="40" rows="5" autofocus></textarea>
-        </div>
+        </div> -->
 
         <!-- 質問事項 -->
-        <div style="flat:left; margin-left:50px;">
+        <!-- <div style="flat:left; margin-left:50px;"> -->
             <form id="question-form">
+                <!-- <div id="view-question"></div> -->
                 MP3をもっているか
                 <br>
-                <input type="radio" name="question" value="#qMP3_0">持っている
-                <input type="radio" name="question" value="#qMP3_1">持っていない
+                <input type="radio" name="choices" value="#qMP3_0">持っている
+                <input type="radio" name="choices" value="#qMP3_1">持っていない
                 <br>
-                <br>
-                <!-- 
-                IPアドレスについて
-                <br>
-                <input type="radio" name="q1" value="#qMP3_0">知っている
-                <input type="radio" name="q1" value="#qMP3_0">説明できる
-                <input type="radio" name="q1" value="#qMP3_0">知らない
-                <br>
-                <br>
-
-                MACアドレスについて  
-                <br>
-                <input type="radio" name="q1" value="#qMP3_0">知っている
-                <input type="radio" name="q1" value="#qMP3_0">説明できる
-                <input type="radio" name="q1" value="#qMP3_0">知らない
-                <input type="radio" name="q1" value="#qMP3_0">持っている
-                <br> -->
-
                 <input type="button" id="question-send" name="send" value="送信">
             </form>
-        </div>
+
+             <form id="question-form">
+                IPアドレスを知っているか
+                <br>
+                <input type="radio" name="choices" value="#qMP3_0">持っている
+                <input type="radio" name="choices" value="#qMP3_1">持っていない
+                <br>
+                <input type="button" id="question-send" name="send" value="送信">
+            </form>
+        <!-- </div> -->
 
         <!--名前と学生番号の入力欄-->
-        <div style="font-weight:bold;color: black;float: right;">
+<!--         <div style="font-weight:bold;color: black;float: right;">
             <div>
                 <font size="3px">ニックネーム</font><input type="text" name="user_name" id="name-entry">
             </div>
@@ -89,7 +81,7 @@
                 </div>
             </div>
         </div>
-
+ -->
         <script>
             $(function() {
                 function updateSlideClasses() {
@@ -255,14 +247,30 @@
                 }
                 startWebSocket();
 
+                /*
+                $.get('test_question.html', function(data) {
+                    $('#view-question').html(data);
+
+                    $('#question').first().addClass('current');
+                    // $('.question').append('<canvas class="overlay"></canvas>');
+                    // $.each($('.slide > canvas.overlay'), function(i, canvas) {
+                    //     canvas.width = $(canvas).parent().width();
+                    //     canvas.height = $(canvas).parent().height();
+                    // });
+
+                    updateSlideClasses();
+                });
+                */
+
                 // アンケートの受信
                 $('#question-send').click(function(e){
-                    var val = $('#question-form [name=question]:checked').val();
+                    var val = $('#question-form [name=choices]:checked').val();
                     var id = getCookie();
                     var msg = { 'type': 'question', 'body': val , 'id':id};
                     ws.send(JSON.stringify(msg));
                 });
 
+                /*
                 $.get('slide.html', function(data) {
                     $('#view').html(data);
 
@@ -340,6 +348,7 @@
                         e.preventDefault();
                     }
                 });
+                */
             });
         </script>
     </body>

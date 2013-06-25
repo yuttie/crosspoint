@@ -114,7 +114,7 @@ def ip_zero(msg)
 
   #JavaScriptに返す形式にmsgを整理
   new_msg = {'type'=>'only_TA', 'post_num'=>'TA', 'post_user'=>post_user, 'body'=>content, 'time'=>time.strftime('%Y/%m/%d %H:%M:%S'),'ip_addr'=>unique_id, 'gid'=>group_id}
-  return JSON.generate(new_msg)
+  return new_msg
 end
 
 #ユーザのニックネーム・学生番号を登録する
@@ -159,7 +159,7 @@ def message(msg,num)
 
   #JavaScriptに返す形式にmsgを整理
   new_msg = {'type'=>MSG_TYPE, 'post_num'=>num, 'post_user'=>post_user, 'body'=>content, 'time'=>time.strftime('%Y/%m/%d %H:%M:%S'),'ip_addr'=>unique_id, 'gid'=>group_id}
-  return JSON.generate(new_msg)
+  return new_msg
 end
 
 #所見ユーザに過去の投稿を全て送信するために準備
@@ -233,6 +233,22 @@ class Analyzer
     else
       nil
     end
+end
+
+class Decorator
+  def initialize
+  end
+  def decorate(comment)
+    case comment['body'].length % 3
+    when 0
+      color = "red"
+    when 1
+      color = "green"
+    when 2
+      color = "blue"
+    end
+    comment['body'] = "<span style=\"color: #{color};\">#{comment['body']}</span>"
+    comment
   end
 end
 
@@ -243,6 +259,7 @@ EventMachine.run {
     analyzer = Analyzer.new
     msg_queue = EM::Queue.new
     result_queue = EM::Queue.new
+    decorator = Decorator.new
 
     ws.onopen {|handshake|
       ch_id = handshake.path
@@ -300,13 +317,13 @@ EventMachine.run {
         # 投稿内容を整理し，保存・配信する
         elsif(data['type'] == "comment")
           if(data['id'] == "000")
-            zmsg = ip_zero(msg)
-            ch.push(zmsg)
+            zmsg = decorator.decorate(ip_zero(msg))
+            ch.push(JSON.generate(zmsg))
             $stderr.puts("#{sid}@#{ch_id} pushed a message '#{zmsg}'.")
           else
             post_num = post_num + 1
-            nmsg = message(msg,post_num)
-            ch.push(nmsg)
+            nmsg = decorator.decorate(message(msg,post_num))
+            ch.push(JSON.generate(nmsg))
             $stderr.puts("#{sid}@#{ch_id} pushed a message '#{nmsg}'.")
           end
         elsif data['type'] == 'question'
