@@ -26,6 +26,29 @@
             <!-- <div>
                 <textarea id="comment-entry" cols="40" rows="5" autofocus></textarea>
             </div> -->
+
+            <p>
+                <input type="checkbox" name="group" value="1">1
+                <input type="checkbox" name="group" value="2">2
+                <input type="checkbox" name="group" value="3">3
+                <input type="checkbox" name="group" value="4">4
+                <input type="checkbox" name="group" value="5">5
+                <input type="checkbox" name="group" value="6">6
+                <input type="checkbox" name="group" value="7">7
+                <input type="checkbox" name="group" value="8">8
+                <input type="checkbox" name="group" value="9">9
+                <input type="checkbox" name="group" value="10">10
+                <input type="checkbox" name="group" value="11">11
+                <input type="checkbox" name="group" value="12">12
+                <input type="checkbox" name="group" value="13">13
+                <input type="checkbox" name="group" value="14">14
+                <input type="checkbox" name="group" value="15">15
+                <input type="checkbox" name="group" value="16">16
+                <input type="checkbox" name="group" value="17">17
+                <input type="checkbox" name="group" value="18">18
+                <input type="checkbox" name="group" value="19">19
+                <input type="checkbox" name="group" value="20">20
+            </p>
         </div>
 
         <script>
@@ -61,6 +84,22 @@
                     }
                 }
 
+                function selectGroup(post_gid){
+                    var checks = [];
+
+                    // チェックされているチェックボックのリストを返す
+                    $( "input:checked" ).map( function() {
+                        checks.push($(this).val());
+                    }).get().join(",");
+
+                    for(var i=0;i<checks.length;i++){
+                        if(parseInt(checks[i]) === parseInt(post_gid)){
+                            return true;
+                        }
+                    }
+                    return false;
+                }
+
                  // ipアドレスの取得 (php使用)
                 function getId(fp){
                     var request = new XMLHttpRequest();
@@ -86,21 +125,20 @@
                     
                 }
 
-                 function makeText(msg){
-                    var post_text = '<div tabindex="-1" class="post">\
-                            <div class="header">\
-                                <span class="number">' + msg.post_num + '</span>\
-                                <span class="time">' + msg.time + '</span>\
+                function post_to_html(post){
+                    var body = post.body.replace(/\#GROUP-ONLY/ig, "");
+                    return '<div>\
+                              <div class="header">\
+                                <span class="number">' + post.post_num + '</span>\
+                                <span class="time">' + post.time + '</span>\
                                 <span class="host">\
-                                    <span class="host-name">' + msg.post_user + '</span>\
-                                    &nbsp;\
-                                    <span class="ip-addr">(' + msg.ip_addr + ')</span>\
+                                  <span class="host-name">' + post.post_user + '</span>\
+                                  &nbsp;\
+                                  <span class="ip-addr">(' + post.ip_addr + ')</span>\
                                 </span>\
-                            </div>\
-                        <div class="content"><pre>' + msg.body + '</pre></div>\
-                    </div>';
-
-                    return post_text;
+                              </div>\
+                              <div class="content">' + body + '</div>\
+                            </div>';
                 }
 
                 var ws = null;
@@ -115,11 +153,18 @@
                             goToNextSlide();
                         }
                         else if (msg.type === "comment") {
+                            post = post_to_html(msg);
                             if(msg.body.match(/\#GROUP-ONLY/i) === null){
-                                post = makeText(msg);
+                                post = post_to_html(msg);
                                 var p = $(post);
                                 MathJax.Hub.Queue(["Typeset", MathJax.Hub, p[0]]);
                                 p.prependTo('#comments');
+                            }else{
+                                if(selectGroup(msg.gid)){
+                                    var p = $(post);
+                                    MathJax.Hub.Queue(["Typeset", MathJax.Hub, p[0]]);
+                                    p.prependTo('#comments');
+                                }
                             }
                         }
                         else if (msg.type === "draw") {

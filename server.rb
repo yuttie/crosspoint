@@ -33,7 +33,6 @@ end
 
 def show_spaces(string)
   str = string ? string.dup : ""
-  str.gsub!(/ /,  '&nbsp;')
   str.gsub!(/\n/, '<br>')
   str
 end
@@ -114,7 +113,7 @@ def ip_zero(msg)
 
   #JavaScriptに返す形式にmsgを整理
   new_msg = {'type'=>'only_TA', 'post_num'=>'TA', 'post_user'=>post_user, 'body'=>content, 'time'=>time.strftime('%Y/%m/%d %H:%M:%S'),'ip_addr'=>unique_id, 'gid'=>group_id}
-  return JSON.generate(new_msg)
+  return new_msg
 end
 
 #ユーザのニックネーム・学生番号を登録する
@@ -159,7 +158,7 @@ def message(msg,num)
 
   #JavaScriptに返す形式にmsgを整理
   new_msg = {'type'=>MSG_TYPE, 'post_num'=>num, 'post_user'=>post_user, 'body'=>content, 'time'=>time.strftime('%Y/%m/%d %H:%M:%S'),'ip_addr'=>unique_id, 'gid'=>group_id}
-  return JSON.generate(new_msg)
+  return new_msg
 end
 
 #所見ユーザに過去の投稿を全て送信するために準備
@@ -206,10 +205,62 @@ if Dir.exist?('./content')
   }
 end
 
+class Analyzer
+  def initialize
+    @user_num_posts = Hash.new(0)
+  end
+  def analyze(msg)
+    case msg['type']
+    when 'comment'
+      comment = msg
+      @user_num_posts[comment['id']] += 1
+
+      result = ""
+      if comment['body'] =~ /#GROUP-ONLY/i
+        result << "グループ書き込み<span style=\"color: red\">\"#{escape(comment['body'])}\"</span>を観測しました。"
+      else
+        result << "書き込み<span style=\"color: red\">\"#{escape(comment['body'])}\"</span>を観測しました。"
+      end
+      result << "<br>"
+      result << "<div style=\"margin: 1em 0; padding: 0.5em; border: 1px solid gray; border-radius: 4px;\">"
+      result << "<div style=\"font: bold 1.2em serif\">統計:</div>"
+      @user_num_posts.each {|uid, count|
+        result << "<div class=\"stat\">ユーザID: #{uid}, 書き込み数: #{count}</div>"
+      }
+      result << "</div>"
+      result
+    else
+      nil
+    end
+  end
+end
+
+class Decorator
+  def initialize
+  end
+  def decorate(comment)
+    case comment['body'].length % 3
+    when 0
+      color = "red"
+    when 1
+      color = "green"
+    when 2
+      color = "blue"
+    end
+    comment['body'] = "<span style=\"color: #{color};\">#{comment['body']}</span>"
+    comment
+  end
+end
+
 EventMachine.run {
   @channels = {}
 
   EventMachine::WebSocket.start(host: ARGV[1] || "0.0.0.0", port: (ARGV[0] || 9090).to_i) do |ws|
+    analyzer = Analyzer.new
+    msg_queue = EM::Queue.new
+    result_queue = EM::Queue.new
+    decorator = Decorator.new
+
     ws.onopen {|handshake|
       ch_id = handshake.path
       @channels[ch_id] ||= EventMachine::Channel.new
@@ -229,6 +280,26 @@ EventMachine.run {
       
       ws.onmessage {|msg|
         data = JSON.parse(msg)
+
+        # ask our bot to analyze the message
+        msg_queue.push(data)
+        msg_queue.pop {|msg|
+          result = analyzer.analyze(msg)
+          result_queue << result if result
+        }
+        result_queue.pop {|result|
+          m = {
+            'type'      => 'only_TA',
+            'post_num'  => 'TA',
+            'post_user' => '解析ぼっと',
+            'body'      => result,  # W/o escaping.
+            'time'      => Time.now.strftime('%Y/%m/%d %H:%M:%S'),
+            'ip_addr'   => 0,
+            'gid'       => 0
+          }
+          ch.push(JSON.generate(m))
+        }
+
         # cookieに登録するシリアルナンバーを送る
         if data['type'] == "cookie"
           if data['unique_id'] == "TA"
@@ -246,13 +317,13 @@ EventMachine.run {
         # 投稿内容を整理し，保存・配信する
         elsif(data['type'] == "comment")
           if(data['id'] == "000")
-            zmsg = ip_zero(msg)
-            ch.push(zmsg)
+            zmsg = decorator.decorate(ip_zero(msg))
+            ch.push(JSON.generate(zmsg))
             $stderr.puts("#{sid}@#{ch_id} pushed a message '#{zmsg}'.")
           else
             post_num = post_num + 1
-            nmsg = message(msg,post_num)
-            ch.push(nmsg)
+            nmsg = decorator.decorate(message(msg,post_num))
+            ch.push(JSON.generate(nmsg))
             $stderr.puts("#{sid}@#{ch_id} pushed a message '#{nmsg}'.")
           end
         elsif data['type'] == 'question'
