@@ -1,10 +1,10 @@
 #!/usr/bin/ruby -Ku
 # vim: set fileencoding=utf-8:
-
 if RUBY_VERSION >= '1.9'
   Encoding.default_external = Encoding::UTF_8
 end
 
+require './eval/eval_res.rb'
 require 'em-websocket'
 require 'json'
 require 'fileutils'
@@ -38,48 +38,49 @@ def show_spaces(string)
 end
 
 # グループの振り分け
-def get_group_id()
-  group_num_list = [3,6,9]
+GROUP_NUM_LIST = [3,6,9]
+TH = 3
 
-  # これまでのファイル数でグループを割り振る
-  dir_path = "./group_id"
-  file_num = file_count = File.exist?(dir_path) ? `ls #{dir_path}|wc -l`.to_i : 0
+def get_group_array(num)
+  a = []
+  i = 0
+  while num >= GROUP_NUM_LIST[i % GROUP_NUM_LIST.length] + TH
+  a += ([i + 1] * GROUP_NUM_LIST[i % GROUP_NUM_LIST.length])
+  num = num - GROUP_NUM_LIST[i % GROUP_NUM_LIST.length]
+  i = (i + 1)
+  end
+  a += ([i + 1] * num)
+  a
+end
 
-  # これまでのグループ数
-  group_unit = 0
-  group_num_list.each { |e| group_unit += e }
-  group_num = ((file_num.to_f/group_unit.to_f).truncate * group_num_list.size)
 
-  # modでグループを割り振る
-  mod = (file_num % group_unit) + 1
-  mod_group = 0
-  max = 0
-  group_num_list.each_with_index do |num,i|
-    max += num
-    if mod <= max
-      mod_group = i + 1
-      break
+def get_group_id(file_num)
+  file_num += 1
+  p group_array = get_group_array(file_num)
+  p group_id = group_array[group_array.size - 1]
+  rewrite_flag = false
+  rewrite_flag = !(group_array[-TH-1] == group_array[-TH]) if !(group_array[-TH-1].nil?)
+  p rewrite_flag
+  puts ""
+  if rewrite_flag
+    id_list = []
+    Dir.glob("./group_id/*") { |file| id_list.push(file)}
+    id_list.sort[-2..-1].each do |file_path|
+      outfile = open("#{file_path}","w")
+      outfile.print group_id
+      outfile.close
     end
   end
-
-  group_id = group_num + mod_group
   return group_id
 end
 
 def get_number()
   time = Time.now
   serial_id = time.to_i.to_s + time.usec.to_s.rjust(6, '0')
-  ### ここにグループIDを割り振り，group_idに保存する処理を入れる ###
-  group_id = get_group_id()
-  IO.write('./group_id/' + serial_id, group_id)
-  return serial_id
-end
-
-def get_number()
-  time = Time.now
-  serial_id = time.to_i.to_s + time.usec.to_s.rjust(6, '0')
-  ### ここにグループIDを割り振り，group_idに保存する処理を入れる ###
-  group_id = get_group_id()
+  # これまでのファイル数でグループを割り振る
+  dir_path = "./group_id"
+  file_num = File.exist?(dir_path) ? `ls #{dir_path}|wc -l`.to_i : 0
+  group_id = get_group_id(file_num)
   IO.write('./group_id/' + serial_id, group_id)
   return serial_id
 end
@@ -87,7 +88,6 @@ end
 def process_ta()
   time = Time.now
   serial_id = time.to_i.to_s + time.usec.to_s.rjust(6, '0')
-  ### ここにグループIDを割り振り，group_idに保存する処理を入れる ###
   IO.write('./group_id/' + serial_id, "0")
   return serial_id
 end
@@ -96,7 +96,7 @@ end
 def ip_zero(msg)
   data = JSON.parse(msg)
   unique_id = data['id']
-  #あえてエスケープをかけない. HTMLタグを使用可に.  
+  #あえてエスケープをかけない. HTMLタグを使用可に.
   content = show_spaces(escape(data['body']))
   #content = data['body']
 
@@ -163,9 +163,7 @@ end
 
 #所見ユーザに過去の投稿を全て送信するために準備
 def log_messages(n)
-  log_messages = Array.new
-  #保存されたメッセージの取得
-  Dir.glob('./content/*').sort[-n..-1].each_with_index {|prefp, i|
+  def get_message(log_messages,prefp)
     fp = prefp.split("_")
 
     time = Time.now
@@ -189,7 +187,19 @@ def log_messages(n)
     end
 
     log_messages.push({'type'=>type, 'post_num'=>fp[1], 'post_user'=>post_user,'body'=>content, 'time'=>time.strftime('%Y/%m/%d %H:%M:%S'),'ip_addr'=>unique_id, 'gid'=>group_id.to_i})
-  }
+  end
+
+  log_messages = Array.new
+  #保存されたメッセージの取得
+  if Dir.glob('./content/*').size > 100
+    Dir.glob('./content/*').sort[-n..-1].each_with_index {|prefp, i|
+      get_message(log_messages,prefp)
+    }
+  else
+    Dir.glob('./content/*').sort.each_with_index {|prefp, i|
+      get_message(log_messages,prefp)
+    }
+  end
   return log_messages
 end
 
@@ -214,13 +224,14 @@ class Analyzer
     when 'comment'
       comment = msg
       @user_num_posts[comment['id']] += 1
+      res_eval = eval_res_value(comment['body'])
 
       result = ""
       if comment['body'] =~ /#GROUP-ONLY/i
         result << "グループ書き込み<span style=\"color: red\">\"#{escape(comment['body'])}\"</span>を観測しました。"
       else
         result << "書き込み<span style=\"color: red\">\"#{escape(comment['body'])}\"</span>を観測しました。"
-      end
+      end1
       result << "<br>"
       result << "<div style=\"margin: 1em 0; padding: 0.5em; border: 1px solid gray; border-radius: 4px;\">"
       result << "<div style=\"font: bold 1.2em serif\">統計:</div>"
@@ -274,7 +285,7 @@ EventMachine.run {
       }
       $stderr.puts("#{sid} connected to #{ch_id}.")
 
-      
+
       ws.onmessage {|msg|
         data = JSON.parse(msg)
 
@@ -325,7 +336,7 @@ EventMachine.run {
           end
         elsif data['type'] == 'question'
           zmsg = ip_zero(msg)
-          ch.push(zmsg)
+          ch.push(JSON.generate(zmsg))
           $stderr.puts("#{sid}@#{ch_id} pushed a message '#{zmsg}'.")
         elsif data['type'] == 'user_name' || data['type'] == 'user_id'
           regist(data);
