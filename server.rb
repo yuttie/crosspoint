@@ -211,7 +211,6 @@ class Analyzer
     @user_num_posts = {}
   end
   def analyze(msg)
-    p msg
     case msg['type']
     when 'comment'
       comment = msg
