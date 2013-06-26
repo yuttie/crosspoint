@@ -128,12 +128,6 @@ end
 def get_regist_data(id)
   uname = read_file_if_exist("./user_name/" + id)
   uid = read_file_if_exist("./user_id/" + id)
-  if uname == ""
-    uname = "NoName"
-  end
-  if uid == ""
-    uid = "Unkown"
-  end
 
   return JSON.generate({'type'=>'user_data', 'user_name'=>uname, 'user_id'=>uid})
 end
