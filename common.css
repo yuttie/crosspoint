@@ -108,6 +108,14 @@ pre {
   height: 100%;
 }
 
+#name-entry, #id-entry {
+    border: 1px solid silver;
+    background-color: white;
+}
+
+#name-entry:focus, #id-entry:focus {
+    border: 1px solid black;
+}
 
 .form-toolbar {
   text-align: right;
