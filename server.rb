@@ -208,13 +208,16 @@ end
 class Analyzer
   def initialize
     @user_num_posts = Hash.new(0)
+    @marge_df = JSON.load(open("./eval/data/marge_df.json"))
+    @df_max = @marge_df.max { |a, b| a[1] <=> b[1] }[1]
+    @pn_table = JSON.load(open("./eval/data/pnTable.json"))
   end
   def analyze(msg)
     case msg['type']
     when 'comment'
       comment = msg
       @user_num_posts[comment['id']] += 1
-      res_eval = eval_res_value(comment['body'])
+      res_eval = eval_res_value(comment['body'], @marge_df, @df_max, @pn_table)
 
       result = ""
       if comment['body'] =~ /#GROUP-ONLY/i
