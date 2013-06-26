@@ -97,7 +97,7 @@ def ip_zero(msg)
   data = JSON.parse(msg)
   unique_id = data['id']
   #あえてエスケープをかけない. HTMLタグを使用可に.
-  content = show_spaces(escape(data['body']))
+  content = data['body']
   #content = data['body']
 
   time = Time.now
@@ -112,7 +112,7 @@ def ip_zero(msg)
   end
 
   #JavaScriptに返す形式にmsgを整理
-  new_msg = {'type'=>'only_TA', 'post_num'=>'TA', 'post_user'=>post_user, 'body'=>content, 'time'=>time.strftime('%Y/%m/%d %H:%M:%S'),'ip_addr'=>unique_id, 'gid'=>group_id}
+  new_msg = {'type'=>'only_TA', 'post_num'=>'TA', 'post_user'=>post_user, 'body'=>show_spaces(escape(content)), 'time'=>time.strftime('%Y/%m/%d %H:%M:%S'),'ip_addr'=>unique_id, 'gid'=>group_id}
   return new_msg
 end
 
@@ -136,8 +136,7 @@ end
 def message(msg,num)
   data = JSON.parse(msg)
   unique_id = data['id']
-  content = show_spaces(escape(data['body']))
-  #content = data['body']
+  content = data['body']
 
   time = Time.now
   post_id = time.to_i.to_s + time.usec.to_s.rjust(6, '0')
@@ -151,7 +150,7 @@ def message(msg,num)
   end
 
   #JavaScriptに返す形式にmsgを整理
-  new_msg = {'type'=>MSG_TYPE, 'post_num'=>num, 'post_user'=>post_user, 'body'=>content, 'time'=>time.strftime('%Y/%m/%d %H:%M:%S'),'ip_addr'=>unique_id, 'gid'=>group_id}
+  new_msg = {'type'=>MSG_TYPE, 'post_num'=>num, 'post_user'=>post_user, 'body'=>show_spaces(escape(content)), 'time'=>time.strftime('%Y/%m/%d %H:%M:%S'),'ip_addr'=>unique_id, 'gid'=>group_id}
   return new_msg
 end
 
