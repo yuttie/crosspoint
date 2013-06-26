@@ -57,8 +57,8 @@ def parse_contentMKHD_words_with_pos(sentence, sizeOneRM = false)
         end
         # サ変接続は使わない　数も使わない
         if pos2 != "サ変接続" && pos2 != "数" then
+          wordClass = WordClass.new(node.surface.force_encoding("UTF-8"),pos1,pos2,model_type)
           if sizeOneRM != false then
-            wordClass = WordClass.new(node.surface.force_encoding("UTF-8"),pos1,pos2,model_type)
             wordsArray.push(wordClass) if model_type.size > 1
           else
             wordsArray.push(wordClass)
