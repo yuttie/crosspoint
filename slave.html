@@ -158,7 +158,7 @@
                     ws.onopen = function(){
                         var unique_id = getCookie();
                         var msg = "";
-                        // console.log(typeof(getCookie()));
+                        console.log(typeof(getCookie()));
 
                         if(typeof(unique_id) !== "undefined"){
                             msg = {'type': 'cookie', 'unique_id': unique_id};
