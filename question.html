@@ -12,30 +12,50 @@
         <div id="QUESTION-FORM" style="height:80%; width:80%;">
             <div style="height:100%; width:100%">
                 <form id="question1" style="border-style:double;">
-                    Q1.MP3をもっているか
+                    Q.「IPアドレスと検索ログ」の理解度を教えてください。
                     <p>
-                    <input type="radio" name="choices" value="#qMP3_0">持っている
-                    <input type="radio" name="choices" value="#qMP3_1">持っていない
+                    <input type="radio" name="choices" value="#qIP_Log_4">よく分かった
+                    <input type="radio" name="choices" value="#qIP_Log_3">ある程度分かった
+                    <input type="radio" name="choices" value="#qIP_Log_2">あまり分からなかった
+                    <input type="radio" name="choices" value="#qIP_Log_1">分からなかった
                     </p>
                     <input type="button" class="question-send" id="question1" value="送信">
                 </form>
 
                  <form id="question2" style="border-style:double;">
-                    Q2.IPアドレスを知っているか
+                    Q.「IPアドレスとクッキー」の理解度を教えてください。
                     <p>
-                    <input type="radio" name="choices" value="#qIP_0">知っている
-                    <input type="radio" name="choices" value="#qIP_1">知らない
+                    <input type="radio" name="choices" value="#qIP_Cockie_4">よく分かった
+                    <input type="radio" name="choices" value="#qIP_Cockie_3">ある程度分かった
+                    <input type="radio" name="choices" value="#qIP_Cockie_2">あまり分からなかった
+                    <input type="radio" name="choices" value="#qIP_Cockie_1">分からなかった
                     </p>
                     <input type="button" class="question-send" id="question2" value="送信">
                 </form>
 
                 <form id="question3" style="border-style:double;">
-                    Q3.TCP/IPを知っているか
+                    Q. 武雄市図書館とプライバシー問題に関する宿題はやってきましたか？(この回答は評価と無関係ですので、正直に答えてください)。
                     <p>
-                    <input type="radio" name="choices" value="#qTCP/IP_0">知っている
-                    <input type="radio" name="choices" value="#qTCP/IP_1">知らない
+                    <input type="radio" name="choices" value="#qKadai_4">しっかりやってきた
+                    <input type="radio" name="choices" value="#qKadai_3">ある程度やってきた
+                    <input type="radio" name="choices" value="#qKadai_2">あまりやっていない
+                    <input type="radio" name="choices" value="#qKadai_1">やっていない
                     </p>
                     <input type="button" class="question-send" id="question3" value="送信">
+                </form>
+
+                <form id="question4" style="border-style:double;">
+                    Q. 掲示板は大人数の講義に有用かどうか、感想を教えてください。
+                    <p>
+                    <input type="radio" name="choices" value="#qKeijiban_4">有用である
+                    <input type="radio" name="choices" value="#qKeijiban_3">ある程度有用である
+                    <input type="radio" name="choices" value="#qKeijiban_2">あまり有用ではない
+                    <input type="radio" name="choices" value="#qKeijiban_1">有用ではない
+		    <br>
+		    その他、掲示板についてのコメントは以下に文章で入力してください(ハッシュタグの後に入力してください)。<br>
+                    <textarea name="comments" rows="4" cols="60"> #qKeijiban_Comments  </textarea>
+                    </p>
+                    <input type="button" class="question-send" id="question4" value="送信">
                 </form>
 
             </div>
@@ -124,11 +144,15 @@
                 // アンケートの受信
                 $('.question-send').click(function(e){
                     var btnid  = $(this).attr("id");
+                    var comment = $('#'+btnid+' [name=comments]').val();
                     var val = $('#'+btnid+' [name=choices]:checked').val();
                     if(typeof(val) !== 'undefined'){
                         var id = getCookie();
                         var msg = { 'type': 'question', 'body': val , 'id':id};
                         ws.send(JSON.stringify(msg));
+
+                        var com = { 'type': 'question', 'body': comment , 'id':id};
+                        ws.send(JSON.stringify(com));
                     }
                 });
             });
