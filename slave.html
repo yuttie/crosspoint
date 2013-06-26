@@ -9,22 +9,13 @@
     </head>
     <body>
         <div id="user_id" style="text-align:center"></div>
-        <div style="float:left;margin-right:20px;">
-            <h4>グループ用の投稿欄</h4>
-            <textarea id="group-comment-entry" cols="40" rows="5" autofocus></textarea>
-        </div>
-        <div style="float:left">
-            <h4>全体用の投稿欄</h4>
-            <textarea id="comment-entry" cols="40" rows="5" autofocus></textarea>
-        </div>
-
         <!--名前と学生番号の入力欄-->
-        <div style="font-weight:bold;color: black;float: right;">
-            <div>
-                <font size="3px">ニックネーム</font><input type="text" maxlength="20" name="user_name" id="name-entry">
+        <div id="header-bar">
+            <div style="display: inline-block;">
+                <label style="font-weight: bold;">ニックネーム: <input type="text" maxlength="20" name="user_name" id="name-entry" placeholder="NO NAME" /></label>
             </div>
-            <div class="form-toolbar">
-                <font size="4px">学生番号</font><input type="text" maxlength="10" name="student_id" id="id-entry">
+            <div class="form-toolbar" style="display: inline-block;">
+                <label style="font-weight: bold;">学生番号: <input type="text" maxlength="10" name="student_id" id="id-entry" placeholder="学生番号を入力して下さい..." /></label>
             </div>
             <!--
             <div class="form-toolbar">
@@ -32,7 +23,6 @@
             </div>
             -->
         </div>
-        <div style="clear:both"></div>
 
         <div id="column-container">
             <div class="column">
@@ -42,6 +32,7 @@
                     </div>
                 </div>
                 <div class="view">
+                    <textarea class="comment-entry" id="group-comment-entry" placeholder="書き込む..." autofocus></textarea>
                     <div id="group_comments"></div>
                 </div>
             </div>
@@ -60,6 +51,7 @@
                     <h3>全体投稿</h3>
                 </div>
                 <div class="view">
+                    <textarea class="comment-entry" id="comment-entry" placeholder="書き込む..." autofocus></textarea>
                     <div id="comments"></div>
                 </div>
             </div>
@@ -127,6 +119,9 @@
 
                 // クライアントにCookieを保存する
                 function setCookie(num){
+                    if (window.localStorage) {
+                        window.localStorage['serial_number'] = num;
+                    }
                     var s = "";
                     s = 'cookie_name={"serial_number":"' + num + '"};';
                     var expire = new Date();
@@ -136,6 +131,9 @@
                 }
                 // 該当するCookieを読み込む
                 function getCookie(){
+                    if (window.localStorage && window.localStorage['serial_number'] !== undefined) {
+                        return window.localStorage['serial_number'];
+                    }
                     var result = new Array();
                     if(document.cookie.length > 0){
                         var all_cookie = document.cookie;
@@ -246,7 +244,8 @@
                             var gname = getUserID(msg.serial_num);
                             document.getElementById("group_name").innerHTML = "<h3>グループ No." + gname + " の投稿</h3>";
                         }else if(msg.type == "user_data"){
-                            document.getElementById("user_id").innerHTML = "ようこそ" + msg.user_name + "さん<br>あなたの学生番号は " + msg.user_id + " です";
+                            $("#id-entry").val(msg.user_id);
+                            $("#name-entry").val(msg.user_name);
                         }
                         else if (msg.type === "draw") {
                             var ctx = $('.slide.current > canvas.overlay')[0].getContext('2d');
@@ -325,26 +324,20 @@
                         this.selectionEnd = start + 1;
                     }
                 });
-                 $('#name-entry').on('keypress', function(e) {
-                    if (e.which === 13) {
-                        var s = $(this).val();
-                        if (s.length > 0) {
-                            var id = getCookie();
-                            var msg = { 'type': 'user_name', 'uname': s , 'id':id};
-                            ws.send(JSON.stringify(msg));
-                        }
-                        e.preventDefault();
+                 $('#name-entry').on('input', function(e) {
+                    var s = $(this).val();
+                    if (s.length > 0) {
+                        var id = getCookie();
+                        var msg = { 'type': 'user_name', 'uname': s , 'id':id};
+                        ws.send(JSON.stringify(msg));
                     }
                 });
-                 $('#id-entry').on('keypress', function(e) {
-                    if (e.which === 13) {
-                        var s = $(this).val();
-                        if (s.length > 0) {
-                            var id = getCookie();
-                            var msg = { 'type': 'user_id', 'uid': s , 'id':id};
-                            ws.send(JSON.stringify(msg));
-                        }
-                        e.preventDefault();
+                 $('#id-entry').on('input', function(e) {
+                    var s = $(this).val();
+                    if (s.length > 0) {
+                        var id = getCookie();
+                        var msg = { 'type': 'user_id', 'uid': s , 'id':id};
+                        ws.send(JSON.stringify(msg));
                     }
                 });
             });
