@@ -232,15 +232,6 @@ class Analyzer
     end
   end
   def decorate(comment)
-    case comment['body'].length % 3
-    when 0
-      color = "red"
-    when 1
-      color = "green"
-    when 2
-      color = "blue"
-    end
-    comment['body'] = "<span style=\"color: #{color};\">#{comment['body']}</span>"
     comment
   end
 end
