@@ -186,8 +186,6 @@ def log_messages(n)
   return log_messages
 end
 
-resque
-
 mkdir_if_not_exist('./content')
 mkdir_if_not_exist('./ip_addr')
 mkdir_if_not_exist('./group_id')
