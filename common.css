@@ -105,7 +105,7 @@ pre {
 }
 .slide > img{
   width: 100%;
-  height: 100%;  
+  height: 100%;
 }
 
 
@@ -190,6 +190,19 @@ pre {
   height: 100%;
 }
 
+#new_msg_notification {
+    width: 80%;
+    margin: 1em auto;
+    padding: 0.25em 0.5em;
+    background-color: #d7eef4;
+    border: 1px solid #37abc8;
+    border-radius: 4px;
+    font-weight: bold;
+    color: #0088aa;
+    text-shadow: white 1px 1px;
+    text-align: center;
+}
+
 .number {
   margin-right: 0.5em;
   color: blue;
@@ -213,5 +226,3 @@ pre {
 .content strong {
   color: red;
 }
-
-
