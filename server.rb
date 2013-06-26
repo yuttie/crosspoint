@@ -237,11 +237,6 @@ class Analyzer
       nil
     end
   end
-end
-
-class Decorator
-  def initialize
-  end
   def decorate(comment)
     case comment['body'].length % 3
     when 0
@@ -261,7 +256,6 @@ EventMachine.run {
   analyzer = Analyzer.new
   msg_queue = EM::Queue.new
   result_queue = EM::Queue.new
-  decorator = Decorator.new
 
   EventMachine::WebSocket.start(host: ARGV[1] || "0.0.0.0", port: (ARGV[0] || 9090).to_i) do |ws|
     ws.onopen {|handshake|
@@ -318,12 +312,12 @@ EventMachine.run {
         # 投稿内容を整理し，保存・配信する
         elsif(data['type'] == "comment")
           if(data['id'] == "000")
-            zmsg = decorator.decorate(ip_zero(msg))
+            zmsg = analyzer.decorate(ip_zero(msg))
             ch.push(JSON.generate(zmsg))
             $stderr.puts("#{sid}@#{ch_id} pushed a message '#{zmsg}'.")
           else
             post_num = post_num + 1
-            nmsg = decorator.decorate(message(msg,post_num))
+            nmsg = analyzer.decorate(message(msg,post_num))
             ch.push(JSON.generate(nmsg))
             $stderr.puts("#{sid}@#{ch_id} pushed a message '#{nmsg}'.")
           end
