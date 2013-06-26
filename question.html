@@ -144,11 +144,18 @@
                 // アンケートの受信
                 $('.question-send').click(function(e){
                     var btnid  = $(this).attr("id");
+                    var comment = $('#'+btnid+' [name=comments]').val();
                     var val = $('#'+btnid+' [name=choices]:checked').val();
                     if(typeof(val) !== 'undefined'){
                         var id = getCookie();
                         var msg = { 'type': 'question', 'body': val , 'id':id};
                         ws.send(JSON.stringify(msg));
+
+                    }
+                    if(comment.length > 0){
+                        var id = getCookie();
+                        var com = { 'type': 'question', 'body': comment , 'id':id};
+                        ws.send(JSON.stringify(com));
                     }
                 });
             });

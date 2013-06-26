@@ -286,7 +286,7 @@ EventMachine.run {
             'ip_addr'   => 0,
             'gid'       => 0
           }
-          ch.push(JSON.generate(m))
+         # ch.push(JSON.generate(m))
         }
 
         # cookieに登録するシリアルナンバーを送る
