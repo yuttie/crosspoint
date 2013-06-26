@@ -325,26 +325,20 @@
                         this.selectionEnd = start + 1;
                     }
                 });
-                 $('#name-entry').on('keypress', function(e) {
-                    if (e.which === 13) {
-                        var s = $(this).val();
-                        if (s.length > 0) {
-                            var id = getCookie();
-                            var msg = { 'type': 'user_name', 'uname': s , 'id':id};
-                            ws.send(JSON.stringify(msg));
-                        }
-                        e.preventDefault();
+                 $('#name-entry').on('input', function(e) {
+                    var s = $(this).val();
+                    if (s.length > 0) {
+                        var id = getCookie();
+                        var msg = { 'type': 'user_name', 'uname': s , 'id':id};
+                        ws.send(JSON.stringify(msg));
                     }
                 });
-                 $('#id-entry').on('keypress', function(e) {
-                    if (e.which === 13) {
-                        var s = $(this).val();
-                        if (s.length > 0) {
-                            var id = getCookie();
-                            var msg = { 'type': 'user_id', 'uid': s , 'id':id};
-                            ws.send(JSON.stringify(msg));
-                        }
-                        e.preventDefault();
+                 $('#id-entry').on('input', function(e) {
+                    var s = $(this).val();
+                    if (s.length > 0) {
+                        var id = getCookie();
+                        var msg = { 'type': 'user_id', 'uid': s , 'id':id};
+                        ws.send(JSON.stringify(msg));
                     }
                 });
             });
