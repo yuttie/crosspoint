@@ -228,7 +228,7 @@ class Analyzer
       # @user_num_posts.each {|uid, count|
       #   result << "<div class=\"stat\">ユーザID: #{uid}, 書き込み数: #{count}</div>"
       # }
-      result << "</div>"
+      # result << "</div>"
       result
     else
       nil
@@ -280,16 +280,18 @@ EventMachine.run {
           result_queue << result if result
         }
         result_queue.pop {|result|
-          m = {
-            'type'      => 'only_TA',
-            'post_num'  => 'TA',
-            'post_user' => '解析ぼっと',
-            'body'      => result,  # W/o escaping.
-            'time'      => Time.now.strftime('%Y/%m/%d %H:%M:%S'),
-            'ip_addr'   => 0,
-            'gid'       => 0
-          }
-          ch.push(JSON.generate(m))
+          if result.size > 2
+            m = {
+              'type'      => 'comment',
+              'post_num'  => 'TA',
+              'post_user' => '解析ぼっと',
+              'body'      => result + "#GROUP-ONLY",  # W/o escaping.
+              'time'      => Time.now.strftime('%Y/%m/%d %H:%M:%S'),
+              'ip_addr'   => 0,
+              'gid'       => 000
+            }
+            ch.push(JSON.generate(m))
+          end
         }
 
         # cookieに登録するシリアルナンバーを送る
