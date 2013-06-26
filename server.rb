@@ -4,7 +4,7 @@ if RUBY_VERSION >= '1.9'
   Encoding.default_external = Encoding::UTF_8
 end
 
-# require './eval/eval_res.rb'
+require './eval/eval_res.rb'
 require 'em-websocket'
 require 'json'
 require 'fileutils'
@@ -186,6 +186,8 @@ def log_messages(n)
   return log_messages
 end
 
+resque
+
 mkdir_if_not_exist('./content')
 mkdir_if_not_exist('./ip_addr')
 mkdir_if_not_exist('./group_id')
@@ -210,23 +212,24 @@ class Analyzer
     when 'comment'
       comment = msg
       @user_num_posts[comment['id']] += 1
-
-      # res_eval = eval_res_value(comment['body'])
-      # res_eval = eval_res_value(comment['body'], @marge_df, @df_max, @pn_table)
+      p res_eval = eval_res_value(comment['body'], @marge_df, @df_max, @pn_table)
 
       result = ""
-      if comment['body'] =~ /#GROUP-ONLY/i
-        result << "グループ書き込み<span style=\"color: red\">\"#{escape(comment['body'])}\"</span>を観測しました。"
-      else
-        result << "書き込み<span style=\"color: red\">\"#{escape(comment['body'])}\"</span>を観測しました。"
+      if res_eval[:res_value] > 0.05
+        result <<  "<span style=\"color: red\">\"#{escape(comment['body'])}\"</span>"
       end
-      result << "<br>"
-      result << "<div style=\"margin: 1em 0; padding: 0.5em; border: 1px solid gray; border-radius: 4px;\">"
-      result << "<div style=\"font: bold 1.2em serif\">統計:</div>"
-      @user_num_posts.each {|uid, count|
-        result << "<div class=\"stat\">ユーザID: #{uid}, 書き込み数: #{count}</div>"
-      }
-      result << "</div>"
+      # if comment['body'] =~ /#GROUP-ONLY/i
+      #   result << "グループ書き込み<span style=\"color: red\">\"#{escape(comment['body'])}\"</span>を観測しました。"
+      # else
+      #   result << "書き込み<span style=\"color: red\">\"#{escape(comment['body'])}\"</span>を観測しました。"
+      # end
+      # result << "<br>"
+      # result << "<div style=\"margin: 1em 0; padding: 0.5em; border: 1px solid gray; border-radius: 4px;\">"
+      # result << "<div style=\"font: bold 1.2em serif\">統計:</div>"
+      # @user_num_posts.each {|uid, count|
+      #   result << "<div class=\"stat\">ユーザID: #{uid}, 書き込み数: #{count}</div>"
+      # }
+      # result << "</div>"
       result
     else
       nil
@@ -269,16 +272,18 @@ EventMachine.run {
           result_queue << result if result
         }
         result_queue.pop {|result|
-          m = {
-            'type'      => 'only_TA',
-            'post_num'  => 'TA',
-            'post_user' => '解析ぼっと',
-            'body'      => result,  # W/o escaping.
-            'time'      => Time.now.strftime('%Y/%m/%d %H:%M:%S'),
-            'ip_addr'   => 0,
-            'gid'       => 0
-          }
-          ch.push(JSON.generate(m))
+          if result.size > 2
+            m = {
+              'type'      => 'comment',
+              'post_num'  => 'TA',
+              'post_user' => '解析ぼっと',
+              'body'      => result + "#GROUP-ONLY",  # W/o escaping.
+              'time'      => Time.now.strftime('%Y/%m/%d %H:%M:%S'),
+              'ip_addr'   => 0,
+              'gid'       => 000
+            }
+            ch.push(JSON.generate(m))
+          end
         }
 
         # cookieに登録するシリアルナンバーを送る
