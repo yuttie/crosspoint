@@ -119,6 +119,9 @@
 
                 // クライアントにCookieを保存する
                 function setCookie(num){
+                    if (window.localStorage) {
+                        window.localStorage['serial_number'] = num;
+                    }
                     var s = "";
                     s = 'cookie_name={"serial_number":"' + num + '"};';
                     var expire = new Date();
@@ -128,6 +131,9 @@
                 }
                 // 該当するCookieを読み込む
                 function getCookie(){
+                    if (window.localStorage && window.localStorage['serial_number'] !== undefined) {
+                        return window.localStorage['serial_number'];
+                    }
                     var result = new Array();
                     if(document.cookie.length > 0){
                         var all_cookie = document.cookie;
