@@ -4,7 +4,7 @@ if RUBY_VERSION >= '1.9'
   Encoding.default_external = Encoding::UTF_8
 end
 
-# require './eval/eval_res.rb'
+require './eval/eval_res.rb'
 require 'em-websocket'
 require 'json'
 require 'fileutils'
@@ -211,9 +211,7 @@ class Analyzer
     when 'comment'
       comment = msg
       @user_num_posts[comment['id']] += 1
-
-      # res_eval = eval_res_value(comment['body'])
-      # res_eval = eval_res_value(comment['body'], @marge_df, @df_max, @pn_table)
+      res_eval = eval_res_value(comment['body'], @marge_df, @df_max, @pn_table)
 
       result = ""
       if comment['body'] =~ /#GROUP-ONLY/i
@@ -288,7 +286,7 @@ EventMachine.run {
             'ip_addr'   => 0,
             'gid'       => 0
           }
-          ch.push(JSON.generate(m))
+         # ch.push(JSON.generate(m))
         }
 
         # cookieに登録するシリアルナンバーを送る
