@@ -217,11 +217,9 @@ class Analyzer
     when 'comment'
       comment = msg
       @user_num_posts[comment['id']] += 1
-<<<<<<< HEAD
+
       # res_eval = eval_res_value(comment['body'])
-=======
-      res_eval = eval_res_value(comment['body'], @marge_df, @df_max, @pn_table)
->>>>>>> f6a0597890d0cf86a7303292522b9c78559e7c9e
+      # res_eval = eval_res_value(comment['body'], @marge_df, @df_max, @pn_table)
 
       result = ""
       if comment['body'] =~ /#GROUP-ONLY/i
