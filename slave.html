@@ -151,6 +151,7 @@
                     }
                 }
 
+                var new_posts = [];
                 var ws = null;
                 function startWebSocket() {
                     ws = new WebSocket("ws://" + window.location.hostname + ":9090/");
@@ -179,13 +180,32 @@
                         }
                         // 投稿の表示処理
                         else if (msg.type === "comment") {
-                            var my_gid = getUserID(getCookie());
+                            var my_id = getCookie();
+                            var my_gid = getUserID(my_id);
                             post = post_to_html(msg);
 
                             if(msg.body.match(/\#GROUP-ONLY/i) === null){
                                 var p = $(post);
                                 MathJax.Hub.Queue(["Typeset", MathJax.Hub, p[0]]);
-                                p.prependTo('#comments');
+                                if (msg.ip_addr === my_id) {
+                                    $('#new_msg_notification').click();
+                                    p.prependTo('#comments');
+                                }
+                                else {
+                                    new_posts.push(p);
+                                    if ($('#new_msg_notification').length > 0) {
+                                        $('#new_msg_notification').text(new_posts.length + '件の新着');
+                                    }
+                                    else {
+                                        $('<div id="new_msg_notification">' + new_posts.length + '件の新着</div>').prependTo('#comments');
+                                        $('#new_msg_notification').on('click', function(e) {
+                                            $.each(new_posts, function(_, new_post) {
+                                                new_post.prependTo('#comments');
+                                            });
+                                            $(this).remove();
+                                        });
+                                    }
+                                }
                             }else{
                                 if(parseInt(my_gid) === parseInt(msg.gid)){
                                     var p = $(post);
