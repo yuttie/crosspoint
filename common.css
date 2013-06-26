@@ -152,6 +152,14 @@ pre {
     box-shadow: 0 0 8px black;
 }
 
+#header-bar > * {
+    vertical-align: middle;
+}
+
+#logo {
+    float: left;
+}
+
 #name-entry, #id-entry {
     border: 1px solid silver;
     border-radius: 4px;
