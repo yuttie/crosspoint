@@ -163,7 +163,9 @@ end
 
 #所見ユーザに過去の投稿を全て送信するために準備
 def log_messages(n)
-  def get_message(log_messages,prefp)
+  log_messages = Array.new
+  #保存されたメッセージの取得
+  Dir.glob('./content/*').sort.last(n).each_with_index {|prefp, i|
     fp = prefp.split("_")
 
     time = Time.now
@@ -187,19 +189,7 @@ def log_messages(n)
     end
 
     log_messages.push({'type'=>type, 'post_num'=>fp[1], 'post_user'=>post_user,'body'=>content, 'time'=>time.strftime('%Y/%m/%d %H:%M:%S'),'ip_addr'=>unique_id, 'gid'=>group_id.to_i})
-  end
-
-  log_messages = Array.new
-  #保存されたメッセージの取得
-  if Dir.glob('./content/*').size > 100
-    Dir.glob('./content/*').sort[-n..-1].each_with_index {|prefp, i|
-      get_message(log_messages,prefp)
-    }
-  else
-    Dir.glob('./content/*').sort.each_with_index {|prefp, i|
-      get_message(log_messages,prefp)
-    }
-  end
+  }
   return log_messages
 end
 
@@ -218,20 +208,23 @@ end
 class Analyzer
   def initialize
     @user_num_posts = Hash.new(0)
+    @marge_df = JSON.load(open("./eval/data/marge_df.json"))
+    @df_max = @marge_df.max { |a, b| a[1] <=> b[1] }[1]
+    @pn_table = JSON.load(open("./eval/data/pnTable.json"))
   end
   def analyze(msg)
     case msg['type']
     when 'comment'
       comment = msg
       @user_num_posts[comment['id']] += 1
-      res_eval = eval_res_value(comment['body'])
+      res_eval = eval_res_value(comment['body'], @marge_df, @df_max, @pn_table)
 
       result = ""
       if comment['body'] =~ /#GROUP-ONLY/i
         result << "グループ書き込み<span style=\"color: red\">\"#{escape(comment['body'])}\"</span>を観測しました。"
       else
         result << "書き込み<span style=\"color: red\">\"#{escape(comment['body'])}\"</span>を観測しました。"
-      end1
+      end
       result << "<br>"
       result << "<div style=\"margin: 1em 0; padding: 0.5em; border: 1px solid gray; border-radius: 4px;\">"
       result << "<div style=\"font: bold 1.2em serif\">統計:</div>"
@@ -243,11 +236,6 @@ class Analyzer
     else
       nil
     end
-  end
-end
-
-class Decorator
-  def initialize
   end
   def decorate(comment)
     case comment['body'].length % 3
@@ -268,7 +256,6 @@ EventMachine.run {
   analyzer = Analyzer.new
   msg_queue = EM::Queue.new
   result_queue = EM::Queue.new
-  decorator = Decorator.new
 
   EventMachine::WebSocket.start(host: ARGV[1] || "0.0.0.0", port: (ARGV[0] || 9090).to_i) do |ws|
     ws.onopen {|handshake|
@@ -325,12 +312,12 @@ EventMachine.run {
         # 投稿内容を整理し，保存・配信する
         elsif(data['type'] == "comment")
           if(data['id'] == "000")
-            zmsg = decorator.decorate(ip_zero(msg))
+            zmsg = analyzer.decorate(ip_zero(msg))
             ch.push(JSON.generate(zmsg))
             $stderr.puts("#{sid}@#{ch_id} pushed a message '#{zmsg}'.")
           else
             post_num = post_num + 1
-            nmsg = decorator.decorate(message(msg,post_num))
+            nmsg = analyzer.decorate(message(msg,post_num))
             ch.push(JSON.generate(nmsg))
             $stderr.puts("#{sid}@#{ch_id} pushed a message '#{nmsg}'.")
           end

@@ -4,10 +4,6 @@
 require 'json'
 require 'MeCab'
 
-marge_df = JSON.load(open("./eval/data/marge_df.json"))
-df_max = marge_df.max { |a, b| a[1] <=> b[1] }[1]
-pn_table = JSON.load(open("./eval/data/pnTable.json"))
-
 # 単語の必要な品詞とかでクラスを作る
 class WordClass
   def initialize(word,pos1,pos2,origin)
