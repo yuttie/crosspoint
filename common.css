@@ -6,6 +6,36 @@ html, body {
 pre {
   font-family: sans-serif;
 }
+
+.comment-entry-holder-holder {
+    margin: 0 2em;
+    width: auto;
+    text-align: auto;
+}
+
+.comment-entry-holder {
+    display: inline-block;
+    width: 48%;
+}
+
+.comment-entry {
+    border: 1px solid lightgray;
+    border-radius: 4px;
+    position: absolute;
+    top: 1px;
+    left: 0em;
+    right: 0em;
+    height: 5em;
+}
+
+.comment-entry:focus {
+    border: 1px solid black;
+}
+
+#comments, #group_comments {
+    margin-top: 5.5em;
+}
+
 #comment_view {
   position: absolute;
   top: 20px;
@@ -108,8 +138,22 @@ pre {
   height: 100%;
 }
 
+#header-bar {
+    position: absolute;
+    left: 0;
+    right: 0;
+    top: 0;
+    padding: 0.5em 1em;
+    text-align: right;
+    color: white;
+    background-color: #252525;
+    box-shadow: 0 0 8px black;
+}
+
 #name-entry, #id-entry {
     border: 1px solid silver;
+    border-radius: 4px;
+    padding: 0.25em 0.5em;
     background-color: white;
 }
 
@@ -124,7 +168,7 @@ pre {
 
 #column-container {
   position: absolute;
-  top: 17em;
+  top: 6em;
   bottom: 0;
   width: auto;
   left: 0;
