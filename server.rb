@@ -220,17 +220,20 @@ class Analyzer
       p res_eval = eval_res_value(comment['body'], @marge_df, @df_max, @pn_table)
 
       result = ""
-      if comment['body'] =~ /#GROUP-ONLY/i
-        result << "グループ書き込み<span style=\"color: red\">\"#{escape(comment['body'])}\"</span>を観測しました。"
-      else
-        result << "書き込み<span style=\"color: red\">\"#{escape(comment['body'])}\"</span>を観測しました。"
+      if res_eval[:res_value] > 0.05
+        result <<  "<span style=\"color: red\">\"#{escape(comment['body'])}\"</span>"
       end
-      result << "<br>"
-      result << "<div style=\"margin: 1em 0; padding: 0.5em; border: 1px solid gray; border-radius: 4px;\">"
-      result << "<div style=\"font: bold 1.2em serif\">統計:</div>"
-      @user_num_posts.each {|uid, count|
-        result << "<div class=\"stat\">ユーザID: #{uid}, 書き込み数: #{count}</div>"
-      }
+      # if comment['body'] =~ /#GROUP-ONLY/i
+      #   result << "グループ書き込み<span style=\"color: red\">\"#{escape(comment['body'])}\"</span>を観測しました。"
+      # else
+      #   result << "書き込み<span style=\"color: red\">\"#{escape(comment['body'])}\"</span>を観測しました。"
+      # end
+      # result << "<br>"
+      # result << "<div style=\"margin: 1em 0; padding: 0.5em; border: 1px solid gray; border-radius: 4px;\">"
+      # result << "<div style=\"font: bold 1.2em serif\">統計:</div>"
+      # @user_num_posts.each {|uid, count|
+      #   result << "<div class=\"stat\">ユーザID: #{uid}, 書き込み数: #{count}</div>"
+      # }
       result << "</div>"
       result
     else
