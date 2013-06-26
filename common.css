@@ -196,6 +196,7 @@ pre {
     width: 80%;
     margin: 1em auto;
     padding: 0.25em 0.5em;
+    cursor: pointer;
     background-color: #d7eef4;
     border: 1px solid #37abc8;
     border-radius: 4px;
