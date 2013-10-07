@@ -109,35 +109,62 @@
                             </div>';
                 }
 
-                // クライアントにCookieを保存する
-                function setCookie(num){
+                // Utility functions for handling cookies
+                function parseCookies(def) {
+                    def = def || {};
+                    var cookies = {};
+                    $.each(document.cookie.split(";"), function(_, param) {
+                        var kv = param.split("=");
+                        var k = decodeURIComponent(kv[0]);
+                        var v = decodeURIComponent(kv[1]);
+                        cookies[k] = v;
+                    });
+                    return $.extend(true, {}, def, cookies);
+                }
+
+                function getCookie(key) {
+                    $.each(document.cookie.split(";"), function(_, param) {
+                        var kv = param.split("=");
+                        if (decodeURIComponent(kv[0]) === key) {
+                            return decodeURIComponent(kv[1]);
+                        }
+                    });
+                    return null;
+                }
+
+                function setCookie(k, v, opts) {
+                    opts = opts || {};
+
+                    var opts_str = "";
+                    $.each(opts, function(k, v) {
+                        opts_str += "; " + k + "=" + v;
+                    });
+
+                    document.cookie = encodeURIComponent(k) + "=" + encodeURIComponent(v) + opts_str;
+                }
+
+                function removeCookie(k) {
+                    setCookie(k, "", { expires: "Thu, 01 Jan 1970 00:00:00 GMT" });
+                }
+
+                // Set/get the serial numbers of users
+                function setSerialNumber(sn){
                     if (window.localStorage) {
-                        window.localStorage['serial_number'] = num;
+                        window.localStorage['serial_number'] = sn;
                     }
-                    var s = "";
-                    s = 'cookie_name={"serial_number":"' + num + '"};';
+
                     var expire = new Date();
                     expire.setTime( expire.getTime() + 1000 * 3600 * 24 );
-                    s = s + 'expires=' + expire.toUTCString() + ';';
-                    document.cookie = s;
+                    setCookie("serial_number", sn, { expires: expire.toUTCString() });
                 }
-                // 該当するCookieを読み込む
-                function getCookie(){
+
+                function getSerialNumber(){
                     if (window.localStorage && window.localStorage['serial_number'] !== undefined) {
                         return window.localStorage['serial_number'];
                     }
-                    var result = new Array();
-                    if(document.cookie.length > 0){
-                        var all_cookie = document.cookie;
-                        if(all_cookie != ''){
-                            cookies = all_cookie.split(';');
-                            for(var i = 0; i < cookies.length; i++){
-                                var cookie = cookies[i].split("=");
-                                result[cookie[0]] = decodeURIComponent(cookie[1]);
-                            }
-                        }
-                        var json = JSON.parse(result['cookie_name']);
-                        return json.serial_number;
+                    else {
+                        var cookie = parseCookie({});
+                        return cookie.serial_number;
                     }
                 }
 
@@ -146,9 +173,9 @@
                 function startWebSocket() {
                     ws = new WebSocket("ws://" + window.location.hostname + ":9090/");
                     ws.onopen = function(){
-                        var unique_id = getCookie();
+                        var unique_id = getSerialNumber();
                         var msg = "";
-                        console.log(typeof(getCookie()));
+                        console.log(typeof(getSerialNumber()));
 
                         if(typeof(unique_id) !== "undefined"){
                             msg = {'type': 'cookie', 'unique_id': unique_id};
@@ -170,7 +197,7 @@
                         }
                         // 投稿の表示処理
                         else if (msg.type === "comment") {
-                            var my_id = getCookie();
+                            var my_id = getSerialNumber();
                             var my_gid = getUserID(my_id);
                             post = post_to_html(msg);
 
@@ -205,7 +232,7 @@
                             }
                         }
                         else if (msg.type === "multiple-comments") {
-                            var my_gid = getUserID(getCookie());
+                            var my_gid = getUserID(getSerialNumber());
 
                             for (var i = 0; i < msg.comments.length; ++i) {
                                 var m = msg.comments[i];
@@ -232,7 +259,7 @@
                             MathJax.Hub.Queue(["Typeset", MathJax.Hub, p[0]]);
                             p.prependTo('#ta_comments');
                         }else if (msg.type === "cookie") {
-                            setCookie(msg.serial_num);
+                            setSerialNumber(msg.serial_num);
                             var gname = getUserID(msg.serial_num);
                             document.getElementById("group_name").innerHTML = "<h3>グループ No." + gname + " の投稿</h3>";
                         }else if(msg.type == "user_data"){
@@ -278,7 +305,7 @@
                     if (!e.ctrlKey && e.which === 13) {
                         var s = $(this).val();
                         if (s.length > 0) {
-                            var id = getCookie();
+                            var id = getSerialNumber();
                             var msg = { 'type': 'comment', 'body': s , 'id':id};
                             ws.send(JSON.stringify(msg));
                             $(this).val('');
@@ -299,7 +326,7 @@
                     if (!e.ctrlKey && e.which === 13) {
                         var s = $(this).val();
                         if (s.length > 0) {
-                            var id = getCookie();
+                            var id = getSerialNumber();
                             var text = s + "#GROUP-ONLY";
                             var msg = { 'type': 'comment', 'body': text , 'id':id};
                             ws.send(JSON.stringify(msg));
@@ -319,7 +346,7 @@
                  $('#name-entry').on('input', function(e) {
                     var s = $(this).val();
                     if (s.length > 0) {
-                        var id = getCookie();
+                        var id = getSerialNumber();
                         var msg = { 'type': 'user_name', 'uname': s , 'id':id};
                         ws.send(JSON.stringify(msg));
                     }
@@ -327,7 +354,7 @@
                  $('#id-entry').on('input', function(e) {
                     var s = $(this).val();
                     if (s.length > 0) {
-                        var id = getCookie();
+                        var id = getSerialNumber();
                         var msg = { 'type': 'user_id', 'uid': s , 'id':id};
                         ws.send(JSON.stringify(msg));
                     }
