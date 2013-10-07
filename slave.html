@@ -163,8 +163,7 @@
                         return window.localStorage['serial_number'];
                     }
                     else {
-                        var cookie = parseCookies({});
-                        return cookie.serial_number;
+                        return getCookie("serial_number");
                     }
                 }
 
