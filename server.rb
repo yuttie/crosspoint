@@ -4,6 +4,9 @@ if RUBY_VERSION >= '1.9'
   Encoding.default_external = Encoding::UTF_8
 end
 
+require 'rubygems'
+require 'bundler/setup'
+
 require './eval/eval_res.rb'
 require 'em-websocket'
 require 'json'
