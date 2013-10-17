@@ -176,7 +176,7 @@
                         var msg = "";
                         console.log(typeof(getSerialNumber()));
 
-                        if(typeof(unique_id) !== "undefined"){
+                        if(unique_id && typeof(unique_id) !== "undefined"){
                             msg = {'type': 'cookie', 'unique_id': unique_id};
                             var gname = getUserID(unique_id);
                             document.getElementById("group_name").innerHTML = "<h3>グループ No." + gname + " の投稿</h3>";
