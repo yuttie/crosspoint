@@ -1,5 +1,4 @@
-mocom - Modern Communication Framework
-======================================
+CrossPoint
+==========
 
-This project aims at providing an effective and versatile framework for online
-communications.
+This project aims at providing a place for real-time discussion.
