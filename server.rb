@@ -34,12 +34,6 @@ def escape(string)
   str
 end
 
-def show_spaces(string)
-  str = string ? string.dup : ""
-  str.gsub!(/\n/, '<br>')
-  str
-end
-
 # グループの振り分け
 GROUP_NUM_LIST = [3,6,9]
 TH = 3
@@ -115,7 +109,7 @@ def ip_zero(msg)
   end
 
   #JavaScriptに返す形式にmsgを整理
-  new_msg = {'type'=>'only_TA', 'post_num'=>'TA', 'post_user'=>post_user, 'body'=>show_spaces(escape(content)), 'time'=>time.strftime('%Y/%m/%d %H:%M:%S'),'ip_addr'=>unique_id, 'gid'=>group_id}
+  new_msg = {'type'=>'only_TA', 'post_num'=>'TA', 'post_user'=>post_user, 'body'=>escape(content), 'time'=>time.strftime('%Y/%m/%d %H:%M:%S'),'ip_addr'=>unique_id, 'gid'=>group_id}
   return new_msg
 end
 
@@ -153,7 +147,7 @@ def message(msg,num)
   end
 
   #JavaScriptに返す形式にmsgを整理
-  new_msg = {'type'=>MSG_TYPE, 'post_num'=>num, 'post_user'=>post_user, 'body'=>show_spaces(escape(content)), 'time'=>time.strftime('%Y/%m/%d %H:%M:%S'),'ip_addr'=>unique_id, 'gid'=>group_id}
+  new_msg = {'type'=>MSG_TYPE, 'post_num'=>num, 'post_user'=>post_user, 'body'=>escape(content), 'time'=>time.strftime('%Y/%m/%d %H:%M:%S'),'ip_addr'=>unique_id, 'gid'=>group_id}
   return new_msg
 end
 
@@ -169,7 +163,7 @@ def log_messages(n)
     time = Time.at(post_id[0...-6].to_i, post_id[-6..-1].to_i)
 
     unique_id = read_file_if_exist("./ip_addr/#{post_id}")
-    content = show_spaces(escape(IO.read("./content/#{post_id}" + "_" + fp[1])))
+    content = escape(IO.read("./content/#{post_id}" + "_" + fp[1]))
 
     group_id = read_file_if_exist("./group_id/#{unique_id}")
     post_user = read_file_if_exist("./user_name/#{unique_id}")
