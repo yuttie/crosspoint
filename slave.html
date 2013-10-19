@@ -1,50 +1,48 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="ja">
     <head>
         <meta charset="UTF-8">
-        <script src="jquery-1.9.0.js"></script>
+        <script src="jquery-2.0.3.min.js"></script>
         <script src="http://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+        <link rel="stylesheet" href="normalize.css" type="text/css" media="all">
         <link rel="stylesheet" href="common.css" type="text/css" media="all">
         <title>mocom</title>
     </head>
     <body>
-        <div id="user_id" style="text-align:center"></div>
-        <!--名前と学生番号の入力欄-->
         <div id="header-bar">
-            <img id="logo" src="logo.svg"/>
-            <label style="font-weight: bold;">ニックネーム: <input type="text" maxlength="20" name="user_name" id="name-entry" placeholder="NO NAME" /></label>
-            <label style="font-weight: bold;">学生番号: <input type="text" maxlength="10" name="student_id" id="id-entry" placeholder="学生番号を入力して下さい..." /></label>
+            <img id="logo" width="32" height="32" src="logo.svg"/>
+            <label style="font-weight: bold;">ニックネーム: <input type="text" maxlength="20" name="screen_name" id="screen-name-entry" placeholder="表示名" /></label>
+            <label style="font-weight: bold;">学籍番号: <input type="text" maxlength="10" name="student_id" id="student-id-entry" placeholder="学籍番号" /></label>
         </div>
 
         <div id="column-container">
             <div class="column">
                 <div class="view_title">
                     <div id="group_name">
-                        <h3>グループ内投稿</h3>
+                        <h3>あなたのグループ内のメッセージ</h3>
                     </div>
                 </div>
-                <div class="view">
-                    <textarea class="comment-entry" id="group-comment-entry" placeholder="書き込む..." autofocus></textarea>
-                    <div id="group_comments"></div>
+                <div id="group_posts" class="view">
+                  <textarea class="comment-entry" id="group-comment-entry" placeholder="書き込む..." autofocus></textarea>
+                  <div class="comment-entry-placeholder"></div>
                 </div>
             </div>
 
             <div class="column-mini">
                 <div class="view_title">
-                    <h3>TA連絡板</h3>
+                    <h3>TAからのメッセージ</h3>
                 </div>
-                <div class="view">
-                    <div id="ta_comments"></div>
+                <div id="ta_posts" class="view">
                 </div>
             </div>
 
             <div class="column-half">
                 <div class="view_title">
-                    <h3>全体投稿</h3>
+                    <h3>全体向けのメッセージ</h3>
                 </div>
-                <div class="view">
+                <div id="posts" class="view">
                     <textarea class="comment-entry" id="comment-entry" placeholder="書き込む..." autofocus></textarea>
-                    <div id="comments"></div>
+                    <div class="comment-entry-placeholder"></div>
                 </div>
             </div>
         </div>
@@ -80,33 +78,6 @@
 
                         updateSlideClasses();
                     }
-                }
-
-                 // ユーザのグループid取得 (php使用)
-                function getUserID(unique_id){
-                    var req = new XMLHttpRequest();
-                    req.open("GET", "./php/getUserID.php?uid=../group_id/" + unique_id, false);
-                    req.send(null);
-
-                    if(req.responseText != false){
-                        return eval(req.responseText);
-                    }
-
-                }
-
-                function post_to_html(post){
-                    var body = post.body.replace(/\#GROUP-ONLY/ig, "");
-                    return '<div>\
-                              <div class="header">\
-                                <span class="number">' + post.post_num + '</span>\
-                                <span class="time">' + post.time + '</span>\
-                                <span class="host">\
-                                  <span class="host-name">' + post.post_user + '</span>\
-                                  &nbsp;\
-                                  <span class="ip-addr">(' + post.ip_addr + ')</span>\
-                                </span>\
-                              <div class="content">' + body + '</div>\
-                            </div>';
                 }
 
                 // Utility functions for handling cookies
@@ -148,44 +119,98 @@
                 }
 
                 // Set/get the serial numbers of users
-                function setSerialNumber(sn){
+                function writeToStorage(key, value) {
                     if (window.localStorage) {
-                        window.localStorage['serial_number'] = sn;
+                        window.localStorage[key] = value;
                     }
 
-                    var expire = new Date();
-                    expire.setTime( expire.getTime() + 1000 * 3600 * 24 );
-                    setCookie("serial_number", sn, { expires: expire.toUTCString() });
+                    setCookie(key, value);
                 }
 
-                function getSerialNumber(){
-                    if (window.localStorage && window.localStorage['serial_number'] !== undefined) {
-                        return window.localStorage['serial_number'];
+                function readFromStorage(key) {
+                    if (window.localStorage && typeof(window.localStorage[key]) !== undefined) {
+                        return window.localStorage[key];
                     }
                     else {
-                        return getCookie("serial_number");
+                        return getCookie(key);
                     }
+                }
+
+                function isInvalid(x) {
+                    return x === null || typeof(x) === "undefined";
+                }
+
+                function renderPost(post) {
+                    var content = post.content.replace(/\#GROUP-ONLY/ig, "");
+                    return '<div class="post">\
+                              <div class="header">\
+                                <span class="number">' + post.number + '</span>\
+                                <span class="time">' + post.time + '</span>\
+                                <span class="host">\
+                                  <span class="host-name">' + (post.user.screen_name || "NO NAME") + '</span>\
+                                  &nbsp;\
+                                  <span class="ip-addr">(' + post.user.user_id + ')</span>\
+                                </span>\
+                              </div>\
+                              <div class="content">' + content + '</div>\
+                            </div>';
                 }
 
                 var new_posts = [];
+                function showPost(post) {
+                    var uid = readFromStorage('user_id');
+                    var gid = readFromStorage('group_id');
+                    if (post.content.match(/#GROUP-ONLY/i)) {
+                        if (gid === post.user.group_id) {
+                            var p = $(renderPost(post));
+                            MathJax.Hub.Queue(["Typeset", MathJax.Hub, p[0]]);
+                            p.insertAfter('#group_posts > .comment-entry-placeholder');
+                        }
+                    }
+                    else {
+                        var p = $(renderPost(post));
+                        MathJax.Hub.Queue(["Typeset", MathJax.Hub, p[0]]);
+                        if (post.user.user_id === uid) {
+                            $('#new_msg_notification').click();
+                            p.insertAfter('#posts > .comment-entry-placeholder');
+                        }
+                        else {
+                            new_posts.push(p);
+                            if ($('#new_msg_notification').length == 0) {
+                                $('<div id="new_msg_notification"></div>').insertAfter('#posts > .comment-entry-placeholder');
+                                $('#new_msg_notification').on('click', function(e) {
+                                    $.each(new_posts, function(_, new_post) {
+                                        new_post.insertAfter('#posts > .comment-entry-placeholder');
+                                    });
+                                    new_posts = [];
+                                    $(this).remove();
+                                });
+                            }
+                            $('#new_msg_notification').text(new_posts.length + '件の新着');
+                        }
+                    }
+                }
+
                 var ws = null;
                 function startWebSocket() {
-                    ws = new WebSocket("ws://" + window.location.hostname + ":9090/");
+                    var hostname = window.location.hostname;
+                    ws = new WebSocket("ws://" + hostname + ":9090/");
+
                     ws.onopen = function(){
-                        var unique_id = getSerialNumber();
-                        var msg = "";
-                        console.log(typeof(getSerialNumber()));
-
-                        if(unique_id && typeof(unique_id) !== "undefined"){
-                            msg = {'type': 'cookie', 'unique_id': unique_id};
-                            var gname = getUserID(unique_id);
-                            document.getElementById("group_name").innerHTML = "<h3>グループ No." + gname + " の投稿</h3>";
-                        }else{
-                            msg = {'type': 'cookie', 'unique_id': "NoData"};
+                        var uid = readFromStorage('user_id');
+                        var gid = readFromStorage('group_id');
+                        console.log("My user ID is: \"" + uid + "\"");
+                        console.log("My group ID is: \"" + gid + "\"");
+                        if (isInvalid(uid)) {
+                            var msg = { type: 'need-both-ids' };
+                            ws.send(JSON.stringify(msg));
                         }
-
-                        ws.send(JSON.stringify(msg));
+                        else if (isInvalid(gid)) {
+                            var msg = { type: 'need-group-id', 'user_id': uid };
+                            ws.send(JSON.stringify(msg));
+                        }
                     };
+
                     ws.onmessage = function(e) {
                         var msg = JSON.parse(e.data);
                         if (msg.type === "prev") {
@@ -194,76 +219,27 @@
                         else if (msg.type === "next") {
                             goToNextSlide();
                         }
-                        // 投稿の表示処理
-                        else if (msg.type === "comment") {
-                            var my_id = getSerialNumber();
-                            var my_gid = getUserID(my_id);
-                            post = post_to_html(msg);
-
-                            if(msg.body.match(/\#GROUP-ONLY/i) === null){
-                                var p = $(post);
-                                MathJax.Hub.Queue(["Typeset", MathJax.Hub, p[0]]);
-                                if (msg.ip_addr === my_id) {
-                                    $('#new_msg_notification').click();
-                                    p.prependTo('#comments');
-                                }
-                                else {
-                                    new_posts.push(p);
-                                    if ($('#new_msg_notification').length > 0) {
-                                        $('#new_msg_notification').text(new_posts.length + '件の新着');
-                                    }
-                                    else {
-                                        $('<div id="new_msg_notification">' + new_posts.length + '件の新着</div>').prependTo('#comments');
-                                        $('#new_msg_notification').on('click', function(e) {
-                                            $.each(new_posts, function(_, new_post) {
-                                                new_post.prependTo('#comments');
-                                            });
-                                            $(this).remove();
-                                        });
-                                    }
-                                }
-                            }else{
-                                if(parseInt(my_gid) === parseInt(msg.gid)){
-                                    var p = $(post);
-                                    MathJax.Hub.Queue(["Typeset", MathJax.Hub, p[0]]);
-                                    p.prependTo('#group_comments');
-                                }
-                            }
+                        else if (msg.type === "post") {
+                            showPost(msg);
                         }
-                        else if (msg.type === "multiple-comments") {
-                            var my_gid = getUserID(getSerialNumber());
-
-                            for (var i = 0; i < msg.comments.length; ++i) {
-                                var m = msg.comments[i];
-                                post = post_to_html(m);
-                                if(m.type === "only_TA"){
-                                    var p = $(post);
-                                    MathJax.Hub.Queue(["Typeset", MathJax.Hub, p[0]]);
-                                    p.prependTo('#ta_comments');
-                                }else if(m.body.match(/\#GROUP-ONLY/i) === null){
-                                    var p = $(post);
-                                    MathJax.Hub.Queue(["Typeset", MathJax.Hub, p[0]]);
-                                    p.prependTo('#comments');
-                                }else{
-                                    if(parseInt(my_gid) === parseInt(m.gid)){
-                                        var p = $(post);
-                                        MathJax.Hub.Queue(["Typeset", MathJax.Hub, p[0]]);
-                                        p.prependTo('#group_comments');
-                                    }
-                                }
-                            }
-                        }else if (msg.type === "only_TA") {
-                            ta_post = post_to_html(msg);
-                            var p = $(ta_post);
+                        else if (msg.type === "archived-posts") {
+                            msg.posts.forEach(showPost);
+                            $('#new_msg_notification').click();
+                        }
+                        else if (msg.type === "post-ta") {
+                            var p = $(renderPost(msg));
                             MathJax.Hub.Queue(["Typeset", MathJax.Hub, p[0]]);
-                            p.prependTo('#ta_comments');
-                        }else if (msg.type === "cookie") {
-                            setSerialNumber(msg.serial_num);
-                            var gname = getUserID(msg.serial_num);
-                            document.getElementById("group_name").innerHTML = "<h3>グループ No." + gname + " の投稿</h3>";
-                        }else if(msg.type == "user_data"){
-                            $("#id-entry").val(msg.user_id);
-                            $("#name-entry").val(msg.user_name);
+                            p.appendTo('#ta_posts');
+                        }
+                        else if (msg.type === "user-id") {
+                            writeToStorage('user_id', msg.user_id);
+                        }
+                        else if (msg.type === "group-id") {
+                            writeToStorage('group_id', msg.group_id);
+                        }
+                        else if(msg.type == "aux-data") {
+                            $("#student-id-entry").val(msg.student_id);
+                            $("#screen-name-entry").val(msg.screen_name);
                         }
                         else if (msg.type === "draw") {
                             var ctx = $('.slide.current > canvas.overlay')[0].getContext('2d');
@@ -304,8 +280,8 @@
                     if (!e.ctrlKey && e.which === 13) {
                         var s = $(this).val();
                         if (s.length > 0) {
-                            var id = getSerialNumber();
-                            var msg = { 'type': 'comment', 'body': s , 'id':id};
+                            var uid = readFromStorage('user_id');
+                            var msg = { 'type': 'post', 'content': s , 'user_id': uid};
                             ws.send(JSON.stringify(msg));
                             $(this).val('');
                         }
@@ -325,9 +301,8 @@
                     if (!e.ctrlKey && e.which === 13) {
                         var s = $(this).val();
                         if (s.length > 0) {
-                            var id = getSerialNumber();
-                            var text = s + "#GROUP-ONLY";
-                            var msg = { 'type': 'comment', 'body': text , 'id':id};
+                            var uid = readFromStorage('user_id');
+                            var msg = { 'type': 'post', 'content': s + "#GROUP-ONLY", 'user_id': uid};
                             ws.send(JSON.stringify(msg));
                             $(this).val('');
                         }
@@ -342,20 +317,24 @@
                         this.selectionEnd = start + 1;
                     }
                 });
-                 $('#name-entry').on('input', function(e) {
+                $('#screen-name-entry').val(readFromStorage('screen_name'));
+                $('#student-id-entry').val(readFromStorage('student_id'));
+                $('#screen-name-entry').on('input', function(e) {
                     var s = $(this).val();
                     if (s.length > 0) {
-                        var id = getSerialNumber();
-                        var msg = { 'type': 'user_name', 'uname': s , 'id':id};
+                        var uid = readFromStorage('user_id');
+                        var msg = { 'type': 'change-screen-name', 'user_id': uid, 'screen_name': s };
                         ws.send(JSON.stringify(msg));
+                        writeToStorage('screen_name', s)
                     }
                 });
-                 $('#id-entry').on('input', function(e) {
+                $('#student-id-entry').on('input', function(e) {
                     var s = $(this).val();
                     if (s.length > 0) {
-                        var id = getSerialNumber();
-                        var msg = { 'type': 'user_id', 'uid': s , 'id':id};
+                        var uid = readFromStorage('user_id');
+                        var msg = { 'type': 'change-student-id', 'user_id': uid , 'student_id':s };
                         ws.send(JSON.stringify(msg));
+                        writeToStorage('student_id', s)
                     }
                 });
             });
