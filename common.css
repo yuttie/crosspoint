@@ -26,6 +26,7 @@ pre {
     left: 0em;
     right: 0em;
     height: 5em;
+    box-sizing: border-box;
 }
 
 .comment-entry:focus {
