@@ -18,6 +18,10 @@ pre {
     width: 48%;
 }
 
+.comment-entry-placeholder {
+    height: 5.5em;
+}
+
 .comment-entry {
     border: 1px solid lightgray;
     border-radius: 4px;
@@ -161,14 +165,14 @@ pre {
     float: left;
 }
 
-#name-entry, #id-entry {
+#screen-name-entry, #student-id-entry {
     border: 1px solid silver;
     border-radius: 4px;
     padding: 0.25em 0.5em;
     background-color: white;
 }
 
-#name-entry:focus, #id-entry:focus {
+#screen-name-entry:focus, #student-id-entry:focus {
     border: 1px solid black;
 }
 
