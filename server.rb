@@ -105,38 +105,39 @@ end
 
 class Analyzer
   def initialize
-    @user_num_posts = Hash.new(0)
-    @marge_df = JSON.load(open("./eval/data/marge_df.json"))
-    @df_max = @marge_df.max { |a, b| a[1] <=> b[1] }[1]
-    @pn_table = JSON.load(open("./eval/data/pnTable.json"))
+    #@user_num_posts = Hash.new(0)
+    #@marge_df = JSON.load(open("./eval/data/marge_df.json"))
+    #@df_max = @marge_df.max { |a, b| a[1] <=> b[1] }[1]
+    #@pn_table = JSON.load(open("./eval/data/pnTable.json"))
   end
   def analyze(msg)
-    case msg['type']
-    when 'comment'
-      comment = msg
-      @user_num_posts[comment['post_id']] += 1
-      p res_eval = eval_res_value(comment['content'], @marge_df, @df_max, @pn_table)
+    #case msg['type']
+    #when 'comment'
+    #  comment = msg
+    #  @user_num_posts[comment['post_id']] += 1
+    #  p res_eval = eval_res_value(comment['content'], @marge_df, @df_max, @pn_table)
 
-      result = ""
-      if res_eval[:res_value] > 0.05
-        result <<  "<span style=\"color: red\">\"#{CGI.escapeHTML(comment['content'])}\"</span>"
-      end
-      # if comment['content'] =~ /#GROUP-ONLY/i
-      #   result << "グループ書き込み<span style=\"color: red\">\"#{CGI.escapeHTML(comment['content'])}\"</span>を観測しました。"
-      # else
-      #   result << "書き込み<span style=\"color: red\">\"#{CGI.escapeHTML(comment['content'])}\"</span>を観測しました。"
-      # end
-      # result << "<br>"
-      # result << "<div style=\"margin: 1em 0; padding: 0.5em; border: 1px solid gray; border-radius: 4px;\">"
-      # result << "<div style=\"font: bold 1.2em serif\">統計:</div>"
-      # @user_num_posts.each {|uid, count|
-      #   result << "<div class=\"stat\">ユーザID: #{uid}, 書き込み数: #{count}</div>"
-      # }
-      # result << "</div>"
-      result
-    else
-      nil
-    end
+    #  result = ""
+    #  if res_eval[:res_value] > 0.05
+    #    result <<  "<span style=\"color: red\">\"#{CGI.escapeHTML(comment['content'])}\"</span>"
+    #  end
+    #  # if comment['content'] =~ /#GROUP-ONLY/i
+    #  #   result << "グループ書き込み<span style=\"color: red\">\"#{CGI.escapeHTML(comment['content'])}\"</span>を観測しました。"
+    #  # else
+    #  #   result << "書き込み<span style=\"color: red\">\"#{CGI.escapeHTML(comment['content'])}\"</span>を観測しました。"
+    #  # end
+    #  # result << "<br>"
+    #  # result << "<div style=\"margin: 1em 0; padding: 0.5em; border: 1px solid gray; border-radius: 4px;\">"
+    #  # result << "<div style=\"font: bold 1.2em serif\">統計:</div>"
+    #  # @user_num_posts.each {|uid, count|
+    #  #   result << "<div class=\"stat\">ユーザID: #{uid}, 書き込み数: #{count}</div>"
+    #  # }
+    #  # result << "</div>"
+    #  result
+    #else
+    #  nil
+    #end
+    nil
   end
   def decorate(comment)
     comment
