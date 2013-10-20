@@ -121,18 +121,18 @@
                 // Set/get the serial numbers of users
                 function writeToStorage(key, value) {
                     if (window.localStorage) {
-                        window.localStorage[key] = value;
+                        window.localStorage[key] = JSON.stringify(value);
                     }
 
-                    setCookie(key, value);
+                    setCookie(key, JSON.stringify(value));
                 }
 
                 function readFromStorage(key) {
                     if (window.localStorage && typeof(window.localStorage[key]) !== undefined) {
-                        return window.localStorage[key];
+                        return JSON.parse(window.localStorage[key]);
                     }
                     else {
-                        return getCookie(key);
+                        return JSON.parse(getCookie(key));
                     }
                 }
 
