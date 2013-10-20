@@ -322,20 +322,22 @@
                 $('#screen-name-entry').on('input', function(e) {
                     var s = $(this).val();
                     if (s.length > 0) {
-                        var uid = readFromStorage('user_id');
-                        var msg = { 'type': 'change-screen-name', 'user_id': uid, 'screen_name': s };
-                        ws.send(JSON.stringify(msg));
-                        writeToStorage('screen_name', s)
+                        s = null;
                     }
+                    var uid = readFromStorage('user_id');
+                    var msg = { 'type': 'change-screen-name', 'user_id': uid, 'screen_name': s };
+                    ws.send(JSON.stringify(msg));
+                    writeToStorage('screen_name', s)
                 });
                 $('#student-id-entry').on('input', function(e) {
                     var s = $(this).val();
                     if (s.length > 0) {
-                        var uid = readFromStorage('user_id');
-                        var msg = { 'type': 'change-student-id', 'user_id': uid , 'student_id':s };
-                        ws.send(JSON.stringify(msg));
-                        writeToStorage('student_id', s)
+                        s = null;
                     }
+                    var uid = readFromStorage('user_id');
+                    var msg = { 'type': 'change-student-id', 'user_id': uid , 'student_id': s };
+                    ws.send(JSON.stringify(msg));
+                    writeToStorage('student_id', s)
                 });
             });
         </script>
