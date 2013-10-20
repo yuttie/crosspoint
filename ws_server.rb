@@ -14,6 +14,10 @@ require 'fileutils'
 require 'cgi'
 
 
+def log(sid, ch_id, msg)
+  $stderr.puts("#{sid}@#{ch_id}: #{msg}")
+end
+
 def mkdir_if_not_exist(dp)
   Dir.mkdir(dp) unless Dir.exist?(dp)
   raise "Couldn't make a directory '#{dp}'." unless Dir.exist?(dp)
@@ -171,9 +175,10 @@ EventMachine.run {
       sid = ch.subscribe {|msg|
         ws.send(msg)
       }
-      $stderr.puts("#{sid} connected to #{ch_id}.")
+      log(sid, ch_id, "connected")
 
       ws.onmessage {|msg|
+        log(sid, ch_id, "message: #{msg}")
         data = JSON.parse(msg)
 
         # ask our bot to analyze the message
@@ -232,7 +237,6 @@ EventMachine.run {
 
           # multicast
           ch.push(JSON.generate(post))
-          $stderr.puts("#{sid}@#{ch_id} pushed a message '#{post}'.")
         when 'change-screen-name'
           uid = data['user_id']
           user = load_or_recreate_user(uid, sorting_hat)
@@ -244,13 +248,13 @@ EventMachine.run {
           user['student_id'] = data['student_id']
           save_user(user)
         else
-          $stderr.puts("#{sid}@#{ch_id} pushed a message '#{msg}', but ignoring it.")
+          log(sid, ch_id, "unknown message type: #{data['type']}")
         end
       }
 
       ws.onclose {
         ch.unsubscribe(sid)
-        $stderr.puts("#{sid} disconnected from #{ch_id}.")
+        log(sid, ch_id, "disconnected")
       }
 
       # send archived post
