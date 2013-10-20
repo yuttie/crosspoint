@@ -321,7 +321,7 @@
                 $('#student-id-entry').val(readFromStorage('student_id'));
                 $('#screen-name-entry').on('input', function(e) {
                     var s = $(this).val();
-                    if (s.length > 0) {
+                    if (s.length === 0) {
                         s = null;
                     }
                     var uid = readFromStorage('user_id');
@@ -331,7 +331,7 @@
                 });
                 $('#student-id-entry').on('input', function(e) {
                     var s = $(this).val();
-                    if (s.length > 0) {
+                    if (s.length === 0) {
                         s = null;
                     }
                     var uid = readFromStorage('user_id');
