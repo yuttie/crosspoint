@@ -7,7 +7,6 @@ end
 require 'rubygems'
 require 'bundler/setup'
 
-require './eval/eval_res.rb'
 require 'em-websocket'
 require 'json'
 require 'fileutils'
