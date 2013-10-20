@@ -41,7 +41,7 @@ end
 
 def save_user(user)
   mkdir_if_not_exist('./user')
-  IO.write("user/#{user['user_id']}", JSON.generate(user))
+  IO.puts("user/#{user['user_id']}", JSON.generate(user))
   nil
 end
 
@@ -74,7 +74,7 @@ end
 
 def save_post(post)
   mkdir_if_not_exist('./post')
-  IO.write("./post/#{post['post_id']}", JSON.generate(post))
+  IO.puts("./post/#{post['post_id']}", JSON.generate(post))
   nil
 end
 
