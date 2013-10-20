@@ -128,7 +128,7 @@
                 }
 
                 function readFromStorage(key) {
-                    if (window.localStorage && typeof(window.localStorage[key]) !== undefined) {
+                    if (window.localStorage && typeof(window.localStorage[key]) !== "undefined") {
                         return JSON.parse(window.localStorage[key]);
                     }
                     else {
