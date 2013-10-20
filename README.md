@@ -6,7 +6,7 @@ This project aims at providing a place for real-time discussion.
 
 Requirements
 ------------
-* Ruby >= 2.0
+* Ruby >= 2.0.0
 * em-websocket
 
 
