@@ -264,6 +264,10 @@ pre {
   height: 100%;
 }
 
+.post {
+    margin-top: 1em;
+}
+
 #new_msg_notification {
     width: 80%;
     margin: 1em auto;
