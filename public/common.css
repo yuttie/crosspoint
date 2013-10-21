@@ -157,6 +157,10 @@ pre {
     box-shadow: 0 0 8px black;
 }
 
+#header-bar label {
+    font-weight: bold;
+}
+
 #header-bar > * {
     vertical-align: middle;
 }
