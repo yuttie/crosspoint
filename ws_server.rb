@@ -231,16 +231,18 @@ EventMachine.run {
           msg = { 'type' => 'group-id', 'group_id' => user['group_id'] }
           ws.send(JSON.generate(msg))
         when "post"
-          post = stamp_post(data)
-          save_post(post)
+          if post['user_id']
+            post = stamp_post(data)
+            save_post(post)
 
-          uid = post['user_id']
-          user = load_or_recreate_user(uid, sorting_hat)
-          post['user'] = user
-          post = sanitize_post(post)
+            uid = post['user_id']
+            user = load_or_recreate_user(uid, sorting_hat)
+            post['user'] = user
+            post = sanitize_post(post)
 
-          # multicast
-          ch.push(JSON.generate(post))
+            # multicast
+            ch.push(JSON.generate(post))
+          end
         when 'change-screen-name'
           uid = data['user_id']
           user = load_or_recreate_user(uid, sorting_hat)
