@@ -11,6 +11,7 @@ require 'em-websocket'
 require 'json'
 require 'fileutils'
 require 'cgi'
+require 'time'
 
 
 def log(sid, ch_id, msg)
@@ -65,7 +66,8 @@ def load_or_recreate_user(uid, enum)
 end
 
 def stamp_post(post)
-  post['post_id'], post['time'] = generate_id_from_time
+  post['post_id'], time = generate_id_from_time
+  post['time'] = time.iso8601(9)  # fraction part takes 9 digits
   post['number'] = Dir.glob("./post/*").length + 1
 
   post
