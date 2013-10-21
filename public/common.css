@@ -12,6 +12,10 @@ pre {
   font-family: sans-serif;
 }
 
+input:focus, textarea:focus {
+    outline: none;
+}
+
 .comment-entry-holder-holder {
     margin: 0 2em;
     width: auto;
