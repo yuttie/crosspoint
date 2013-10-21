@@ -258,11 +258,6 @@
                             msg.posts.forEach(showPost);
                             $('#new_msg_notification').click();
                         }
-                        else if (msg.type === "post-ta") {
-                            var p = $(renderPost(msg));
-                            MathJax.Hub.Queue(["Typeset", MathJax.Hub, p[0]]);
-                            p.appendTo('#ta_posts');
-                        }
                         else if (msg.type === "user-id") {
                             writeToStorage('user_id', msg.user_id);
                         }
