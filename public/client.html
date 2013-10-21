@@ -295,6 +295,18 @@
                 }
                 startWebSocket();
 
+                function send_message_with_user_id(msg, next_fun) {
+                    var uid = readFromStorage('user_id');
+                    if (isInvalid(uid)) {
+                        setTimeout(function() { send_message_with_user_id(msg, next_fun); }, 1000);
+                    }
+                    else {
+                        msg['user_id'] = uid;
+                        ws.send(JSON.stringify(msg));
+                        next_fun();
+                    }
+                }
+
                 $.get('slide.html', function(data) {
                     $('#view').html(data);
 
@@ -312,10 +324,8 @@
                     if (!e.ctrlKey && e.which === 13) {
                         var s = $(this).val();
                         if (s.length > 0) {
-                            var uid = readFromStorage('user_id');
-                            var msg = { 'type': 'post', 'content': s , 'user_id': uid};
-                            ws.send(JSON.stringify(msg));
-                            $(this).val('');
+                            var msg = { 'type': 'post', 'content': s };
+                            send_message_with_user_id(msg, function() { $(this).val(''); });
                         }
                         e.preventDefault();
                     }
@@ -333,10 +343,8 @@
                     if (!e.ctrlKey && e.which === 13) {
                         var s = $(this).val();
                         if (s.length > 0) {
-                            var uid = readFromStorage('user_id');
-                            var msg = { 'type': 'post', 'content': s + "#GROUP-ONLY", 'user_id': uid};
-                            ws.send(JSON.stringify(msg));
-                            $(this).val('');
+                            var msg = { 'type': 'post', 'content': s + "#GROUP-ONLY" };
+                            send_message_with_user_id(msg, function() { $(this).val(''); });
                         }
                         e.preventDefault();
                     }
@@ -356,20 +364,16 @@
                     if (s.length === 0) {
                         s = null;
                     }
-                    var uid = readFromStorage('user_id');
-                    var msg = { 'type': 'change-screen-name', 'user_id': uid, 'screen_name': s };
-                    ws.send(JSON.stringify(msg));
-                    writeToStorage('screen_name', s)
+                    var msg = { 'type': 'change-screen-name', 'screen_name': s };
+                    send_message_with_user_id(msg, function() { writeToStorage('screen_name', s); });
                 });
                 $('#student-id-entry').on('input', function(e) {
                     var s = $(this).val();
                     if (s.length === 0) {
                         s = null;
                     }
-                    var uid = readFromStorage('user_id');
-                    var msg = { 'type': 'change-student-id', 'user_id': uid , 'student_id': s };
-                    ws.send(JSON.stringify(msg));
-                    writeToStorage('student_id', s)
+                    var msg = { 'type': 'change-student-id', 'student_id': s };
+                    send_message_with_user_id(msg, function() { writeToStorage('student_id', s); });
                 });
             });
         </script>
