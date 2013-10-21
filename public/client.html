@@ -139,13 +139,22 @@
                     return x === null || typeof(x) === "undefined";
                 }
 
+                function formatInt2(x) {
+                    return x < 10 ? '0' + x : x.toString();
+                }
+
+                function formatFullPostDate(d) {
+                    return d.getFullYear() + "/"
+                         + formatInt2(d.getMonth() + 1) + "/"
+                         + formatInt2(d.getDate())
+                         + ' '
+                         + d.getHours() + ":"
+                         + formatInt2(d.getMinutes()) + ":"
+                         + formatInt2(d.getSeconds());
+                }
+
                 function formatPostDate(d) {
-                    return d.getFullYear()    + "年"
-                         + (d.getMonth() + 1) + "月"
-                         + d.getDate()        + "日"
-                         + d.getHours()       + "時"
-                         + d.getMinutes()     + "分"
-                         + d.getSeconds()     + "秒";
+                    return d.getHours() + ':' + formatInt2(d.getMinutes());
                 }
 
                 function formatScreenName(sn) {
@@ -162,6 +171,7 @@
 
                 function renderPost(post) {
                     var content = post.content.replace(/\#GROUP-ONLY/ig, "");
+                    var date = new Date(post.time);
                     return '<div class="post">\
                               <div class="header">\
                                 <span class="number">' + post.number + '</span>\
@@ -169,8 +179,9 @@
                                       title="' + post.user.user_id + '">\
                                   ' + formatScreenName(post.user.screen_name) + '\
                                 </span>\
-                                <span class="time">\
-                                  ' + formatPostDate(new Date(post.time)) + '\
+                                <span class="time" \
+                                      title="' + formatFullPostDate(date) + '">\
+                                  ' + formatPostDate(date) + '\
                                 </span>\
                               </div>\
                               <div class="content">' + content + '</div>\
