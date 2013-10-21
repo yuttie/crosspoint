@@ -18,16 +18,14 @@ pre {
     width: 48%;
 }
 
-.comment-entry-placeholder {
-    height: 5.5em;
-}
-
 .comment-entry {
+    display: block;
+    margin-left: auto;
+    margin-right: auto;
+    margin-top: 1em;
+    margin-bottom: 1em;
     border: 1px solid lightgray;
     border-radius: 4px;
-    position: absolute;
-    top: 0;
-    left: 0;
     width: 100%;
     height: 5em;
     box-sizing: border-box;

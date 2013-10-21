@@ -24,7 +24,6 @@
                 </div>
                 <div id="group_posts" class="view">
                   <textarea class="comment-entry" id="group-comment-entry" placeholder="書き込む..." autofocus></textarea>
-                  <div class="comment-entry-placeholder"></div>
                 </div>
             </div>
 
@@ -42,7 +41,6 @@
                 </div>
                 <div id="posts" class="view">
                     <textarea class="comment-entry" id="comment-entry" placeholder="書き込む..." autofocus></textarea>
-                    <div class="comment-entry-placeholder"></div>
                 </div>
             </div>
         </div>
@@ -173,7 +171,7 @@
                         if (gid === post.user.group_id) {
                             var p = $(renderPost(post));
                             MathJax.Hub.Queue(["Typeset", MathJax.Hub, p[0]]);
-                            p.insertAfter('#group_posts > .comment-entry-placeholder');
+                            p.insertAfter('#group_posts > .comment-entry');
                         }
                     }
                     else {
@@ -181,15 +179,15 @@
                         MathJax.Hub.Queue(["Typeset", MathJax.Hub, p[0]]);
                         if (post.user.user_id === uid) {
                             $('#new_msg_notification').click();
-                            p.insertAfter('#posts > .comment-entry-placeholder');
+                            p.insertAfter('#posts > .comment-entry');
                         }
                         else {
                             new_posts.push(p);
                             if ($('#new_msg_notification').length == 0) {
-                                $('<div id="new_msg_notification"></div>').insertAfter('#posts > .comment-entry-placeholder');
+                                $('<div id="new_msg_notification"></div>').insertAfter('#posts > .comment-entry');
                                 $('#new_msg_notification').on('click', function(e) {
                                     $.each(new_posts, function(_, new_post) {
-                                        new_post.insertAfter('#posts > .comment-entry-placeholder');
+                                        new_post.insertAfter('#posts > .comment-entry');
                                     });
                                     new_posts = [];
                                     $(this).remove();
