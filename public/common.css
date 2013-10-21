@@ -308,8 +308,9 @@ input:focus, textarea:focus {
   font-weight: bold;
 }
 
-.user {
+.screen-name {
   margin-left: 0.5em;
+  font-weight: bold;
 }
 
 .time {
