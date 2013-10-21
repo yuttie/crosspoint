@@ -296,18 +296,23 @@ input:focus, textarea:focus {
     text-align: center;
 }
 
+.header {
+    position: relative;
+}
+
 .number {
   margin-right: 0.5em;
   color: #007ab7;
   font-weight: bold;
 }
 
-.time {
-  margin: 0 0.5em;
+.user {
+  margin-left: 0.5em;
 }
 
-.host {
-  margin-left: 0.5em;
+.time {
+  position: absolute;
+  right: 0;
   color: silver;
 }
 

@@ -165,11 +165,12 @@
                     return '<div class="post">\
                               <div class="header">\
                                 <span class="number">' + post.number + '</span>\
-                                <span class="time">' + formatPostDate(new Date(post.time)) + '</span>\
-                                <span class="host">\
-                                  <span class="host-name">' + formatScreenName(post.user.screen_name) + '</span>\
-                                  &nbsp;\
-                                  <span class="ip-addr">(' + post.user.user_id + ')</span>\
+                                <span class="user" \
+                                      title="' + post.user.user_id + '">\
+                                  ' + formatScreenName(post.user.screen_name) + '\
+                                </span>\
+                                <span class="time">\
+                                  ' + formatPostDate(new Date(post.time)) + '\
                                 </span>\
                               </div>\
                               <div class="content">' + content + '</div>\
