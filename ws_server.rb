@@ -103,6 +103,9 @@ def sanitize_post(post)
   if post
     # sanitize
     post['content'] = CGI.escapeHTML(post['content'])
+    if post['user'] && post['user']['screen_name']
+      post['user']['screen_name'] = CGI.escapeHTML(post['user']['screen_name'])
+    end
   end
 
   post
