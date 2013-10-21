@@ -140,12 +140,21 @@
                     return x === null || typeof(x) === "undefined";
                 }
 
+                function formatPostDate(d) {
+                    return d.getFullYear()    + "年"
+                         + (d.getMonth() + 1) + "月"
+                         + d.getDate()        + "日"
+                         + d.getHours()       + "時"
+                         + d.getMinutes()     + "分"
+                         + d.getSeconds()     + "秒";
+                }
+
                 function renderPost(post) {
                     var content = post.content.replace(/\#GROUP-ONLY/ig, "");
                     return '<div class="post">\
                               <div class="header">\
                                 <span class="number">' + post.number + '</span>\
-                                <span class="time">' + post.time + '</span>\
+                                <span class="time">' + formatPostDate(new Date(post.time)) + '</span>\
                                 <span class="host">\
                                   <span class="host-name">' + (post.user.screen_name || "NO NAME") + '</span>\
                                   &nbsp;\
