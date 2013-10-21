@@ -148,6 +148,18 @@
                          + d.getSeconds()     + "秒";
                 }
 
+                function formatScreenName(sn) {
+                    if (isInvalid(sn)) {
+                        return "NO NAME";
+                    }
+                    else if (sn.length > 20) {
+                        return sn.slice(0, 20) + "...";
+                    }
+                    else {
+                        return sn;
+                    }
+                }
+
                 function renderPost(post) {
                     var content = post.content.replace(/\#GROUP-ONLY/ig, "");
                     return '<div class="post">\
@@ -155,7 +167,7 @@
                                 <span class="number">' + post.number + '</span>\
                                 <span class="time">' + formatPostDate(new Date(post.time)) + '</span>\
                                 <span class="host">\
-                                  <span class="host-name">' + (post.user.screen_name || "NO NAME") + '</span>\
+                                  <span class="host-name">' + formatScreenName(post.user.screen_name) + '</span>\
                                   &nbsp;\
                                   <span class="ip-addr">(' + post.user.user_id + ')</span>\
                                 </span>\
