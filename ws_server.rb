@@ -62,11 +62,11 @@ end
 def load_or_recreate_user(uid, enum)
   user = load_user(uid)
   if !user
-    user = { 'user_id' => uid, 'group_id' => enum.next }
-    save_user(user)
+    save_user({ 'user_id' => uid, 'group_id' => enum.next })
+    load_user(uid)
+  else
+    user
   end
-
-  user
 end
 
 def stamp_post(post)
