@@ -16,29 +16,70 @@
             <label>学籍番号: <input type="text" id="student-id-entry" placeholder="必須" /></label>
         </div>
 
-        <div id="column-container">
-            <div class="column">
-                <div class="column-header">
-                    全体のメッセージ
-                </div>
-                <div id="posts" class="column-view">
-                    <textarea class="comment-entry" id="comment-entry" placeholder="書き込む..."></textarea>
-                </div>
-            </div>
-
-            <div class="column">
-                <div class="column-header">
-                    あなたのグループ内のメッセージ
-                </div>
-                <div id="group_posts" class="column-view">
-                  <textarea class="comment-entry" id="group-comment-entry" placeholder="書き込む..."></textarea>
-                </div>
-            </div>
-        </div>
+        <div id="column-container"></div>
 
         <script>
             $(function() {
                 "use strict";
+
+                var init_columns = [
+                    { title:   "全体のメッセージ"
+                    , in_filter:  function(p) { return !p.content.match(/#GROUP-ONLY/i); }
+                    , out_filter: function(p) { return true; }
+                    , in_map:     function(p) { return p; }
+                    , out_map:    function(p) { return p; }
+                    , entry_placeholder: null
+                    },
+                    { title:   "あなたのグループ内のメッセージ"
+                    , in_filter:  function(p) { return p.content.match(/#GROUP-ONLY/i) && readFromStorage('group_id') === p.user.group_id; }
+                    , out_filter: function(p) { return true; }
+                    , in_map:     function(p) { p.content = p.content.replace(/#GROUP-ONLY/ig, ""); return p; }
+                    , out_map:    function(p) { p.content += "#GROUP-ONLY"; return p; }
+                    , entry_placeholder: null
+                    }
+                ];
+
+                function constructColumnElement(col_def, index) {
+                    return $("<div>", { "class": "column", id: "column-" + index }).append([
+                               $("<div>", { "class": "column-header" })
+                                   .text(col_def.title),
+                               $("<div>", { "class": "column-view" }).append([
+                                   $("<textarea>", { "class": "comment-entry"
+                                                   , placeholder: col_def.entry_placeholder || "書き込む..." })])]);
+                }
+
+                var columns = [];
+                function addColumn(col_def) {
+                    var index = columns.length;
+                    columns.push(col_def);
+
+                    var col = constructColumnElement(col_def, index);
+                    col.appendTo("#column-container");
+
+                    var entry = col.find(".comment-entry");
+                    entry.on('keypress', function(e) {
+                        if (!e.ctrlKey && e.which === 13) {
+                            // send if the content is not empty
+                            var s = $(this).val();
+                            if (s.length > 0) {
+                                var msg = { 'type': 'post', 'content': s };
+                                if (col_def.out_filter(msg)) {
+                                    send_message_with_user_id(col_def.out_map(msg), function() { entry.val(''); });
+                                }
+                            }
+                            e.preventDefault();
+                        }
+                        else if (e.which === 10 || (e.ctrlKey && e.which === 13)) {
+                            // insert a linebreak
+                            var s = $(this).val();
+                            var start = this.selectionStart;
+                            var end = this.selectionEnd;
+                            $(this).val(s.slice(0, start) + "\n" + s.slice(end));
+                            this.selectionStart = start + 1;
+                            this.selectionEnd = start + 1;
+                        }
+                    });
+                }
 
                 function updateSlideClasses() {
                     $('.slide.current').prevAll('.slide').removeClass('prev left');
@@ -180,37 +221,38 @@
 
                 var new_posts = [];
                 function showPost(post) {
-                    var uid = readFromStorage('user_id');
-                    var gid = readFromStorage('group_id');
-                    if (post.content.match(/#GROUP-ONLY/i)) {
-                        if (gid === post.user.group_id) {
-                            var p = constructPostElement(post);
-                            MathJax.Hub.Queue(["Typeset", MathJax.Hub, p[0]]);
-                            p.insertAfter('#group_posts > .comment-entry');
-                        }
-                    }
-                    else {
-                        var p = constructPostElement(post);
-                        MathJax.Hub.Queue(["Typeset", MathJax.Hub, p[0]]);
-                        if (post.user.user_id === uid) {
-                            $('#new_msg_notification').click();
-                            p.insertAfter('#posts > .comment-entry');
-                        }
-                        else {
-                            new_posts.push(p);
-                            if ($('#new_msg_notification').length == 0) {
-                                $('<div id="new_msg_notification"></div>').insertAfter('#posts > .comment-entry');
-                                $('#new_msg_notification').on('click', function(e) {
-                                    $.each(new_posts, function(_, new_post) {
-                                        new_post.insertAfter('#posts > .comment-entry');
-                                    });
-                                    new_posts = [];
-                                    $(this).remove();
-                                });
+                    columns.forEach(function(col_def, i) {
+                        if (col_def.in_filter(post)) {
+                            post = col_def.in_map(post);
+
+                            var post_elem = constructPostElement(post);
+                            MathJax.Hub.Queue(["Typeset", MathJax.Hub, post_elem[0]]);
+
+                            var col = $("#column-" + i);
+                            if (post.user.user_id === readFromStorage('user_id')) {
+                                col.find(".new_msg_notifier").click();
+                                post_elem.insertAfter(col.find(".comment-entry"));
                             }
-                            $('#new_msg_notification').text(new_posts.length + '件の新着');
+                            else {
+                                if (typeof new_posts[i] === "undefined") {
+                                    new_posts[i] = [];
+                                }
+                                new_posts[i].push(post_elem);
+                                if (col.find(".new_msg_notifier").length === 0) {
+                                    var notifier = $('<div class="new_msg_notifier"></div>');
+                                    notifier.insertAfter(col.find(".comment-entry"));
+                                    notifier.on("click", function(e) {
+                                        new_posts[i].forEach(function(new_post) {
+                                            new_post.insertAfter(notifier);
+                                        });
+                                        new_posts[i] = [];
+                                        $(this).remove();
+                                    });
+                                }
+                                col.find(".new_msg_notifier").text(new_posts[i].length + "件の新着");
+                            }
                         }
-                    }
+                    });
                 }
 
                 var ws = null;
@@ -246,7 +288,7 @@
                         }
                         else if (msg.type === "archived-posts") {
                             msg.posts.forEach(showPost);
-                            $('#new_msg_notification').click();
+                            $('.new_msg_notifier').click();
                         }
                         else if (msg.type === "user-id") {
                             writeToStorage('user_id', msg.user_id);
@@ -292,6 +334,9 @@
                     }
                 }
 
+                // add initial columns
+                init_columns.forEach(addColumn);
+
                 // Automatically focus on the first .comment-entry
                 $(".comment-entry").first().focus();
 
@@ -308,43 +353,6 @@
                     updateSlideClasses();
                 });
 
-                $('#comment-entry').on('keypress', function(e) {
-                    if (!e.ctrlKey && e.which === 13) {
-                        var s = $(this).val();
-                        if (s.length > 0) {
-                            var msg = { 'type': 'post', 'content': s };
-                            send_message_with_user_id(msg, function() { $('#comment-entry').val(''); });
-                        }
-                        e.preventDefault();
-                    }
-                    else if (e.which === 10 || (e.ctrlKey && e.which === 13)) {
-                        var s = $(this).val();
-                        var start = this.selectionStart;
-                        var end = this.selectionEnd;
-                        $(this).val(s.slice(0, start) + "\n" + s.slice(end));
-                        this.selectionStart = start + 1;
-                        this.selectionEnd = start + 1;
-                    }
-                });
-
-                 $('#group-comment-entry').on('keypress', function(e) {
-                    if (!e.ctrlKey && e.which === 13) {
-                        var s = $(this).val();
-                        if (s.length > 0) {
-                            var msg = { 'type': 'post', 'content': s + "#GROUP-ONLY" };
-                            send_message_with_user_id(msg, function() { $('#group-comment-entry').val(''); });
-                        }
-                        e.preventDefault();
-                    }
-                    else if (e.which === 10 || (e.ctrlKey && e.which === 13)) {
-                        var s = $(this).val();
-                        var start = this.selectionStart;
-                        var end = this.selectionEnd;
-                        $(this).val(s.slice(0, start) + "\n" + s.slice(end));
-                        this.selectionStart = start + 1;
-                        this.selectionEnd = start + 1;
-                    }
-                });
                 $('#screen-name-entry').val(readFromStorage('screen_name'));
                 $('#student-id-entry').val(readFromStorage('student_id'));
                 $('#screen-name-entry').on('input', function(e) {
