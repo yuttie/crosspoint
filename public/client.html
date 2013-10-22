@@ -18,30 +18,28 @@
 
         <div id="column-container">
             <div class="column">
-                <div class="view_title">
-                    <div id="group_name">
-                        <h3>あなたのグループ内のメッセージ</h3>
-                    </div>
+                <div class="column-header">
+                    全体のメッセージ
                 </div>
-                <div id="group_posts" class="view">
+                <div id="posts" class="column-view">
+                    <textarea class="comment-entry" id="comment-entry" placeholder="書き込む..." autofocus></textarea>
+                </div>
+            </div>
+
+            <div class="column">
+                <div class="column-header">
+                    あなたのグループ内のメッセージ
+                </div>
+                <div id="group_posts" class="column-view">
                   <textarea class="comment-entry" id="group-comment-entry" placeholder="書き込む..." autofocus></textarea>
                 </div>
             </div>
 
-            <div class="column-mini">
-                <div class="view_title">
-                    <h3>TAからのメッセージ</h3>
+            <div class="column">
+                <div class="column-header">
+                    TAからのメッセージ
                 </div>
-                <div id="ta_posts" class="view">
-                </div>
-            </div>
-
-            <div class="column-half">
-                <div class="view_title">
-                    <h3>全体のメッセージ</h3>
-                </div>
-                <div id="posts" class="view">
-                    <textarea class="comment-entry" id="comment-entry" placeholder="書き込む..." autofocus></textarea>
+                <div id="ta_posts" class="column-view">
                 </div>
             </div>
         </div>
