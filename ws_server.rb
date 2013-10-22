@@ -164,10 +164,13 @@ EventMachine.run {
 
   EventMachine::WebSocket.start(host: ARGV[1] || "0.0.0.0", port: (ARGV[0] || 9090).to_i) do |ws|
     ws.onopen {|handshake|
+      # prepare the channel for handshake.path
       ch_id = handshake.path
       @channels[ch_id] ||= EventMachine::Channel.new
       ch = @channels[ch_id]
 
+      # connect the websocket to the channel
+      # 1 channel -- N websockets
       sid = ch.subscribe {|msg|
         ws.send(msg)
       }
