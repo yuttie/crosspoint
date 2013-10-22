@@ -175,9 +175,10 @@
                                $("<div>", { "class": "header" }).append([
                                    $("<span>", { "class": "number" })
                                        .text(post.number),
-                                   $("<span>", { "class": "screen-name"
-                                               , title: post.user.user_id })
+                                   $("<span>", { "class": "screen-name" })
                                        .text(formatScreenName(post.user.screen_name)),
+                                   $("<span>", { "class": "user-id" })
+                                       .text(post.user.user_id_hashed.slice(0, 8)),
                                    $("<span>", { "class": "time"
                                                , title: formatFullPostDate(date) })
                                        .text(formatPostDate(date))]),

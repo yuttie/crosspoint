@@ -330,6 +330,19 @@ input:focus, textarea:focus {
   font-weight: bold;
 }
 
+.user-id {
+  margin-left: 0.5em;
+  color: silver;
+}
+
+.user-id::before {
+  content: "("
+}
+
+.user-id::after {
+  content: ")"
+}
+
 .time {
   position: absolute;
   right: 0;
