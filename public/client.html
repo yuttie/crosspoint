@@ -119,7 +119,7 @@
                 }
 
                 function readFromStorage(key) {
-                    if (window.localStorage && typeof(window.localStorage[key]) !== "undefined") {
+                    if (window.localStorage && typeof window.localStorage[key] !== "undefined") {
                         return JSON.parse(window.localStorage[key]);
                     }
                     else {
@@ -128,7 +128,7 @@
                 }
 
                 function isInvalid(x) {
-                    return x === null || typeof(x) === "undefined";
+                    return x === null || typeof x === "undefined";
                 }
 
                 function formatInt2(x) {
