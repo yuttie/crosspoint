@@ -46,6 +46,8 @@
 
         <script>
             $(function() {
+                "use strict";
+
                 function updateSlideClasses() {
                     $('.slide.current').prevAll('.slide').removeClass('prev left');
                     $('.slide.current').nextAll('.slide').removeClass('next right');
