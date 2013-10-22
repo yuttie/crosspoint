@@ -226,8 +226,8 @@ EventMachine.run {
           msg = { 'type' => 'group-id', 'group_id' => user['group_id'] }
           ws.send(JSON.generate(msg))
         when "post"
+          post = stamp_post(data)
           if post['user_id']
-            post = stamp_post(data)
             save_post(post)
 
             uid = post['user_id']
