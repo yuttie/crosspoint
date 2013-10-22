@@ -22,7 +22,7 @@
                     全体のメッセージ
                 </div>
                 <div id="posts" class="column-view">
-                    <textarea class="comment-entry" id="comment-entry" placeholder="書き込む..." autofocus></textarea>
+                    <textarea class="comment-entry" id="comment-entry" placeholder="書き込む..."></textarea>
                 </div>
             </div>
 
@@ -31,7 +31,7 @@
                     あなたのグループ内のメッセージ
                 </div>
                 <div id="group_posts" class="column-view">
-                  <textarea class="comment-entry" id="group-comment-entry" placeholder="書き込む..." autofocus></textarea>
+                  <textarea class="comment-entry" id="group-comment-entry" placeholder="書き込む..."></textarea>
                 </div>
             </div>
 
@@ -297,6 +297,9 @@
                         next_fun();
                     }
                 }
+
+                // Automatically focus on the first .comment-entry
+                $(".comment-entry").first().focus();
 
                 $.get('slide.html', function(data) {
                     $('#view').html(data);
