@@ -321,7 +321,7 @@
                         var s = $(this).val();
                         if (s.length > 0) {
                             var msg = { 'type': 'post', 'content': s };
-                            send_message_with_user_id(msg, function() { $(this).val(''); });
+                            send_message_with_user_id(msg, function() { $('#comment-entry').val(''); });
                         }
                         e.preventDefault();
                     }
@@ -340,7 +340,7 @@
                         var s = $(this).val();
                         if (s.length > 0) {
                             var msg = { 'type': 'post', 'content': s + "#GROUP-ONLY" };
-                            send_message_with_user_id(msg, function() { $(this).val(''); });
+                            send_message_with_user_id(msg, function() { $('#group-comment-entry').val(''); });
                         }
                         e.preventDefault();
                     }
