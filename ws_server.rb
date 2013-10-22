@@ -15,7 +15,7 @@ require 'time'
 
 
 def log(sid, ch_id, msg)
-  $stderr.puts("#{sid}@#{ch_id}: #{msg}")
+  $stderr.puts("[#{Time.now.iso8601}] #{sid}@#{ch_id}: #{msg}")
 end
 
 def mkdir_if_not_exist(dp)
