@@ -12,6 +12,8 @@ require 'json'
 require 'fileutils'
 require 'cgi'
 require 'time'
+require 'digest/md5'
+require 'base64'
 
 
 def log(sid, ch_id, msg)
@@ -49,7 +51,9 @@ def load_user(user_id)
   mkdir_if_not_exist('./user')
   fp = "./user/#{user_id}"
   if File.exist?(fp)
-    JSON.parse(IO.read(fp))
+    user = JSON.parse(IO.read(fp))
+    user['user_id_hashed'] = Base64.strict_encode64(Digest::MD5.digest(user['user_id']))
+    user
   else
     nil
   end
