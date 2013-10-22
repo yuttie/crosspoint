@@ -169,23 +169,20 @@
                     }
                 }
 
-                function renderPost(post) {
-                    var content = post.content.replace(/\#GROUP-ONLY/ig, "");
+                function constructPostElement(post) {
                     var date = new Date(post.time);
-                    return '<div class="post">\
-                              <div class="header">\
-                                <span class="number">' + post.number + '</span>\
-                                <span class="screen-name" \
-                                      title="' + post.user.user_id + '">\
-                                  ' + formatScreenName(post.user.screen_name) + '\
-                                </span>\
-                                <span class="time" \
-                                      title="' + formatFullPostDate(date) + '">\
-                                  ' + formatPostDate(date) + '\
-                                </span>\
-                              </div>\
-                              <div class="content">' + content + '</div>\
-                            </div>';
+                    return $("<div>", { "class": "post" }).append([
+                               $("<div>", { "class": "header" }).append([
+                                   $("<span>", { "class": "number" })
+                                       .text(post.number),
+                                   $("<span>", { "class": "screen-name"
+                                               , title: post.user.user_id })
+                                       .text(formatScreenName(post.user.screen_name)),
+                                   $("<span>", { "class": "time"
+                                               , title: formatFullPostDate(date) })
+                                       .text(formatPostDate(date))]),
+                               $("<div>", { "class": "content" })
+                                   .text(post.content.replace(/\#GROUP-ONLY/ig, ""))]);
                 }
 
                 var new_posts = [];
@@ -194,13 +191,13 @@
                     var gid = readFromStorage('group_id');
                     if (post.content.match(/#GROUP-ONLY/i)) {
                         if (gid === post.user.group_id) {
-                            var p = $(renderPost(post));
+                            var p = constructPostElement(post);
                             MathJax.Hub.Queue(["Typeset", MathJax.Hub, p[0]]);
                             p.insertAfter('#group_posts > .comment-entry');
                         }
                     }
                     else {
-                        var p = $(renderPost(post));
+                        var p = constructPostElement(post);
                         MathJax.Hub.Queue(["Typeset", MathJax.Hub, p[0]]);
                         if (post.user.user_id === uid) {
                             $('#new_msg_notification').click();

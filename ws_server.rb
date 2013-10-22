@@ -99,18 +99,6 @@ def load_latest_posts(n)
     .reverse
 end
 
-def sanitize_post(post)
-  if post
-    # sanitize
-    post['content'] = CGI.escapeHTML(post['content'])
-    if post['user'] && post['user']['screen_name']
-      post['user']['screen_name'] = CGI.escapeHTML(post['user']['screen_name'])
-    end
-  end
-
-  post
-end
-
 class Analyzer
   def initialize
     #@user_num_posts = Hash.new(0)
@@ -238,7 +226,6 @@ EventMachine.run {
             uid = post['user_id']
             user = load_or_recreate_user(uid, sorting_hat)
             post['user'] = user
-            post = sanitize_post(post)
 
             # multicast
             ch.push(JSON.generate(post))
@@ -269,7 +256,7 @@ EventMachine.run {
         user = load_or_recreate_user(uid, sorting_hat)
         post['user'] = user
 
-        sanitize_post(post)
+        post
       }
       ws.send(JSON.generate({"type" => "archived-posts", "posts" => posts}))
     }
