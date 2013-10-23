@@ -1,22 +1,5 @@
-$(function() {
+var Xpt = (function() {
     "use strict";
-
-    var init_columns = [
-        { title:   "全体のメッセージ"
-        , in_filter:  function(p) { return !p.content.match(/#GROUP-ONLY/i); }
-        , out_filter: function(p) { return true; }
-        , in_map:     function(p) { return p; }
-        , out_map:    function(p) { return p; }
-        , entry_placeholder: null
-        },
-        { title:   "あなたのグループ内のメッセージ"
-        , in_filter:  function(p) { return p.content.match(/#GROUP-ONLY/i) && readFromStorage('group_id') === p.user.group_id; }
-        , out_filter: function(p) { return true; }
-        , in_map:     function(p) { p.content = p.content.replace(/#GROUP-ONLY/ig, ""); return p; }
-        , out_map:    function(p) { p.content += "#GROUP-ONLY"; return p; }
-        , entry_placeholder: null
-        }
-    ];
 
     function constructColumnElement(col_def, index) {
         return $("<div>", { "class": "column", id: "column-" + index }).append([
@@ -299,7 +282,6 @@ $(function() {
             setTimeout(function() { startWebSocket(); }, 0);
         };
     }
-    startWebSocket();
 
     function send_message_with_user_id(msg, next_fun) {
         var uid = readFromStorage('user_id');
@@ -313,41 +295,51 @@ $(function() {
         }
     }
 
-    // add initial columns
-    init_columns.forEach(addColumn);
+    function initialize(config) {
+        // add initial columns
+        config.init_columns.forEach(addColumn);
 
-    // Automatically focus on the first .comment-entry
-    $(".comment-entry").first().focus();
+        // Automatically focus on the first .comment-entry
+        $(".comment-entry").first().focus();
 
-    $.get('slide.html', function(data) {
-        $('#view').html(data);
+        $.get('slide.html', function(data) {
+            $('#view').html(data);
 
-        $('.slide').first().addClass('current');
-        $('.slide').append('<canvas class="overlay"></canvas>');
-        $.each($('.slide > canvas.overlay'), function(i, canvas) {
-            canvas.width = $(canvas).parent().width();
-            canvas.height = $(canvas).parent().height();
+            $('.slide').first().addClass('current');
+            $('.slide').append('<canvas class="overlay"></canvas>');
+            $.each($('.slide > canvas.overlay'), function(i, canvas) {
+                canvas.width = $(canvas).parent().width();
+                canvas.height = $(canvas).parent().height();
+            });
+
+            updateSlideClasses();
         });
 
-        updateSlideClasses();
-    });
+        $('#screen-name-entry').val(readFromStorage('screen_name'));
+        $('#student-id-entry').val(readFromStorage('student_id'));
+        $('#screen-name-entry').on('input', function(e) {
+            var s = $(this).val();
+            if (s.length === 0) {
+                s = null;
+            }
+            var msg = { 'type': 'change-screen-name', 'screen_name': s };
+            send_message_with_user_id(msg, function() { writeToStorage('screen_name', s); });
+        });
+        $('#student-id-entry').on('input', function(e) {
+            var s = $(this).val();
+            if (s.length === 0) {
+                s = null;
+            }
+            var msg = { 'type': 'change-student-id', 'student_id': s };
+            send_message_with_user_id(msg, function() { writeToStorage('student_id', s); });
+        });
 
-    $('#screen-name-entry').val(readFromStorage('screen_name'));
-    $('#student-id-entry').val(readFromStorage('student_id'));
-    $('#screen-name-entry').on('input', function(e) {
-        var s = $(this).val();
-        if (s.length === 0) {
-            s = null;
-        }
-        var msg = { 'type': 'change-screen-name', 'screen_name': s };
-        send_message_with_user_id(msg, function() { writeToStorage('screen_name', s); });
-    });
-    $('#student-id-entry').on('input', function(e) {
-        var s = $(this).val();
-        if (s.length === 0) {
-            s = null;
-        }
-        var msg = { 'type': 'change-student-id', 'student_id': s };
-        send_message_with_user_id(msg, function() { writeToStorage('student_id', s); });
-    });
-});
+        startWebSocket();
+    }
+
+    // return the module
+    return {
+        initialize: initialize,
+        readFromStorage: readFromStorage
+    };
+})();
