@@ -93,14 +93,13 @@ def load_post(post_id)
   end
 end
 
-def load_latest_posts(n)
-  Dir.glob('./post/*').map {|fp| File.basename(fp).to_i }\
-    .sort_by {|post_id_num| -post_id_num }.lazy\
-    .map {|post_id_num| load_post(post_id_num) }\
-    .select {|post| post }\
-    .take(n)\
-    .to_a\
-    .reverse
+def enum_recent_posts
+  Dir.glob('./post/*')\
+    .map {|fp| File.basename(fp).to_i }\
+    .sort {|x, y| y <=> x }\
+    .lazy\
+    .map(&method(:load_post))\
+    .reject(&:nil?)
 end
 
 class Analyzer
@@ -258,13 +257,13 @@ EventMachine.run {
       }
 
       # send archived post
-      posts = load_latest_posts(100).map {|post|
+      posts = enum_recent_posts.map {|post|
         uid = post['user_id']
         user = load_or_recreate_user(uid, sorting_hat)
         post['user'] = user
 
         post
-      }
+      }.take(100).to_a.reverse
       ws.send(JSON.generate({"type" => "archived-posts", "posts" => posts}))
     }
   end
