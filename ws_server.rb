@@ -263,7 +263,7 @@ EventMachine.run {
         post['user'] = user
 
         post
-      }.take(100).to_a.reverse
+      }.to_a.reverse
       ws.send(JSON.generate({"type" => "archived-posts", "posts" => posts}))
     }
   end
