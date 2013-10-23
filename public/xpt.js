@@ -296,6 +296,11 @@ var Xpt = (function() {
     }
 
     function initialize(config) {
+        // change the app title when defined
+        if (!isInvalid(config.app_title)) {
+            $("title").text(config.app_title);
+        }
+
         // add initial columns
         config.init_columns.forEach(addColumn);
 

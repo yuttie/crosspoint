@@ -1,4 +1,5 @@
 Xpt.initialize({
+    app_title: "Crosspoint",
     init_columns: [
         { title:   "全体のメッセージ"
         , in_filter:  function(p) { return !p.content.match(/#GROUP-ONLY/i); }
