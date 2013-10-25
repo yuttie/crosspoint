@@ -341,7 +341,13 @@ var Xpt = (function() {
 
         // update the link for saving an entire HTML as a file
         $('#export-link').on('mousedown', function(e) {
-            var html_src = $('html').html();
+            var html = $('html').clone();
+            function prependBaseURL(_, href) {
+                return window.location.href.replace(/\/?[^\/]*$/, "/" + href);
+            }
+            html.find('link[href="normalize.css"]').attr("href", prependBaseURL);
+            html.find('link[href="client.css"]').attr("href", prependBaseURL);
+            var html_src = html.html();
             var blob = new Blob([html_src], { type: 'text/html' });
             var blob_url = window.URL.createObjectURL(blob);
             $(this).attr("href", blob_url);
