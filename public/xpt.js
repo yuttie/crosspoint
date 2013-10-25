@@ -343,8 +343,8 @@ var Xpt = (function() {
         $('#export-link').on('mousedown', function(e) {
             var html_src = $('html').html();
             var blob = new Blob([html_src], { type: 'text/html' });
-            var url = window.URL.createObjectURL(blob);
-            $(this).attr("href", url);
+            var blob_url = window.URL.createObjectURL(blob);
+            $(this).attr("href", blob_url);
         });
         $('#export-link').on('click', function(e) {
             e.preventDefault();
