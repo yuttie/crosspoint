@@ -339,6 +339,17 @@ var Xpt = (function() {
             send_message_with_user_id(msg, function() { writeToStorage('student_id', s); });
         });
 
+        // update the link for saving an entire HTML as a file
+        $('#export-link').on('mousedown', function(e) {
+            var html_src = $('html').html();
+            var blob = new Blob([html_src], { type: 'text/html' });
+            var url = window.URL.createObjectURL(blob);
+            $(this).attr("href", url);
+        });
+        $('#export-link').on('click', function(e) {
+            e.preventDefault();
+        });
+
         startWebSocket();
     }
 
