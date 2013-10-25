@@ -130,6 +130,7 @@ textarea:focus {
 
 #logo {
     float: left;
+    cursor: default;
 }
 
 #screen-name-entry {
