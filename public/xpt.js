@@ -235,6 +235,7 @@ var Xpt = (function() {
                 var msg = { type: 'need-group-id', 'user_id': uid };
                 ws.send(JSON.stringify(msg));
             }
+            $("#status").addClass("online");
         };
 
         ws.onmessage = function(e) {
@@ -279,6 +280,7 @@ var Xpt = (function() {
             }
         };
         ws.onclose = function() {
+            $("#status").removeClass("online");
             setTimeout(function() { startWebSocket(); }, 0);
         };
     }

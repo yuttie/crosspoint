@@ -128,9 +128,17 @@ textarea:focus {
     vertical-align: middle;
 }
 
-#logo {
+#status {
     float: left;
     cursor: default;
+    width: 32px;
+    height: 32px;
+    background-size: contain;
+    background-image: url("soil.svg");
+}
+
+#status.online {
+    background-image: url("logo.svg");
 }
 
 #screen-name-entry {
