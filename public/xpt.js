@@ -22,47 +22,51 @@ var Xpt = (function() {
         var header = col.find(".column-header");
         header.on("dragstart", function(e) {
             var target = $(this).parent();
-            target.addClass("drag-target");
+            setTimeout(function() {
+                // hide the target column after getting a drag image of it
+                target.addClass("drag-target");
+            }, 0);
             var dt = e.originalEvent.dataTransfer;
             dt.effectAllowed = "move";
             dt.setData("application/element-id", target.attr("id"));
-        });
-        col.on("dragenter", function(e) {
-            $("#column-container > .column").removeClass("drag-over");  // workaround
-            if (!$(this).hasClass("drag-target")) {
-                $(this).addClass("drag-over");
-            }
-        });
-        col.on("dragover", function(e) {
-            if (!$(this).hasClass("drag-target")) {
+            dt.setDragImage(target[0],
+                            e.originalEvent.clientX - target.offset().left,
+                            e.originalEvent.clientY - target.offset().top);
+            var dummy = $("<div>", { "class": "column", id: "dummy-column" });
+            dummy.insertAfter(target);
+            dummy.on("dragover", function(e) {
                 e.originalEvent.dataTransfer.dropEffect = "move";
                 e.preventDefault();
-            }
+            });
+            dummy.on("drop", function(e) {
+                var column_id = e.originalEvent.dataTransfer.getData("application/element-id");
+                var target = $("#" + column_id);
+                target.insertBefore("#dummy-column");
+                e.stopPropagation();
+            });
         });
-        col.on("dragleave", function(e) {
-            if (e.target === e.currentTarget) {
-                $(this).removeClass("drag-over");
+        col.on("dragover", function(e) {
+            var x = e.originalEvent.clientX;
+            var zoneLeft = $(this).offset().left;
+            var zoneCenterX = zoneLeft + $(this).outerWidth() / 2;
+            if (x >= zoneCenterX) {
+                $("#dummy-column").insertAfter($(this));
             }
+            else {
+                $("#dummy-column").insertBefore($(this));
+            }
+            e.originalEvent.dataTransfer.dropEffect = "move";
+            e.preventDefault();
         });
         col.on("drop", function(e) {
             var column_id = e.originalEvent.dataTransfer.getData("application/element-id");
             var target = $("#" + column_id);
-            if (!$(this).hasClass("drag-target")) {
-                var dropX = e.originalEvent.clientX;
-                var dropZoneLeft = $(this).offset().left;
-                var dropZoneCenterX = dropZoneLeft + $(this).outerWidth() / 2;
-                if (dropX >= dropZoneCenterX) {
-                    target.insertAfter($(this));
-                }
-                else {
-                    target.insertBefore($(this));
-                }
-            }
+            target.insertBefore("#dummy-column");
             e.stopPropagation();
         });
         col.on("dragend", function(e) {
+            $("#dummy-column").remove();
             $(".column").removeClass("drag-target");
-            $(".column").removeClass("drag-over");
         });
 
         var entry = col.find(".comment-entry");

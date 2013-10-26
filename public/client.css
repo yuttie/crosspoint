@@ -185,6 +185,11 @@ textarea:focus {
     overflow-y: hidden;
 }
 
+#dummy-column {
+    border: dashed 1px #000;
+    background-color: #eee;
+}
+
 .column {
     position: relative;
     height: 100%;
@@ -196,11 +201,7 @@ textarea:focus {
 }
 
 .column.drag-target {
-    opacity: 0.5;
-}
-
-.column.drag-over {
-    border: 1px dashed #000;
+    display: none;
 }
 
 .column-header {
