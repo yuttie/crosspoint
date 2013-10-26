@@ -195,6 +195,14 @@ textarea:focus {
     margin-right: 1em;
 }
 
+.column.drag-target {
+    opacity: 0.5;
+}
+
+.column.drag-over {
+    border: 1px dashed #000;
+}
+
 .column-header {
     position: absolute;
     width: 100%;
@@ -204,6 +212,7 @@ textarea:focus {
     background-color: lightgray;
     border-top-left-radius: 4px;
     border-top-right-radius: 4px;
+    cursor: move;
 }
 
 .column-view {

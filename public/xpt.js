@@ -3,7 +3,8 @@ var Xpt = (function() {
 
     function constructColumnElement(col_def, index) {
         return $("<div>", { "class": "column", id: "column-" + index }).append([
-                   $("<div>", { "class": "column-header" })
+                   $("<div>", { "class": "column-header"
+                              , draggable: "true" })
                        .text(col_def.title),
                    $("<div>", { "class": "column-view" }).append([
                        $("<textarea>", { "class": "comment-entry"
@@ -17,6 +18,52 @@ var Xpt = (function() {
 
         var col = constructColumnElement(col_def, index);
         col.appendTo("#column-container");
+
+        var header = col.find(".column-header");
+        header.on("dragstart", function(e) {
+            var target = $(this).parent();
+            target.addClass("drag-target");
+            var dt = e.originalEvent.dataTransfer;
+            dt.effectAllowed = "move";
+            dt.setData("application/element-id", target.attr("id"));
+        });
+        col.on("dragenter", function(e) {
+            $("#column-container > .column").removeClass("drag-over");  // workaround
+            if (!$(this).hasClass("drag-target")) {
+                $(this).addClass("drag-over");
+            }
+        });
+        col.on("dragover", function(e) {
+            if (!$(this).hasClass("drag-target")) {
+                e.originalEvent.dataTransfer.dropEffect = "move";
+                e.preventDefault();
+            }
+        });
+        col.on("dragleave", function(e) {
+            if (e.target === e.currentTarget) {
+                $(this).removeClass("drag-over");
+            }
+        });
+        col.on("drop", function(e) {
+            var column_id = e.originalEvent.dataTransfer.getData("application/element-id");
+            var target = $("#" + column_id);
+            if (!$(this).hasClass("drag-target")) {
+                var dropX = e.originalEvent.clientX;
+                var dropZoneLeft = $(this).offset().left;
+                var dropZoneCenterX = dropZoneLeft + $(this).outerWidth() / 2;
+                if (dropX >= dropZoneCenterX) {
+                    target.insertAfter($(this));
+                }
+                else {
+                    target.insertBefore($(this));
+                }
+            }
+            e.stopPropagation();
+        });
+        col.on("dragend", function(e) {
+            $(".column").removeClass("drag-target");
+            $(".column").removeClass("drag-over");
+        });
 
         var entry = col.find(".comment-entry");
         entry.on('keypress', function(e) {
