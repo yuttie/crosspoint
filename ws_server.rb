@@ -224,6 +224,22 @@ EventMachine.run {
 
           msg = { 'type' => 'group-id', 'group_id' => user['group_id'] }
           ws.send(JSON.generate(msg))
+        when "need-archived-posts"
+          since = data['since'].to_i || 0
+          # send archived post
+          posts = enum_recent_posts.take_while {|post|
+            post['post_id'].to_i > since
+          }.map {|post|
+            uid = post['user_id']
+            user = load_or_recreate_user(uid, sorting_hat)
+            post['user'] = {
+              'user_id_hashed' => user['user_id_hashed'],
+              'group_id' => user['group_id']
+            }
+
+            post
+          }.to_a.reverse
+          ws.send(JSON.generate({"type" => "archived-posts", "posts" => posts}))
         when "post"
           post = stamp_post(data)
           if post['user_id']
@@ -258,19 +274,6 @@ EventMachine.run {
         ch.unsubscribe(sid)
         log(sid, ch_id, "disconnected")
       }
-
-      # send archived post
-      posts = enum_recent_posts.map {|post|
-        uid = post['user_id']
-        user = load_or_recreate_user(uid, sorting_hat)
-        post['user'] = {
-          'user_id_hashed' => user['user_id_hashed'],
-          'group_id' => user['group_id']
-        }
-
-        post
-      }.to_a.reverse
-      ws.send(JSON.generate({"type" => "archived-posts", "posts" => posts}))
     }
   end
 }

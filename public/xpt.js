@@ -269,6 +269,7 @@ var Xpt = (function() {
     }
 
     var ws = null;
+    var latest_post_id = null;
     function startWebSocket() {
         var hostname = window.location.hostname;
         ws = new WebSocket("ws://" + hostname + ":9090/");
@@ -286,6 +287,8 @@ var Xpt = (function() {
                 var msg = { type: 'need-group-id', 'user_id': uid };
                 ws.send(JSON.stringify(msg));
             }
+            ws.send(JSON.stringify(
+                { type: "need-archived-posts", since: latest_post_id }));
             $("#status").addClass("online");
         };
 
@@ -299,9 +302,13 @@ var Xpt = (function() {
             }
             else if (msg.type === "post") {
                 showPost(msg);
+                latest_post_id = msg.post_id;
             }
             else if (msg.type === "archived-posts") {
-                msg.posts.forEach(showPost);
+                msg.posts.forEach(function(post) {
+                    showPost(post);
+                    latest_post_id = post.post_id;
+                });
                 $('.new_msg_notifier').click();
             }
             else if (msg.type === "user-id") {
