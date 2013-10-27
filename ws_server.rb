@@ -231,7 +231,10 @@ EventMachine.run {
 
             uid = post['user_id']
             user = load_or_recreate_user(uid, sorting_hat)
-            post['user'] = user
+            post['user'] = {
+              'user_id_hashed' => user['user_id_hashed'],
+              'group_id' => user['group_id']
+            }
 
             # multicast
             ch.push(JSON.generate(post))
@@ -260,7 +263,10 @@ EventMachine.run {
       posts = enum_recent_posts.map {|post|
         uid = post['user_id']
         user = load_or_recreate_user(uid, sorting_hat)
-        post['user'] = user
+        post['user'] = {
+          'user_id_hashed' => user['user_id_hashed'],
+          'group_id' => user['group_id']
+        }
 
         post
       }.to_a.reverse
