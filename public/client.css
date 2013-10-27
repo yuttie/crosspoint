@@ -178,11 +178,13 @@ textarea:focus {
     position: absolute;
     top: 4em;
     bottom: 0;
-    left: 1em;
+    left: 0;
     right: 0;
     white-space: nowrap;
     overflow-x: auto;
     overflow-y: hidden;
+    padding-left: 0.5em;
+    padding-right: 0.5em;
 }
 
 #dummy-column {
@@ -197,7 +199,8 @@ textarea:focus {
     display: inline-block;
     vertical-align: top;
     text-align: left;
-    margin-right: 1em;
+    margin-left: 0.5em;
+    margin-right: 0.5em;
 }
 
 .column.drag-target {
