@@ -16,11 +16,11 @@ Xpt.initialize({
         , entry_placeholder: "質問する... / 回答する..."
         },
         { title:   "TA"
-        , in_filter:  function(p) { return p.content.match(/#TA/i); }
+        , in_filter:  function(p) { return p.content.match(/##TA/i); }
         , out_filter: function(p) { return true; }
-        , in_map:     function(p) { p.content = p.content.replace(/#TA/ig, ""); return p; }
-        , out_map:    function(p) { p.content += "#TA"; return p; }
-        , entry_placeholder: "質問する... / 回答する..."
+        , in_map:     function(p) { p.content = p.content.replace(/##TA/ig, ""); return p; }
+        , out_map:    function(p) { p.content += "##TA"; return p; }
+        , entry_placeholder: "TAのみ書き込めます"
         },
         { title:   "あなたのグループ内のメッセージ"
         , in_filter:  function(p) { return p.content.match(/#GROUP-ONLY/i) && Xpt.readFromStorage('group_id') === p.user.group_id; }
