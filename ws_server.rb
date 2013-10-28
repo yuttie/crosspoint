@@ -16,6 +16,9 @@ require 'digest/md5'
 require 'base64'
 
 
+HASHTAG_REGEXP = /#([\p{Letter}\p{Number}]+)/
+PRIVILEGED_HASHTAG_REGEXP = /##([\p{Letter}\p{Number}]+)/
+
 def log(sid, ch_id, msg)
   $stderr.puts("[#{Time.now.iso8601}] #{sid}@#{ch_id}: #{msg}")
 end
@@ -67,6 +70,13 @@ def load_or_recreate_user(uid, enum)
   else
     user
   end
+end
+
+def get_roles(student_id)
+  mkdir_if_not_exist("./role")
+  Dir.glob("./role/*").select {|fp|
+    IO.readlines(fp).map {|l| l.chomp }.include?(student_id)
+  }.map {|fp| File.basename(fp).downcase }
 end
 
 def stamp_post(post)
@@ -165,6 +175,8 @@ EventMachine.run {
     ch_id = nil
     ch = nil
     sid = nil
+    roles = []
+
     ws.onopen {|handshake|
       # prepare the channel for handshake.path
       ch_id = handshake.path
@@ -252,6 +264,13 @@ EventMachine.run {
         ws.send(JSON.generate({"type" => "archived-posts", "posts" => posts}))
       when "post"
         post = stamp_post(data)
+
+        # remove unauthorized privileged hashtags
+        post['content'].gsub!(PRIVILEGED_HASHTAG_REGEXP) {|tag|
+          tag_name = $1
+          roles.include?(tag_name.downcase) ? tag : ""
+        }
+
         if post['user_id']
           save_post(post)
 
@@ -276,6 +295,8 @@ EventMachine.run {
         user = load_or_recreate_user(uid, sorting_hat)
         user['student_id'] = data['student_id']
         save_user(user)
+
+        roles = get_roles(user['student_id'])
       else
         log(sid, ch_id, "unknown message type: #{data['type']}")
       end
