@@ -1,6 +1,10 @@
 var Xpt = (function() {
     "use strict";
 
+    function escapeRegexp(src) {
+        return src.replace(/[-\\^$*+?.()|[\]{}]/g, '\\$&');
+    };
+
     function constructColumnElement(col_def, index) {
         return $("<div>", { "class": "column", id: "column-" + index }).append([
                    $("<div>", { "class": "column-header"
@@ -99,7 +103,7 @@ var Xpt = (function() {
     function addColumnForHashtag(hashtag) {
         addColumn(
             { title:   "ハッシュタグ: " + hashtag
-            , in_filter:  function(p) { return p.content.match(new RegExp(hashtag, "i")); }
+            , in_filter:  function(p) { return p.content.match(new RegExp(escapeRegexp(hashtag), "i")); }
             , out_filter: function(p) { return true; }
             , in_map:     function(p) { return p; }
             , out_map:    function(p) { p.content += hashtag; return p; }
