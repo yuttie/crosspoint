@@ -92,6 +92,8 @@ var Xpt = (function() {
                 this.selectionEnd = start + 1;
             }
         });
+
+        return col;
     }
 
     function addColumnForHashtag(hashtag) {
