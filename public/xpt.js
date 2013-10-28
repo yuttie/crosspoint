@@ -94,6 +94,17 @@ var Xpt = (function() {
         });
     }
 
+    function addColumnForHashtag(hashtag) {
+        addColumn(
+            { title:   "ハッシュタグ: " + hashtag
+            , in_filter:  function(p) { return p.content.match(new RegExp(hashtag, "i")); }
+            , out_filter: function(p) { return true; }
+            , in_map:     function(p) { return p; }
+            , out_map:    function(p) { p.content += hashtag; return p; }
+            , entry_placeholder: null
+            });
+    }
+
     function updateSlideClasses() {
         $('.slide.current').prevAll('.slide').removeClass('prev left');
         $('.slide.current').nextAll('.slide').removeClass('next right');
@@ -217,19 +228,31 @@ var Xpt = (function() {
 
     function constructPostElement(post) {
         var date = new Date(post.time);
-        return $("<div>", { "class": "post" }).append([
-                   $("<div>", { "class": "header" }).append([
-                       $("<span>", { "class": "number" })
-                           .text(post.number),
-                       $("<span>", { "class": "screen-name" })
-                           .text(formatScreenName(post.user.screen_name)),
-                       $("<span>", { "class": "user-id" })
-                           .text(post.user.user_id_hashed.slice(0, 8)),
-                       $("<span>", { "class": "time"
-                                   , title: formatFullPostDate(date) })
-                           .text(formatPostDate(date))]),
-                   $("<div>", { "class": "content" })
-                       .text(post.content)]);
+        var post_elem =
+            $("<div>", { "class": "post" }).append([
+                $("<div>", { "class": "header" }).append([
+                    $("<span>", { "class": "number" })
+                        .text(post.number),
+                    $("<span>", { "class": "screen-name" })
+                        .text(formatScreenName(post.user.screen_name)),
+                    $("<span>", { "class": "user-id" })
+                        .text(post.user.user_id_hashed.slice(0, 8)),
+                    $("<span>", { "class": "time"
+                                , title: formatFullPostDate(date) })
+                        .text(formatPostDate(date))]),
+                $("<div>", { "class": "content" })
+                    .text(post.content)]);
+        var content_elem = post_elem.find(".content");
+        content_elem.html(function(_, html) {
+            return html.replace(/##?[a-z0-9]+/ig, function(hashtag) {
+                return '<span class="hashtag">' + hashtag + '</span>';
+            });
+        });
+        content_elem.find(".hashtag").on("click", function(e) {
+            addColumnForHashtag($(this).text());
+        });
+
+        return post_elem;
     }
 
     var new_posts = [];

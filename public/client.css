@@ -339,3 +339,12 @@ textarea:focus {
 .content strong {
     color: red;
 }
+
+.content .hashtag {
+    color: #45A1CF;
+    cursor: pointer;
+}
+
+.content .hashtag:hover {
+    text-decoration: underline;
+}
