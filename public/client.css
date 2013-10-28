@@ -173,6 +173,22 @@ textarea:focus {
     background-color: #656565;
 }
 
+.role:nth-child(1) {
+    margin-left: 0;
+}
+
+.role {
+    margin-left: 0.5em;
+}
+
+.role:nth-child(1)::before {
+    content: "["
+}
+
+.role:nth-last-child(1)::after {
+    content: "]"
+}
+
 /* columns */
 #column-container {
     position: absolute;

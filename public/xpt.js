@@ -323,6 +323,12 @@ var Xpt = (function() {
                 $("#student-id-entry").val(msg.student_id);
                 $("#screen-name-entry").val(msg.screen_name);
             }
+            else if (msg.type === "roles") {
+                $("#roles").empty();
+                msg.roles.sort().forEach(function(role) {
+                    $('<span class="role">' + role + '</span>').appendTo("#roles");
+                });
+            }
             else if (msg.type === "draw") {
                 var ctx = $('.slide.current > canvas.overlay')[0].getContext('2d');
                 if (msg.shape === "line") {

@@ -297,6 +297,9 @@ EventMachine.run {
         save_user(user)
 
         roles = get_roles(user['student_id'])
+
+        msg = { 'type' => 'roles', 'roles' => roles }
+        ws.send(JSON.generate(msg))
       else
         log(sid, ch_id, "unknown message type: #{data['type']}")
       end
