@@ -287,6 +287,8 @@ var Xpt = (function() {
                 var msg = { type: 'need-group-id', 'user_id': uid };
                 ws.send(JSON.stringify(msg));
             }
+            $('#screen-name-entry').val(readFromStorage('screen_name')).trigger("input");
+            $('#student-id-entry').val(readFromStorage('student_id')).trigger("input");
             ws.send(JSON.stringify(
                 { type: "need-archived-posts", since: latest_post_id }));
             $("#status").addClass("online");
@@ -382,8 +384,6 @@ var Xpt = (function() {
             updateSlideClasses();
         });
 
-        $('#screen-name-entry').val(readFromStorage('screen_name'));
-        $('#student-id-entry').val(readFromStorage('student_id'));
         $('#screen-name-entry').on('input', function(e) {
             var s = $(this).val();
             if (s.length === 0) {
