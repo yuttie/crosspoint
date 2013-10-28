@@ -179,6 +179,11 @@ EventMachine.run {
       log(sid, ch_id, "connected")
     }
 
+    ws.onclose {
+      ch.unsubscribe(sid)
+      log(sid, ch_id, "disconnected")
+    }
+
     ws.onmessage {|msg|
       log(sid, ch_id, "message: #{msg}")
       data = JSON.parse(msg)
@@ -272,11 +277,6 @@ EventMachine.run {
       else
         log(sid, ch_id, "unknown message type: #{data['type']}")
       end
-    }
-
-    ws.onclose {
-      ch.unsubscribe(sid)
-      log(sid, ch_id, "disconnected")
     }
   end
 }
