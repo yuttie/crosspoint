@@ -55,7 +55,7 @@ def load_user(user_id)
   fp = "./user/#{user_id}"
   if File.exist?(fp)
     user = JSON.parse(IO.read(fp))
-    user['user_id_hashed'] = Base64.strict_encode64(Digest::MD5.digest("xpt" + user['user_id']))
+    user['user_id_hashed'] = Base64.strict_encode64(Digest::MD5.digest("xpt" + user['user_id'].to_s))
     user
   else
     nil
