@@ -243,7 +243,8 @@ EventMachine.run {
           user = load_or_recreate_user(uid, sorting_hat)
           post['user'] = {
             'user_id_hashed' => user['user_id_hashed'],
-            'group_id' => user['group_id']
+            'group_id' => user['group_id'],
+            'screen_name' => user['screen_name' ]
           }
 
           post
@@ -258,7 +259,8 @@ EventMachine.run {
           user = load_or_recreate_user(uid, sorting_hat)
           post['user'] = {
             'user_id_hashed' => user['user_id_hashed'],
-            'group_id' => user['group_id']
+            'group_id' => user['group_id'],
+            'screen_name' => user['screen_name' ]
           }
 
           # multicast
