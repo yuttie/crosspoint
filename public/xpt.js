@@ -229,7 +229,7 @@ var Xpt = (function() {
                                    , title: formatFullPostDate(date) })
                            .text(formatPostDate(date))]),
                    $("<div>", { "class": "content" })
-                       .text(post.content.replace(/\#GROUP-ONLY/ig, ""))]);
+                       .text(post.content)]);
     }
 
     var new_posts = [];
