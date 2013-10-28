@@ -351,7 +351,9 @@ var Xpt = (function() {
         else {
             msg['user_id'] = uid;
             ws.send(JSON.stringify(msg));
-            next_fun();
+            if (typeof next_fun === "function") {
+                next_fun();
+            }
         }
     }
 
