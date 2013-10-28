@@ -162,6 +162,9 @@ EventMachine.run {
   sorting_hat.take(Dir.glob('./user/*').length)
 
   EventMachine::WebSocket.start(host: ARGV[1] || "0.0.0.0", port: (ARGV[0] || 9090).to_i) do |ws|
+    ch_id = nil
+    ch = nil
+    sid = nil
     ws.onopen {|handshake|
       # prepare the channel for handshake.path
       ch_id = handshake.path
@@ -174,106 +177,106 @@ EventMachine.run {
         ws.send(msg)
       }
       log(sid, ch_id, "connected")
+    }
 
-      ws.onmessage {|msg|
-        log(sid, ch_id, "message: #{msg}")
-        data = JSON.parse(msg)
+    ws.onmessage {|msg|
+      log(sid, ch_id, "message: #{msg}")
+      data = JSON.parse(msg)
 
-        # ask our bot to analyze the message
-        msg_queue.push(data)
-        msg_queue.pop {|msg|
-          result = analyzer.analyze(msg)
-          result_queue << result if result
-        }
-        result_queue.pop {|result|
-          if result.size > 2
-            msg = {
-              'type'      => 'post',
-              'number'    => 'TA',
-              'user_name' => '解析ぼっと',
-              'content'   => result + "#GROUP-ONLY",  # W/o escaping.
-              'time'      => Time.now.strftime('%Y/%m/%d %H:%M:%S'),
-              'user_id'   => 0,
-              'group_id'  => 0
-            }
-            ch.push(JSON.generate(msg))
-          end
-        }
-
-        # cookieに登録するシリアルナンバーを送る
-        case data['type']
-        when "need-both-ids"
-          # make a new user
-          user = create_user(sorting_hat)
-          save_user(user)
-
-          msg1 = { 'type' => 'user-id', 'user_id' => user['user_id'] }
-          ws.send(JSON.generate(msg1))
-          msg2 = { 'type' => 'group-id', 'group_id' => user['group_id'] }
-          ws.send(JSON.generate(msg2))
-        when "need-group-id"
-          user = JSON.parse(IO.read("user/#{data['user_id']}"))
-          if user
-            # update existing user
-            user['group_id'] = sorting_hat.next
-          else
-            # make a new user
-            user = create_user(sorting_hat)
-          end
-          save_user(user)
-
-          msg = { 'type' => 'group-id', 'group_id' => user['group_id'] }
-          ws.send(JSON.generate(msg))
-        when "need-archived-posts"
-          since = data['since'].to_i || 0
-          # send archived post
-          posts = enum_recent_posts.take_while {|post|
-            post['post_id'].to_i > since
-          }.map {|post|
-            uid = post['user_id']
-            user = load_or_recreate_user(uid, sorting_hat)
-            post['user'] = {
-              'user_id_hashed' => user['user_id_hashed'],
-              'group_id' => user['group_id']
-            }
-
-            post
-          }.to_a.reverse
-          ws.send(JSON.generate({"type" => "archived-posts", "posts" => posts}))
-        when "post"
-          post = stamp_post(data)
-          if post['user_id']
-            save_post(post)
-
-            uid = post['user_id']
-            user = load_or_recreate_user(uid, sorting_hat)
-            post['user'] = {
-              'user_id_hashed' => user['user_id_hashed'],
-              'group_id' => user['group_id']
-            }
-
-            # multicast
-            ch.push(JSON.generate(post))
-          end
-        when 'change-screen-name'
-          uid = data['user_id']
-          user = load_or_recreate_user(uid, sorting_hat)
-          user['screen_name'] = data['screen_name']
-          save_user(user)
-        when 'change-student-id'
-          uid = data['user_id']
-          user = load_or_recreate_user(uid, sorting_hat)
-          user['student_id'] = data['student_id']
-          save_user(user)
-        else
-          log(sid, ch_id, "unknown message type: #{data['type']}")
+      # ask our bot to analyze the message
+      msg_queue.push(data)
+      msg_queue.pop {|msg|
+        result = analyzer.analyze(msg)
+        result_queue << result if result
+      }
+      result_queue.pop {|result|
+        if result.size > 2
+          msg = {
+            'type'      => 'post',
+            'number'    => 'TA',
+            'user_name' => '解析ぼっと',
+            'content'   => result + "#GROUP-ONLY",  # W/o escaping.
+            'time'      => Time.now.strftime('%Y/%m/%d %H:%M:%S'),
+            'user_id'   => 0,
+            'group_id'  => 0
+          }
+          ch.push(JSON.generate(msg))
         end
       }
 
-      ws.onclose {
-        ch.unsubscribe(sid)
-        log(sid, ch_id, "disconnected")
-      }
+      # cookieに登録するシリアルナンバーを送る
+      case data['type']
+      when "need-both-ids"
+        # make a new user
+        user = create_user(sorting_hat)
+        save_user(user)
+
+        msg1 = { 'type' => 'user-id', 'user_id' => user['user_id'] }
+        ws.send(JSON.generate(msg1))
+        msg2 = { 'type' => 'group-id', 'group_id' => user['group_id'] }
+        ws.send(JSON.generate(msg2))
+      when "need-group-id"
+        user = JSON.parse(IO.read("user/#{data['user_id']}"))
+        if user
+          # update existing user
+          user['group_id'] = sorting_hat.next
+        else
+          # make a new user
+          user = create_user(sorting_hat)
+        end
+        save_user(user)
+
+        msg = { 'type' => 'group-id', 'group_id' => user['group_id'] }
+        ws.send(JSON.generate(msg))
+      when "need-archived-posts"
+        since = data['since'].to_i || 0
+        # send archived post
+        posts = enum_recent_posts.take_while {|post|
+          post['post_id'].to_i > since
+        }.map {|post|
+          uid = post['user_id']
+          user = load_or_recreate_user(uid, sorting_hat)
+          post['user'] = {
+            'user_id_hashed' => user['user_id_hashed'],
+            'group_id' => user['group_id']
+          }
+
+          post
+        }.to_a.reverse
+        ws.send(JSON.generate({"type" => "archived-posts", "posts" => posts}))
+      when "post"
+        post = stamp_post(data)
+        if post['user_id']
+          save_post(post)
+
+          uid = post['user_id']
+          user = load_or_recreate_user(uid, sorting_hat)
+          post['user'] = {
+            'user_id_hashed' => user['user_id_hashed'],
+            'group_id' => user['group_id']
+          }
+
+          # multicast
+          ch.push(JSON.generate(post))
+        end
+      when 'change-screen-name'
+        uid = data['user_id']
+        user = load_or_recreate_user(uid, sorting_hat)
+        user['screen_name'] = data['screen_name']
+        save_user(user)
+      when 'change-student-id'
+        uid = data['user_id']
+        user = load_or_recreate_user(uid, sorting_hat)
+        user['student_id'] = data['student_id']
+        save_user(user)
+      else
+        log(sid, ch_id, "unknown message type: #{data['type']}")
+      end
+    }
+
+    ws.onclose {
+      ch.unsubscribe(sid)
+      log(sid, ch_id, "disconnected")
     }
   end
 }
