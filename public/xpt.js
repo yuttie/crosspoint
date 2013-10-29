@@ -10,8 +10,9 @@ var Xpt = (function() {
     function constructColumnElement(col_def, index) {
         return $("<div>", { "class": "column", id: "column-" + index }).append([
                    $("<div>", { "class": "column-header"
-                              , draggable: "true" })
-                       .text(col_def.title),
+                              , draggable: "true" }).append([
+                       $("<span>", { "class": "column-title" }).text(col_def.title),
+                       $("<span>", { "class": "column-close-button" }).text("×")]),
                    $("<div>", { "class": "column-view" }).append([
                        $("<textarea>", { "class": "comment-entry"
                                        , placeholder: col_def.entry_placeholder || "書き込む..." })])]);
@@ -75,6 +76,16 @@ var Xpt = (function() {
             $(".column").removeClass("drag-target");
         });
 
+        var close_button = header.find(".column-close-button");
+        close_button.on("click", function() {
+            // FIXME: Removing the column element isn't sufficient, we need to
+            // remove the col_def from the columns variable.
+            $(this).parents(".column").remove();
+        });
+        if (!col_def.removable) {
+            close_button.css("display", "none");
+        }
+
         var entry = col.find(".comment-entry");
         entry.on('keypress', function(e) {
             if (!e.ctrlKey && e.which === 13) {
@@ -110,6 +121,7 @@ var Xpt = (function() {
             , in_map:     function(p) { return p; }
             , out_map:    function(p) { p.content += hashtag; return p; }
             , entry_placeholder: null
+            , removable: true
             });
     }
 

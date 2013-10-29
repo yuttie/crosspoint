@@ -228,11 +228,32 @@ textarea:focus {
     width: 100%;
     line-height: 2em;
     text-align: center;
-    font-weight: bold;
     background-color: lightgray;
     border-top-left-radius: 4px;
     border-top-right-radius: 4px;
     cursor: move;
+}
+
+.column-title {
+    font-weight: bold;
+}
+
+.column-close-button {
+    position: absolute;
+    top: 0.5em;
+    right: 0.5em;
+    width: 1em;
+    height: 1em;
+    line-height: 1em;
+    background-color: transparent;
+    color: #555;
+    border-radius: 0.5em;
+    cursor: normal;
+}
+
+.column-close-button:hover {
+    background-color: #DA6272;
+    color: white;
 }
 
 .column-view {
