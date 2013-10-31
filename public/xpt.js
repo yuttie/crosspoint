@@ -312,7 +312,7 @@ var Xpt = (function() {
     }
 
     var ws = null;
-    var latest_post_id = null;
+    var posts = [];
     function startWebSocket() {
         var hostname = window.location.hostname;
         ws = new WebSocket("ws://" + hostname + ":9090/");
@@ -332,8 +332,10 @@ var Xpt = (function() {
             }
             $('#screen-name-entry').val(readFromStorage('screen_name')).trigger("input");
             $('#student-id-entry').val(readFromStorage('student_id')).trigger("input");
+            var latest_post = posts[posts.length - 1];
             ws.send(JSON.stringify(
-                { type: "need-archived-posts", since: latest_post_id }));
+                { type: "need-archived-posts"
+                , since: latest_post ? latest_post.post_id : null }));
             $("#status").addClass("online");
         };
 
@@ -347,13 +349,11 @@ var Xpt = (function() {
             }
             else if (msg.type === "post") {
                 showPost(msg);
-                latest_post_id = msg.post_id;
+                posts.push(msg);
             }
             else if (msg.type === "archived-posts") {
-                msg.posts.forEach(function(post) {
-                    showPost(post);
-                    latest_post_id = post.post_id;
-                });
+                msg.posts.forEach(showPost);
+                posts = posts.concat(msg.posts);
                 $('.new_msg_notifier').click();
             }
             else if (msg.type === "user-id") {
