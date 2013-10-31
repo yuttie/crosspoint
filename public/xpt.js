@@ -110,11 +110,11 @@ var Xpt = (function() {
             }
         });
 
-        return col;
+        return [index, col];
     }
 
     function addColumnForHashtag(hashtag) {
-        addColumn(
+        var col_def =
             { title:   "ハッシュタグ: " + hashtag
             , in_filter:  function(p) { return p.content.match(new RegExp(escapeRegexp(hashtag), "i")); }
             , out_filter: function(p) { return true; }
@@ -122,7 +122,12 @@ var Xpt = (function() {
             , out_map:    function(p) { p.content += hashtag; return p; }
             , entry_placeholder: null
             , removable: true
-            });
+            };
+        var index_and_col = addColumn(col_def);
+        var index = index_and_col[0];
+        var col = index_and_col[1];
+        posts.forEach(function(post) { showPost(post, col_def, index); });
+        col.find(".new_msg_notifier").click();
     }
 
     function updateSlideClasses() {
