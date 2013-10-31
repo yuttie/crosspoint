@@ -276,38 +276,42 @@ var Xpt = (function() {
     }
 
     var new_posts = [];
-    function showPost(post) {
-        columns.forEach(function(col_def, i) {
-            if (col_def.in_filter(post)) {
-                post = col_def.in_map(post);
+    function showPost(post, col_def, i) {
+        if (col_def.in_filter(post)) {
+            post = col_def.in_map(post);
 
-                var post_elem = constructPostElement(post);
-                MathJax.Hub.Queue(["Typeset", MathJax.Hub, post_elem[0]]);
+            var post_elem = constructPostElement(post);
+            MathJax.Hub.Queue(["Typeset", MathJax.Hub, post_elem[0]]);
 
-                var col = $("#column-" + i);
-                if (post.user.user_id === readFromStorage('user_id')) {
-                    col.find(".new_msg_notifier").click();
-                    post_elem.insertAfter(col.find(".comment-entry"));
-                }
-                else {
-                    if (typeof new_posts[i] === "undefined") {
-                        new_posts[i] = [];
-                    }
-                    new_posts[i].push(post_elem);
-                    if (col.find(".new_msg_notifier").length === 0) {
-                        var notifier = $('<div class="new_msg_notifier"></div>');
-                        notifier.insertAfter(col.find(".comment-entry"));
-                        notifier.on("click", function(e) {
-                            new_posts[i].forEach(function(new_post) {
-                                new_post.insertAfter(notifier);
-                            });
-                            new_posts[i] = [];
-                            $(this).remove();
-                        });
-                    }
-                    col.find(".new_msg_notifier").text(new_posts[i].length + "件の新着");
-                }
+            var col = $("#column-" + i);
+            if (post.user.user_id === readFromStorage('user_id')) {
+                col.find(".new_msg_notifier").click();
+                post_elem.insertAfter(col.find(".comment-entry"));
             }
+            else {
+                if (typeof new_posts[i] === "undefined") {
+                    new_posts[i] = [];
+                }
+                new_posts[i].push(post_elem);
+                if (col.find(".new_msg_notifier").length === 0) {
+                    var notifier = $('<div class="new_msg_notifier"></div>');
+                    notifier.insertAfter(col.find(".comment-entry"));
+                    notifier.on("click", function(e) {
+                        new_posts[i].forEach(function(new_post) {
+                            new_post.insertAfter(notifier);
+                        });
+                        new_posts[i] = [];
+                        $(this).remove();
+                    });
+                }
+                col.find(".new_msg_notifier").text(new_posts[i].length + "件の新着");
+            }
+        }
+    }
+
+    function showPostAllColumns(post) {
+        columns.forEach(function(col_def, i) {
+            showPost(post, col_def, i);
         });
     }
 
@@ -348,11 +352,11 @@ var Xpt = (function() {
                 goToNextSlide();
             }
             else if (msg.type === "post") {
-                showPost(msg);
+                showPostAllColumns(msg);
                 posts.push(msg);
             }
             else if (msg.type === "archived-posts") {
-                msg.posts.forEach(showPost);
+                msg.posts.forEach(showPostAllColumns);
                 posts = posts.concat(msg.posts);
                 $('.new_msg_notifier').click();
             }
