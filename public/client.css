@@ -357,10 +357,6 @@ textarea:focus {
     white-space: pre-wrap;
 }
 
-.content strong {
-    color: red;
-}
-
 .content .hashtag {
     color: #45A1CF;
     cursor: pointer;
