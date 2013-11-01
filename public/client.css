@@ -357,11 +357,11 @@ textarea:focus {
     white-space: pre-wrap;
 }
 
-.content .hashtag {
+.hashtag {
     color: #45A1CF;
     cursor: pointer;
 }
 
-.content .hashtag:hover {
+.hashtag:hover {
     text-decoration: underline;
 }
