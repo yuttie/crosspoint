@@ -300,6 +300,7 @@ var Xpt = (function() {
             else if (refs.length > 0) {
                 refs.each(function(_, ref) {
                     var refed_post = $($(ref).attr("href")).clone(true);
+                    refed_post.attr("id", null);
                     refed_post.find(".related-content").empty();
                     refed_post.appendTo(rel_content_elem);
                 });
