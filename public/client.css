@@ -314,6 +314,7 @@ textarea:focus {
     margin-top: 0.5em;
     padding-top: 0.5em;
     border-top: 1px solid #eee;
+    cursor: pointer;
 }
 
 .header {
