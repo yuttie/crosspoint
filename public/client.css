@@ -353,14 +353,14 @@ textarea:focus {
 
 .content {
     padding: 0em;
-    padding-left: 2em;
+    padding-left: 1em;
     white-space: pre-wrap;
 }
 
 .related-content {
     background-color: #f0f0f0;
     border-left: 0.2em solid #ccc;
-    margin-left: 2em;
+    margin-left: 1em;
     padding-left: 0.5em;
 }
 
