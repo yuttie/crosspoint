@@ -276,22 +276,6 @@ var Xpt = (function() {
                 $("<div>", { "class": "content" })
                     .text(post.content),
                 $("<div>", { "class": "related-content" })]);
-        var content_elem = post_elem.find(".content");
-        content_elem.html(function(_, html) {
-            html = html.replace(HASHTAG_REGEXP, function(hashtag) {
-                return '<span class="hashtag">' + hashtag + '</span>';
-            });
-            html = html.replace(REF_REGEXP, function(ref, post_num) {
-                return '<a class="ref" href="#post-' + post_num + '">' + ref + '</a>';
-            });
-            html = html.replace(URL_REGEXP, function(url) {
-                return '<a class="url" href="' + url + '">' + url + '</a>';
-            });
-            return html;
-        });
-        content_elem.find(".ref").on("click", function(e) {
-            e.stopPropagation();
-        });
         post_elem.on("click", function(e) {
             var refs = $(this).find(".ref");
             var rel_content_elem = $(this).find(".related-content");
@@ -308,6 +292,22 @@ var Xpt = (function() {
                 });
                 e.stopPropagation();
             }
+        });
+        var content_elem = post_elem.find(".content");
+        content_elem.html(function(_, html) {
+            html = html.replace(HASHTAG_REGEXP, function(hashtag) {
+                return '<span class="hashtag">' + hashtag + '</span>';
+            });
+            html = html.replace(REF_REGEXP, function(ref, post_num) {
+                return '<a class="ref" href="#post-' + post_num + '">' + ref + '</a>';
+            });
+            html = html.replace(URL_REGEXP, function(url) {
+                return '<a class="url" href="' + url + '">' + url + '</a>';
+            });
+            return html;
+        });
+        content_elem.find(".ref").on("click", function(e) {
+            e.stopPropagation();
         });
         content_elem.find(".hashtag").on("click", function(e) {
             addColumnForHashtag($(this).text());
