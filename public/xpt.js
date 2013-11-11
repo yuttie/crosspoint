@@ -289,6 +289,9 @@ var Xpt = (function() {
             });
             return html;
         });
+        content_elem.find(".ref").on("click", function(e) {
+            e.stopPropagation();
+        });
         post_elem.on("click", function(e) {
             var refs = $(this).find(".ref");
             var rel_content_elem = $(this).find(".related-content");
