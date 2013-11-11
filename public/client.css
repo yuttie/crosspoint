@@ -341,6 +341,10 @@ textarea:focus {
     color: silver;
 }
 
+.post:hover .user-id {
+    color: #aaa;
+}
+
 .user-id::before {
     content: "("
 }
@@ -354,6 +358,10 @@ textarea:focus {
     right: 0;
     color: silver;
     font-size: 0.8em;
+}
+
+.post:hover .time {
+    color: #aaa;
 }
 
 .content {
