@@ -357,6 +357,13 @@ textarea:focus {
     white-space: pre-wrap;
 }
 
+.related-content {
+    background-color: #f0f0f0;
+    border-left: 0.2em solid #ccc;
+    margin-left: 2em;
+    padding-left: 0.5em;
+}
+
 .hashtag {
     color: #45A1CF;
     cursor: pointer;

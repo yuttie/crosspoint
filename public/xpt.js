@@ -274,7 +274,8 @@ var Xpt = (function() {
                                 , title: formatFullPostDate(date) })
                         .text(formatPostDate(date))]),
                 $("<div>", { "class": "content" })
-                    .text(post.content)]);
+                    .text(post.content),
+                $("<div>", { "class": "related-content" })]);
         var content_elem = post_elem.find(".content");
         content_elem.html(function(_, html) {
             html = html.replace(HASHTAG_REGEXP, function(hashtag) {
@@ -288,6 +289,22 @@ var Xpt = (function() {
                 return '<a class="url" href="' + url + '">' + url + '</a>';
             });
             return html;
+        });
+        post_elem.on("click", function(e) {
+            var refs = $(this).find(".ref");
+            var rel_content_elem = $(this).find(".related-content");
+            if (rel_content_elem.children().length > 0) {
+                rel_content_elem.empty();
+                e.stopPropagation();
+            }
+            else if (refs.length > 0) {
+                refs.each(function(_, ref) {
+                    var refed_post = $($(ref).attr("href")).clone(true);
+                    refed_post.find(".related-content").empty();
+                    refed_post.appendTo(rel_content_elem);
+                });
+                e.stopPropagation();
+            }
         });
         content_elem.find(".hashtag").on("click", function(e) {
             addColumnForHashtag($(this).text());
