@@ -377,6 +377,7 @@ textarea:focus {
 
 .related-content {
     border-left: 0.2em solid #ccc;
+    margin-top: 0.5em;
     margin-left: 1em;
     padding-left: 0.5em;
 }
