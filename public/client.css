@@ -357,6 +357,11 @@ textarea:focus {
     white-space: pre-wrap;
 }
 
+.related-content .post:nth-child(1) {
+    margin-top: 0;
+    padding-top: 0;
+}
+
 .related-content {
     background-color: #f0f0f0;
     border-left: 0.2em solid #ccc;
