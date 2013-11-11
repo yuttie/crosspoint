@@ -390,6 +390,10 @@ textarea:focus {
     text-decoration: underline;
 }
 
+.ref {
+    color: #45A1CF;
+}
+
 .footer {
     position: relative;
     color: #ccc;

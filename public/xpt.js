@@ -262,7 +262,7 @@ var Xpt = (function() {
     function constructPostElement(post) {
         var date = new Date(post.time);
         var post_elem =
-            $("<div>", { "class": "post", id: "post-" + post.number }).append([
+            $("<div>", { "class": "post post-" + post.number }).append([
                 $("<div>", { "class": "header" }).append([
                     $("<span>", { "class": "number" })
                         .text(post.number),
@@ -288,8 +288,8 @@ var Xpt = (function() {
             }
             else if (refs.length > 0) {
                 refs.each(function(_, ref) {
-                    var refed_post = $($(ref).attr("href")).clone(true);
-                    refed_post.attr("id", null);
+                    var ref_num = $(ref).data("ref");
+                    var refed_post = $(".post-" + ref_num).first().clone(true);
                     refed_post.find(".related-content").empty();
                     refed_post.appendTo(rel_content_elem);
                 });
@@ -302,15 +302,12 @@ var Xpt = (function() {
                 return '<span class="hashtag">' + hashtag + '</span>';
             });
             html = html.replace(REF_REGEXP, function(ref, post_num) {
-                return '<a class="ref" href="#post-' + post_num + '">' + ref + '</a>';
+                return '<span class="ref" data-ref="' + post_num + '">' + ref + '</span>';
             });
             html = html.replace(URL_REGEXP, function(url) {
                 return '<a class="url" href="' + url + '">' + url + '</a>';
             });
             return html;
-        });
-        content_elem.find(".ref").on("click", function(e) {
-            e.stopPropagation();
         });
         content_elem.find(".hashtag").on("click", function(e) {
             addColumnForHashtag($(this).text());
