@@ -282,7 +282,6 @@ var Xpt = (function() {
                 return '<span class="hashtag">' + hashtag + '</span>';
             });
             html = html.replace(REF_REGEXP, function(ref, post_num) {
-                console.log(ref);
                 return '<a class="ref" href="#post-' + post_num + '">' + ref + '</a>';
             });
             html = html.replace(URL_REGEXP, function(url) {
