@@ -275,6 +275,9 @@ var Xpt = (function() {
                         .text(formatPostDate(date))]),
                 $("<div>", { "class": "content" })
                     .text(post.content),
+                $("<div>", { "class": "footer" }).append([
+                    $("<span>", { "class": "reply" })
+                        .text("返信")]),
                 $("<div>", { "class": "related-content" })]);
         post_elem.on("click", function(e) {
             var refs = $(this).find(".ref");
@@ -311,6 +314,13 @@ var Xpt = (function() {
         });
         content_elem.find(".hashtag").on("click", function(e) {
             addColumnForHashtag($(this).text());
+        });
+        var footer_elem = post_elem.find(".footer");
+        footer_elem.find(".reply").on("click", function(e) {
+            var entry = $(this).parents(".column").find(".comment-entry");
+            entry.val(">>" + post.number + " " + entry.val());
+            entry.focus();
+            e.stopPropagation();
         });
 
         return post_elem;

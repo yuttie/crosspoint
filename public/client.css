@@ -389,3 +389,23 @@ textarea:focus {
 .hashtag:hover {
     text-decoration: underline;
 }
+
+.footer {
+    position: relative;
+    color: #ccc;
+    text-align: right;
+    font-size: 0.8em;
+}
+
+.post:hover .footer > * {
+    color: #aaa;
+}
+
+.post:hover .footer > *:hover {
+    color: #45A1CF;
+}
+
+.reply::before {
+    content: "↶";
+    margin-right: 0.2em;
+}
