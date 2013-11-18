@@ -97,12 +97,14 @@ var Xpt = (function() {
         var entry = col.find(".comment-entry");
         entry.on('keypress', function(e) {
             if (!e.ctrlKey && e.which === 13) {
-                // send if the content is not empty
-                var s = $(this).val();
-                if (s.length > 0) {
-                    var msg = { 'type': 'post', 'content': s };
-                    if (col_def.out_filter(msg)) {
-                        send_message_with_user_id(col_def.out_map(msg), function() { entry.val(''); });
+                if ($("#status").hasClass("online")) {
+                    // send if the content is not empty
+                    var s = $(this).val();
+                    if (s.length > 0) {
+                        var msg = { 'type': 'post', 'content': s };
+                        if (col_def.out_filter(msg)) {
+                            send_message_with_user_id(col_def.out_map(msg), function() { entry.val(''); });
+                        }
                     }
                 }
                 e.preventDefault();
